@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -46,7 +45,7 @@ const Header = () => {
       {/* Navigation */}
       <nav className="hidden md:flex items-center space-x-8 font-medium text-base">
         <div
-          onClick={() => handleRedirect("/browse-courses")}
+          onClick={() => handleRedirect("/courses")}
           className="text-gray-700 hover:text-cyan-500 transition-colors cursor-pointer"
         >
           Courses
