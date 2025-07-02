@@ -118,7 +118,7 @@ const Header = () => {
             Login
           </div>
           <div
-            onClick={() => handleRedirect("/register")}
+            onClick={() => handleRedirect("/signup")}
           >
             <Button className="bg-cyan-500 hover:bg-cyan-600 cursor-pointer">Register</Button>
           </div>

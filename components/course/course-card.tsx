@@ -1,7 +1,9 @@
 import { Users, Star } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "nextjs-toploader/app"
 
 interface CourseCardProps {
+  id: number
   category: string
   categoryColor: string
   title: string
@@ -15,6 +17,7 @@ interface CourseCardProps {
 }
 
 export function CourseCard({
+  id,
   category,
   categoryColor,
   title,
@@ -26,11 +29,17 @@ export function CourseCard({
   discount,
   image,
 }: CourseCardProps) {
+  const router = useRouter()
+
+  const handleClick = () => {
+    router.push(`/courses/${id}`)
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-200">
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-200 cursor-pointer" onClick={handleClick}>
       {/* Course Image */}
       <div className="relative w-full h-48 p-3">
-        <Image src={image || "/images/courses_placeholder.jpg"} alt={title} width={350} height={200} className="w-full h-full object-cover rounded-lg overflow-hidden" />
+        <Image src={image || "/images/course_placeholder.jpg"} alt={title} width={350} height={200} className="w-full h-full object-cover rounded-lg overflow-hidden" />
       </div>
 
       {/* Course Content */}

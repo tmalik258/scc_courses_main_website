@@ -120,3 +120,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+@theme {
+  /* colors */
+  --color-sky-tint: #CFE7FB;
+  --color-sky-ice: #EBF9FF;
+  --color-sky-frost: #F3FBFF;
+  --color-sky-base: #0F5B9C;
+
+  /* font family */
+  --font-dm-sans: var(--font-dm-sans);
+}

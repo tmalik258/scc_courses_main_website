@@ -31,7 +31,7 @@ export function ContactForm() {
   }
 
   return (
-    <section className="px-6 py-16 bg-[#F3FBFF]">
+    <section className="px-6 py-16 bg-sky-frost">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

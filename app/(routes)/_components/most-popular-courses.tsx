@@ -17,7 +17,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 3,
@@ -43,7 +43,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 4,
@@ -56,7 +56,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 5,
@@ -69,7 +69,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 6,
@@ -82,7 +82,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 7,
@@ -95,7 +95,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 8,
@@ -108,7 +108,7 @@ const coursesData = [
     originalPrice: "1,350",
     discountedPrice: "1,350",
     discount: "10% OFF",
-    image: "/images/courses_placeholder.jpg?height=200&width=350",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
 ]
 

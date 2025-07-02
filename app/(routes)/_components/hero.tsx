@@ -26,7 +26,7 @@ const Hero = () => {
             </button>
           </div>
           {/* Stats Section */}
-          <div className="flex justify-around mt-16 bg-[#EBF9FF] rounded-2xl p-5">
+          <div className="flex justify-around mt-16 bg-sky-ice rounded-2xl p-5">
             {stats.map((stat, index) => (
               <React.Fragment key={index}>
                 <div className="text-center">
