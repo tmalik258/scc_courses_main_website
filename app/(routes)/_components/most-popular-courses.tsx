@@ -141,6 +141,7 @@ export default function MostPopularCourses() {
           {filteredCourses.map((course) => (
             <CourseCard
               key={course.id}
+              id={course.id}
               category={course.category}
               categoryColor={course.categoryColor}
               title={course.title}
