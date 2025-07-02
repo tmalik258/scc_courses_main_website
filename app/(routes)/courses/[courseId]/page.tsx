@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   Users,
   Star,
@@ -19,11 +19,11 @@ import { CourseBreadcrumb } from "./_components/course-breadcrumb";
 import { CourseTabs } from "./_components/course-tabs";
 import { useRouter } from "nextjs-toploader/app";
 
-const CourseDetail = ({ params }: { params: { courseId: string } }) => {
+const CourseDetail = ({ params }: { params: Promise<{ courseId: string }> }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
   const router = useRouter();
-  const courseId = params.courseId;
+  const {courseId} = use(params);
 
 
   const learningPoints = [
