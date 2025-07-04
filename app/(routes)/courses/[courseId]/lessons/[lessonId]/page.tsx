@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { PaywallContent } from "./_components/paywall-content"
 import { LessonVideo } from "./_components/lesson-video"
 import { LessonNavigation } from "./_components/lesson-navigation"
@@ -9,12 +9,18 @@ import { CourseSidebar } from "./_components/course-sidebar"
 
 export default function LessonPage({ params }: { params: Promise<{ courseId: string; lessonId: string }> }) {
   const { courseId, lessonId } = use(params);
+  // To test free course behavior, change isPaid to false
+  const [isPaid, setIsPaid] = useState(false) // Set to true for paid course, false for free
   const [expandedSections, setExpandedSections] = useState<number[]>([1])
   const [sidebarActiveTab, setSidebarActiveTab] = useState("lessons")
   const [isPaidLesson, setIsPaidLesson] = useState(false)
   const [currentLesson, setCurrentLesson] = useState("what-is-automation");
 
   console.log("Current Lesson ID:", lessonId);
+
+  useEffect(() => {
+    setIsPaid(false)
+  }, []);
 
   // Course sections data
   const courseSections = [
@@ -149,7 +155,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
   }
 
   const handleLessonClick = (lessonId: string, isLocked: boolean) => {
-    if (isLocked) {
+    if (isLocked && !isPaid) {
       setIsPaidLesson(true)
     } else {
       setIsPaidLesson(false)
@@ -230,7 +236,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Content - 3/4 width */}
           <div className="lg:col-span-3">
-            {isPaidLesson ? (
+            {isPaidLesson && !isPaid ? (
               <PaywallContent
                 courseId={courseId}
                 lessonTitle={getCurrentLessonTitle()}
@@ -254,6 +260,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
 
           {/* Right Sidebar - 1/4 width */}
           <CourseSidebar
+            isPaid={isPaid}
             activeTab={sidebarActiveTab}
             onTabChange={setSidebarActiveTab}
             sections={courseSections}

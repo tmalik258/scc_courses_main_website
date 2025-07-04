@@ -16,6 +16,7 @@ interface Section {
 }
 
 interface LessonListProps {
+  isPaid: boolean
   sections: Section[]
   expandedSections: number[]
   currentLesson: string
@@ -24,6 +25,7 @@ interface LessonListProps {
 }
 
 export function LessonList({
+  isPaid,
   sections,
   expandedSections,
   currentLesson,
@@ -81,7 +83,7 @@ export function LessonList({
                     >
                       {lesson.title}
                     </span>
-                    {lesson.locked && <Lock className="w-3 h-3 ml-2 text-gray-400" />}
+                    {lesson.locked && !isPaid && <Lock className="w-3 h-3 ml-2 text-gray-400" />}
                   </div>
                 </button>
               ))}

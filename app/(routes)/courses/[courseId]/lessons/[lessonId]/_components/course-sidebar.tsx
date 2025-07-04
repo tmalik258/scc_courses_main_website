@@ -1,32 +1,34 @@
-import { FilesList } from "./files-list"
-import { LearningProgress } from "./learning-progress"
-import { LessonList } from "./lesson-list"
-import { SidebarTabs } from "./sidebar-tabs"
+import { FilesList } from "./files-list";
+import { LearningProgress } from "./learning-progress";
+import { LessonList } from "./lesson-list";
+import { SidebarTabs } from "./sidebar-tabs";
 
 interface Lesson {
-  id: string
-  title: string
-  completed: boolean
-  locked: boolean
+  id: string;
+  title: string;
+  completed: boolean;
+  locked: boolean;
 }
 
 interface Section {
-  id: number
-  title: string
-  lessons: Lesson[]
+  id: number;
+  title: string;
+  lessons: Lesson[];
 }
 
 interface CourseSidebarProps {
-  activeTab: string
-  onTabChange: (tab: string) => void
-  sections: Section[]
-  expandedSections: number[]
-  currentLesson: string
-  onToggleSection: (sectionId: number) => void
-  onLessonClick: (lessonId: string, isLocked: boolean) => void
+  isPaid: boolean;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  sections: Section[];
+  expandedSections: number[];
+  currentLesson: string;
+  onToggleSection: (sectionId: number) => void;
+  onLessonClick: (lessonId: string, isLocked: boolean) => void;
 }
 
 export function CourseSidebar({
+  isPaid,
   activeTab,
   onTabChange,
   sections,
@@ -43,21 +45,21 @@ export function CourseSidebar({
         {activeTab === "lessons" ? (
           <>
             <LessonList
+              isPaid={isPaid}
               sections={sections}
               expandedSections={expandedSections}
               currentLesson={currentLesson}
               onToggleSection={onToggleSection}
               onLessonClick={onLessonClick}
             />
-            <LearningProgress />
           </>
         ) : (
           <>
             <FilesList />
-            <LearningProgress showJoinButton />
           </>
         )}
+        <LearningProgress isPaid={isPaid} />
       </div>
     </div>
-  )
+  );
 }
