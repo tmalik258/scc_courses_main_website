@@ -22,7 +22,7 @@ export function Footer() {
             <span className="text-gray-700">WhatsApp us on</span>
             <a
               href="https://wa.me/919773603818"
-              className="text-blue-500 hover:text-blue-600 transition-colors"
+              className="text-aqua-mist hover:text-aqua-depth transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >

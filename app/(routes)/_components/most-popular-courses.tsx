@@ -126,15 +126,15 @@ export default function MostPopularCourses() {
     activeFilter === "All" ? coursesData : coursesData.filter((course) => course.category === activeFilter)
 
   return (
-    <section className="bg-aqua-mist px-6 py-12">
+    <section className="bg-aqua-mist px-2 sm:px-6 py-12">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex max-sm:flex-col max-sm:gap-4 items-center justify-between mb-4 sm:mb-8">
           <div>
             <h2 className="text-3xl font-bold text-white mb-2">Most Popular Courses</h2>
             <p className="text-white/90">Master top tech skills with our most popular courses!</p>
           </div>
-          <button className="flex items-center gap-2 text-white hover:text-white/80 transition-colors font-manrope">
+          <button className="flex max-sm:self-end sm:items-center gap-2 text-white hover:text-white/80 transition-colors font-manrope">
             <span>View More</span>
             <svg
               width="24"
@@ -155,7 +155,7 @@ export default function MostPopularCourses() {
         <CourseFilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {filteredCourses.map((course) => (
             <CourseCard
               key={course.id}

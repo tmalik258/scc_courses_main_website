@@ -32,7 +32,7 @@ export function ContactForm() {
   }
 
   return (
-    <section className="px-6 py-16 bg-sky-frost/80">
+    <section className="px-6 py-8 sm:py-16 bg-sky-frost/80">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
@@ -57,7 +57,7 @@ export function ContactForm() {
                 placeholder="Your Name..."
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                className="w-full rounded-xs"
+                className="w-full sm:rounded-xs"
                 required
               />
             </div>
@@ -72,7 +72,7 @@ export function ContactForm() {
                 placeholder="Email id"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full rounded-xs"
+                className="w-full sm:rounded-xs"
                 required
               />
             </div>
@@ -85,7 +85,7 @@ export function ContactForm() {
                 Query Type
               </label>
               <Select value={formData.queryType} onValueChange={(value) => handleInputChange("queryType", value)}>
-                <SelectTrigger className="w-full rounded-xs">
+                <SelectTrigger className="w-full sm:rounded-xs">
                   <SelectValue placeholder="Select query type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -110,7 +110,7 @@ export function ContactForm() {
                 placeholder="Phone number"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="w-full rounded-xs"
+                className="w-full sm:rounded-xs"
               />
             </div>
           </div>
@@ -125,14 +125,14 @@ export function ContactForm() {
               placeholder="Type your message here..."
               value={formData.message}
               onChange={(e) => handleInputChange("message", e.target.value)}
-              className="w-full min-h-32 resize-none rounded-xs"
+              className="w-full min-h-32 resize-none sm:rounded-xs"
               required
             />
           </div>
 
           {/* Submit Button */}
           <div className="text-center">
-            <Button type="submit" className="bg-aqua-mist hover:bg-aqua-depth text-white w-1/2 py-3 text-lg rounded-xs font-medium">
+            <Button type="submit" className="bg-aqua-mist hover:bg-aqua-depth text-white w-1/2 py-3 text-lg sm:rounded-xs font-medium">
               Send message
             </Button>
           </div>

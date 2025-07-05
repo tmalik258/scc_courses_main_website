@@ -69,11 +69,11 @@ const Categories = () => {
   ];
 
   return (
-    <section className="px-6 py-16">
+    <section className="px-6 py-6 md:py-16">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-12">
+        <div className="flex justify-between items-center max-md:flex-col max-md:items-start max-md:gap-3 mb-12 max-md:mb-2">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl md:text-xl font-bold text-gray-900 mb-2">
               Find the Right Course Category for You
             </h2>
             <p className="text-gray-600">
@@ -83,7 +83,7 @@ const Categories = () => {
           </div>
           <Link
             href="/courses"
-            className="text-aqua-mist hover:text-aqua-depth font-semibold flex items-center space-x-1 font-manrope"
+            className="text-aqua-mist hover:text-aqua-depth font-semibold flex items-center space-x-1 font-manrope max-md:self-end"
           >
             <span>View More</span>
             <svg
@@ -109,7 +109,7 @@ const Categories = () => {
             >
               <div className="flex space-x-4 h-full">
                 <div
-                  className={`w-24 h-full ${category.bgColor} rounded-lg flex items-center justify-center`}
+                  className={`w-20 sm:w-24 h-full ${category.bgColor} rounded-lg flex items-center justify-center`}
                 >
                   {category.image ? (
                     <span>
@@ -126,13 +126,13 @@ const Categories = () => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                     {category.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-5 font-manrope">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-5 font-manrope">
                     {category.courses}
                   </p>
-                  <p className="text-aqua-mist font-semibold">
+                  <p className="text-sm sm:text-base text-aqua-mist font-semibold">
                     {category.price}
                   </p>
                 </div>
