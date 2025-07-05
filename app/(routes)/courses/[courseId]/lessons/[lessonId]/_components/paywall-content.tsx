@@ -32,7 +32,7 @@ export function PaywallContent({ courseId, lessonTitle, onPrevious, onNext }: Pa
         hands-on modules, and exclusive webinars curated by experts from top companies.
       </p>
 
-      <Button className="bg-sky-400 hover:bg-sky-500 text-white px-8 py-3 text-lg mb-8 cursor-pointer" onClick={handleBuyNow}>Buy Now</Button>
+      <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-8 py-3 text-lg mb-8 cursor-pointer" onClick={handleBuyNow}>Buy Now</Button>
 
       {/* Bottom Navigation */}
       <div className="flex items-center justify-between w-full max-w-2xl mt-16">

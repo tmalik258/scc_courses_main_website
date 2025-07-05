@@ -41,7 +41,7 @@ export function CertificateCard({ category, categoryColor, title, completedDate,
         </div>
 
         {/* Download Button */}
-        <Button className="w-full bg-sky-400 hover:bg-sky-500 text-white flex items-center justify-center space-x-2">
+        <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white flex items-center justify-center space-x-2">
           <Download className="w-4 h-4" />
           <span>Download Certificate</span>
         </Button>

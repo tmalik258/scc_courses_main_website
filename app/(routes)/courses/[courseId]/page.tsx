@@ -202,18 +202,18 @@ const CourseDetail = ({ params }: { params: Promise<{ courseId: string }> }) => 
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <Button className="w-full bg-sky-400 hover:bg-sky-500 text-white py-3 text-lg cursor-pointer" onClick={handleGetStarted}>
+                  <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-lg cursor-pointer" onClick={handleGetStarted}>
                     Get Started <Play className="inline-block w-4 h-4 ml-2" />
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full border-gray-300 text-sky-400 hover:bg-gray-50 py-3 bg-transparent cursor-pointer"
+                    className="w-full border-gray-300 text-aqua-mist hover:bg-gray-50 py-3 bg-transparent cursor-pointer"
                     onClick={() => setIsFavorite(!isFavorite)}
                   >
                     {isFavorite ? "Remove from Favorite" : "Add to Favorite"}
                     <Bookmark
                       className={`w-4 h-4 ml-2 ${
-                        isFavorite ? "fill-current text-sky-400" : ""
+                        isFavorite ? "fill-current text-aqua-mist" : ""
                       }`}
                     />
                   </Button>

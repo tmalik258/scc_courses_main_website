@@ -18,7 +18,7 @@ export function PromoCode() {
           onChange={(e) => setPromoCode(e.target.value)}
           className="flex-1"
         />
-        <Button variant="outline" className="px-6 bg-transparent border-sky-400 text-sky-400 hover:bg-sky-50">
+        <Button variant="outline" className="px-6 bg-transparent border-aqua-mist text-aqua-mist hover:bg-sky-50">
           Apply
         </Button>
       </div>

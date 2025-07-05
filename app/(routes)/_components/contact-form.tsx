@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Image from "next/image"
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
@@ -31,14 +32,14 @@ export function ContactForm() {
   }
 
   return (
-    <section className="px-6 py-16 bg-sky-frost">
+    <section className="px-6 py-16 bg-sky-frost/80">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="mb-12">
+          <h2 className="text-3xl font-medium text-[#333333] mb-2">
             Love to hear from you,
             <br />
-            Get in touch 👋
+            Get in touch <Image src="/images/icons/hand.png" alt="heart" width={40} height={40} className="inline-block" />
           </h2>
         </div>
 
@@ -56,7 +57,7 @@ export function ContactForm() {
                 placeholder="Your Name..."
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                className="w-full"
+                className="w-full rounded-xs"
                 required
               />
             </div>
@@ -71,7 +72,7 @@ export function ContactForm() {
                 placeholder="Email id"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full"
+                className="w-full rounded-xs"
                 required
               />
             </div>
@@ -84,7 +85,7 @@ export function ContactForm() {
                 Query Type
               </label>
               <Select value={formData.queryType} onValueChange={(value) => handleInputChange("queryType", value)}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full rounded-xs">
                   <SelectValue placeholder="Select query type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -109,7 +110,7 @@ export function ContactForm() {
                 placeholder="Phone number"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="w-full"
+                className="w-full rounded-xs"
               />
             </div>
           </div>
@@ -124,14 +125,14 @@ export function ContactForm() {
               placeholder="Type your message here..."
               value={formData.message}
               onChange={(e) => handleInputChange("message", e.target.value)}
-              className="w-full min-h-32 resize-none"
+              className="w-full min-h-32 resize-none rounded-xs"
               required
             />
           </div>
 
           {/* Submit Button */}
           <div className="text-center">
-            <Button type="submit" className="bg-sky-400 hover:bg-sky-500 text-white px-12 py-3 text-lg">
+            <Button type="submit" className="bg-aqua-mist hover:bg-aqua-depth text-white w-1/2 py-3 text-lg rounded-xs font-medium">
               Send message
             </Button>
           </div>

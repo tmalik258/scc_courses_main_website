@@ -132,14 +132,14 @@ export function SignupForm() {
         {/* Terms Agreement */}
         <div className="text-sm text-gray-600">
           By creating an account, you agree to our{" "}
-          <Link href="/service-policy" className="text-sky-400 hover:text-sky-500">
+          <Link href="/service-policy" className="text-aqua-mist hover:text-aqua-depth">
             Service Policy
           </Link>
           .
         </div>
 
         {/* Sign up Button */}
-        <Button type="submit" className="w-full bg-sky-400 hover:bg-sky-500 text-white py-3">
+        <Button type="submit" className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3">
           Sign up
         </Button>
       </form>
@@ -178,7 +178,7 @@ export function SignupForm() {
       {/* Login Link */}
       <div className="text-center">
         <span className="text-gray-600">Have an account? </span>
-        <Link href="/login" className="text-sky-400 hover:text-sky-500 font-medium">
+        <Link href="/login" className="text-aqua-mist hover:text-aqua-depth font-medium">
           Log in
         </Link>
       </div>

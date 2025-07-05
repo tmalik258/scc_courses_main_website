@@ -100,7 +100,7 @@ export function PaymentCard({
             {status === "pending" && timeLeft && (
               <p>
                 <span className="font-medium">To pay in</span>{" "}
-                <span className="text-sky-500 font-medium">{timeLeft}</span>
+                <span className="text-aqua-depth font-medium">{timeLeft}</span>
               </p>
             )}
             {status === "failed" && reason && (
@@ -124,17 +124,17 @@ export function PaymentCard({
         {/* Action Buttons */}
         <div className="flex-shrink-0 space-y-2">
           {status === "success" && (
-            <Button onClick={handleTransactionDetail} className="bg-sky-400 hover:bg-sky-500 text-white px-6">
+            <Button onClick={handleTransactionDetail} className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">
               Transaction Detail
             </Button>
           )}
-          {status === "failed" && <Button className="bg-sky-400 hover:bg-sky-500 text-white px-6">Buy Again</Button>}
+          {status === "failed" && <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">Buy Again</Button>}
           {status === "pending" && (
             <div className="space-y-2">
-              <Button variant="outline" className="w-full bg-transparent border-sky-400 text-sky-400 hover:bg-sky-50">
+              <Button variant="outline" className="w-full bg-transparent border-aqua-mist text-aqua-mist hover:bg-sky-50">
                 Change Method
               </Button>
-              <Button className="w-full bg-sky-400 hover:bg-sky-500 text-white">Pay</Button>
+              <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white">Pay</Button>
             </div>
           )}
         </div>

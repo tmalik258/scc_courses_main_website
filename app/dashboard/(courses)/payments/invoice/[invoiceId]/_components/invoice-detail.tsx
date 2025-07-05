@@ -67,7 +67,7 @@ export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, ca
       <div className="flex justify-end">
         <Button
           onClick={handleDownloadInvoice}
-          className="bg-sky-400 hover:bg-sky-500 text-white flex items-center space-x-2"
+          className="bg-aqua-mist hover:bg-aqua-depth text-white flex items-center space-x-2"
         >
           <Download className="w-4 h-4" />
           <span>Download Invoice</span>

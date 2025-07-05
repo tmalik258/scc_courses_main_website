@@ -30,7 +30,7 @@ export function CourseHeader() {
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
             <button className="text-gray-600 hover:text-gray-800">Log in</button>
-            <button className="bg-sky-400 hover:bg-sky-500 text-white px-4 py-2 rounded-lg">Sign up</button>
+            <button className="bg-aqua-mist hover:bg-aqua-depth text-white px-4 py-2 rounded-lg">Sign up</button>
           </div>
         </div>
       </div>

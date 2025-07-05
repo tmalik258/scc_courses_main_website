@@ -86,7 +86,7 @@ export function PaymentMethodModal({ isOpen, onClose, onNext }: PaymentMethodMod
                       value={option.id}
                       checked={selectedMethod === option.id}
                       onChange={(e) => setSelectedMethod(e.target.value)}
-                      className="w-4 h-4 text-sky-400 border-gray-300 focus:ring-sky-400"
+                      className="w-4 h-4 text-aqua-mist border-gray-300 focus:ring-aqua-mist"
                     />
                     <div className="flex items-center space-x-3">
                       <span className="text-lg">{option.icon}</span>
@@ -103,7 +103,7 @@ export function PaymentMethodModal({ isOpen, onClose, onNext }: PaymentMethodMod
           <Button
             onClick={handleNext}
             disabled={!selectedMethod}
-            className="bg-sky-400 hover:bg-sky-500 text-white px-8 py-2"
+            className="bg-aqua-mist hover:bg-aqua-depth text-white px-8 py-2"
           >
             Next
           </Button>

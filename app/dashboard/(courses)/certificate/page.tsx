@@ -11,7 +11,7 @@ export default function CertificatesPage() {
     },
     {
       category: "Web Development",
-      categoryColor: "bg-cyan-500",
+      categoryColor: "bg-aqua-mist",
       title: "Responsive Web Design with HTML, CSS & Flexbox",
       completedDate: "5 Feb 2025",
       certificateImage: "/images/course_placeholder.jpg?height=200&width=300",

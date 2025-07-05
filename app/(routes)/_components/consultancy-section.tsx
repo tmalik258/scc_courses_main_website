@@ -13,8 +13,8 @@ export function ConsultancySection() {
           {/* Company Info */}
           <div className="flex items-center gap-6 mb-6">
             {/* Logo */}
-            <div className="w-40 h-40 rounded-full flex items-center justify-center flex-shrink-0 grayscale bg-gray-500">
-              <Image src="/images/landing_page/hv_technologies_logo.png" alt="consultancy firm logo" width={96} height={96} className="grayscale w-full h-full object-contain px-3" />
+            <div className="w-56 h-auto flex items-center justify-center flex-shrink-0">
+              <Image src="/images/landing_page/hv_technologies_logo.png" alt="consultancy firm logo" width={96} height={96} className="filter invert brightness-65 w-full h-full object-contain" />
             </div>
           </div>
 
@@ -27,7 +27,7 @@ export function ConsultancySection() {
               embrace this fast.
             </p>
             {/* Visit Website Button */}
-            <Button className="bg-sky-400 hover:bg-sky-500 text-white px-8 py-3">
+            <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-8 py-3 font-manrope">
               Visit Website
             </Button>
           </div>

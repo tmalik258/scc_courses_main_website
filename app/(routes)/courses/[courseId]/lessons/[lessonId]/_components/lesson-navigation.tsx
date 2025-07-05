@@ -23,7 +23,7 @@ export function LessonNavigation({ lessonTitle, onPrevious, onNext, hasPrevious,
         >
           Previous
         </Button>
-        <Button className="bg-sky-400 hover:bg-sky-500 px-6" onClick={onNext} disabled={!hasNext}>
+        <Button className="bg-aqua-mist hover:bg-aqua-depth px-6" onClick={onNext} disabled={!hasNext}>
           Next Chapter
         </Button>
       </div>

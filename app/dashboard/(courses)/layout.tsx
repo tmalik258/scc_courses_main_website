@@ -96,7 +96,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 Dashboard
               </div>
               <ChevronRight className="w-4 h-4 mx-2" />
-              <span className="text-sky-400">{breadcrumbText}</span>
+              <span className="text-aqua-mist">{breadcrumbText}</span>
             </div>
           </div>
         )}

@@ -81,7 +81,7 @@ export function CourseCard({
 
         {/* Action Button */}
         <div className="flex-shrink-0">
-          <Button className="bg-sky-400 hover:bg-sky-500 text-white px-6">View Course</Button>
+          <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">View Course</Button>
         </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ export function LearningOverview() {
                 <p className="text-2xl font-bold text-gray-800">{card.count}</p>
               </div>
             </div>
-            <button className="flex items-center text-sky-400 hover:text-sky-500 text-sm font-medium cursor-pointer" onClick={() => handleCardClick(card.route)}>
+            <button className="flex items-center text-aqua-mist hover:text-aqua-depth text-sm font-medium cursor-pointer" onClick={() => handleCardClick(card.route)}>
               View Details
               <ArrowRight className="w-4 h-4 ml-1" />
             </button>

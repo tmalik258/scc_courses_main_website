@@ -35,7 +35,7 @@ export function LearningProgress({ isPaid }: LearningProgressProps) {
         </>
       ) : (
         // Join Course Button
-        <Button className="w-full bg-sky-400 hover:bg-sky-500 text-white py-3">
+        <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3">
           Join Course
         </Button>
       )}

@@ -62,7 +62,7 @@ export function MyCourseCard({
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  status === "finished" ? "bg-green-500" : "bg-sky-400"
+                  status === "finished" ? "bg-green-500" : "bg-aqua-mist"
                 }`}
                 style={{ width: `${progress}%` }}
               ></div>
@@ -72,7 +72,7 @@ export function MyCourseCard({
 
         {/* Action Button */}
         <div className="flex-shrink-0">
-          <Button className="bg-sky-400 hover:bg-sky-500 text-white px-6">View Course</Button>
+          <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">View Course</Button>
         </div>
       </div>
     </div>

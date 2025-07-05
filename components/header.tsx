@@ -46,25 +46,25 @@ const Header = () => {
       <nav className="hidden md:flex items-center space-x-8 font-medium text-base">
         <div
           onClick={() => handleRedirect("/courses")}
-          className="text-gray-700 hover:text-cyan-500 transition-colors cursor-pointer"
+          className="text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer"
         >
           Courses
         </div>
         <div
           onClick={() => handleRedirect("/about-us")}
-          className="text-gray-700 hover:text-cyan-500 transition-colors cursor-pointer"
+          className="text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer"
         >
           About Us
         </div>
         <div
           onClick={() => handleRedirect("/reviews")}
-          className="text-gray-700 hover:text-cyan-500 transition-colors cursor-pointer"
+          className="text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer"
         >
           Reviews
         </div>
         <div
           onClick={() => handleRedirect("/about-me")}
-          className="text-gray-700 hover:text-cyan-500 transition-colors cursor-pointer"
+          className="text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer"
         >
           About Me
         </div>
@@ -113,14 +113,14 @@ const Header = () => {
         <div className="flex items-center space-x-3">
           <div
             onClick={() => handleRedirect("/login")}
-            className="text-gray-700 hover:text-cyan-500 transition-colors cursor-pointer"
+            className="text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer"
           >
             Login
           </div>
           <div
             onClick={() => handleRedirect("/signup")}
           >
-            <Button className="bg-cyan-500 hover:bg-cyan-600 cursor-pointer">Register</Button>
+            <Button className="bg-aqua-mist hover:bg-aqua-depth cursor-pointer">Register</Button>
           </div>
         </div>
       )}

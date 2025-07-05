@@ -74,7 +74,7 @@ export default function PaymentSuccessPage({
           </Button>
           <Button
             onClick={handleStartLearning}
-            className="px-8 py-3 bg-sky-400 hover:bg-sky-500 text-white"
+            className="px-8 py-3 bg-aqua-mist hover:bg-aqua-depth text-white"
           >
             Start Learning Now
           </Button>

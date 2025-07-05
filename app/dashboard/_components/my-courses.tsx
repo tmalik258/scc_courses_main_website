@@ -41,7 +41,7 @@ export function MyCourses() {
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-800">My Course</h2>
-        <button className="flex items-center text-sky-400 hover:text-sky-500 text-sm font-medium">
+        <button className="flex items-center text-aqua-mist hover:text-aqua-depth text-sm font-medium">
           View All
           <ArrowRight className="w-4 h-4 ml-1" />
         </button>

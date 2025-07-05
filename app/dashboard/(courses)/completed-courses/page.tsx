@@ -16,7 +16,7 @@ export default function CompletedCourses() {
     },
     {
       category: "Web Development",
-      categoryColor: "bg-cyan-500",
+      categoryColor: "bg-aqua-mist",
       title: "Responsive Web Design with HTML, CSS & Flexbox",
       mentor: "Mentor's Name",
       currentLesson: 30,

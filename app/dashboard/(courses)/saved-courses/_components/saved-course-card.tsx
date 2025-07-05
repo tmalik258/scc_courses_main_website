@@ -75,7 +75,7 @@ export function SavedCourseCard({
           {/* Price */}
           <div className="flex items-center space-x-2">
             <span className="text-gray-400 line-through text-sm">{originalPrice}</span>
-            <span className="text-sky-500 font-bold text-lg">{discountedPrice}</span>
+            <span className="text-aqua-depth font-bold text-lg">{discountedPrice}</span>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export function SavedCourseCard({
           <button
             onClick={handleBookmarkToggle}
             className={`p-2 rounded-lg transition-colors ${
-              isSaved ? "text-sky-500 bg-sky-50" : "text-gray-400 hover:text-sky-500 hover:bg-sky-50"
+              isSaved ? "text-aqua-depth bg-sky-50" : "text-gray-400 hover:text-aqua-depth hover:bg-sky-50"
             }`}
           >
             <Bookmark className={`w-6 h-6 ${isSaved ? "fill-current" : ""}`} />

@@ -66,7 +66,7 @@ export default function PaymentFailPage({params}: {params: Promise<{courseId: st
           >
             Back to Home
           </Button>
-          <Button onClick={handleRetryPayment} className="px-8 py-3 bg-sky-400 hover:bg-sky-500 text-white">
+          <Button onClick={handleRetryPayment} className="px-8 py-3 bg-aqua-mist hover:bg-aqua-depth text-white">
             Retry Payment
           </Button>
         </div>

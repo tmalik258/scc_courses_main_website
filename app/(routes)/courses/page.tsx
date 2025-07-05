@@ -79,7 +79,7 @@ const allCoursesData = [
   {
     id: 5,
     category: "Web Development",
-    categoryColor: "bg-cyan-500",
+    categoryColor: "bg-aqua-mist",
     title: "Responsive Web Design with HTML, CSS & Flexbox",
     mentor: "Mentor's Name",
     students: "320+ students",
@@ -169,7 +169,7 @@ const allCoursesData = [
   {
     id: 11,
     category: "Web Development",
-    categoryColor: "bg-cyan-500",
+    categoryColor: "bg-aqua-mist",
     title: "Responsive Web Design with HTML, CSS & Flexbox",
     mentor: "Mentor's Name",
     students: "320+ students",

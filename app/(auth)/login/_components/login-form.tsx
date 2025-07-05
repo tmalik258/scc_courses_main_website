@@ -91,7 +91,7 @@ export function LoginForm() {
         </div>
 
         {/* Login Button */}
-        <Button type="submit" className="w-full bg-sky-400 hover:bg-sky-500 text-white py-3">
+        <Button type="submit" className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3">
           Log in
         </Button>
       </form>
@@ -99,7 +99,7 @@ export function LoginForm() {
       {/* Sign up Link */}
       <div className="text-center">
         <span className="text-gray-600">Haven&apos;t an account? </span>
-        <Link href="/signup" className="text-sky-400 hover:text-sky-500 font-medium">
+        <Link href="/signup" className="text-aqua-mist hover:text-aqua-depth font-medium">
           Sign up
         </Link>
       </div>

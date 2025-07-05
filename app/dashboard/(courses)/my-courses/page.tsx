@@ -55,7 +55,7 @@ export default function MyCoursesPage() {
     },
     {
       category: "Web Development",
-      categoryColor: "bg-cyan-500",
+      categoryColor: "bg-aqua-mist",
       title: "Responsive Web Design with HTML, CSS & Flexbox",
       mentor: "Mentor's Name",
       currentLesson: 30,
@@ -90,7 +90,7 @@ export default function MyCoursesPage() {
               onClick={() => setActiveTab(tab)}
               className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab
-                  ? "border-sky-400 text-sky-400"
+                  ? "border-aqua-mist text-aqua-mist"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >

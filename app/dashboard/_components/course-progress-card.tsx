@@ -37,7 +37,7 @@ export function CourseProgressCard({
         </div>
       </div>
 
-      <Button className="w-full bg-sky-400 hover:bg-sky-500 text-white">Continue Learning</Button>
+      <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white">Continue Learning</Button>
     </div>
   )
 }

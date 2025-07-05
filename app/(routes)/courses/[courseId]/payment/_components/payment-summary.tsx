@@ -34,7 +34,7 @@ export function PaymentSummary() {
         {/* Choose Payment Method Button */}
         <Button
           onClick={() => setIsPaymentModalOpen(true)}
-          className="w-full bg-sky-400 hover:bg-sky-500 text-white py-3"
+          className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3"
         >
           {selectedPaymentMethod ? `Selected: ${selectedPaymentMethod}` : "Choose Payment Method"}
         </Button>
@@ -57,7 +57,7 @@ export function PaymentSummary() {
 
         {/* Pay Now Button */}
         <Button
-          className="w-full bg-sky-400 hover:bg-sky-500 text-white py-3 text-lg"
+          className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-lg"
           disabled={!selectedPaymentMethod}
         >
           Pay Now
