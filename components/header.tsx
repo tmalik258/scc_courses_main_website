@@ -11,11 +11,20 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Search, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {
+  Bookmark,
+  BookOpen,
+  CreditCard,
+  LayoutDashboard,
+  Search,
+  X,
+} from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 const Header = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Simulating user authentication state
@@ -36,6 +45,33 @@ const Header = () => {
     { label: "About Us", path: "/about-us" },
     { label: "Reviews", path: "/reviews" },
     { label: "About Me", path: "/about-me" },
+  ];
+
+  const dashboardItems = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/dashboard",
+    },
+    {
+      id: "my-course",
+      label: "My Course",
+      icon: BookOpen,
+      href: "/dashboard/my-courses",
+    },
+    {
+      id: "saved-course",
+      label: "Saved Course",
+      icon: Bookmark,
+      href: "/dashboard/saved-courses",
+    },
+    {
+      id: "payment",
+      label: "Payment",
+      icon: CreditCard,
+      href: "/dashboard/payments",
+    },
   ];
 
   return (
@@ -192,15 +228,26 @@ const Header = () => {
 
           {/* Mobile Navigation */}
           <nav className="p-4 space-y-4">
-            {navigationItems.map((item) => (
-              <div
-                key={item.path}
-                onClick={() => handleRedirect(item.path)}
-                className="block text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50"
-              >
-                {item.label}
-              </div>
-            ))}
+            {pathname.includes("/dashboard")
+              ? dashboardItems.map((item) => (
+                  <div
+                    key={item.href}
+                    onClick={() => handleRedirect(item.href)}
+                    className="flex gap-4 items-center text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50"
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                  </div>
+                ))
+              : navigationItems.map((item) => (
+                  <div
+                    key={item.path}
+                    onClick={() => handleRedirect(item.path)}
+                    className="block text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50"
+                  >
+                    {item.label}
+                  </div>
+                ))}
 
             {/* Mobile Auth Section */}
             {!user && (

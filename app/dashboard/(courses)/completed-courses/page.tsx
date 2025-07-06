@@ -3,8 +3,10 @@ import { CourseCard } from "../_components/course-card";
 export default function CompletedCourses() {
   const completedCourses = [
     {
+      id: 1,
       category: "Make Automations",
-      categoryColor: "bg-orange-500",
+      categoryBgColor: "bg-orange-500/25",
+      categoryTextColor: "text-orange-500",
       title: "Zapier 101: Automate Tasks Without Code",
       mentor: "Mentor's Name",
       currentLesson: 35,
@@ -15,8 +17,10 @@ export default function CompletedCourses() {
       completedDate: "23 Feb 2025",
     },
     {
+      id: 2,
       category: "Web Development",
-      categoryColor: "bg-aqua-mist",
+      categoryBgColor: "bg-aqua-mist/25",
+      categoryTextColor: "text-aqua-mist",
       title: "Responsive Web Design with HTML, CSS & Flexbox",
       mentor: "Mentor's Name",
       currentLesson: 30,
@@ -27,8 +31,10 @@ export default function CompletedCourses() {
       completedDate: "5 Feb 2025",
     },
     {
+      id: 3,
       category: "AI Calling",
-      categoryColor: "bg-green-500",
+      categoryBgColor: "bg-purple-500/25",
+      categoryTextColor: "text-purple-500",
       title: "AI Voice Bots with Google Dialogflow & Twilio",
       mentor: "Mentor's Name",
       currentLesson: 16,

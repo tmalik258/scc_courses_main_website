@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 
 export interface MyCourseCardProps {
+  id: number
   category: string
-  categoryColor: string
+  categoryBgColor: string
+  categoryTextColor: string
   title: string
   mentor: string
   currentLesson: number
@@ -15,7 +17,8 @@ export interface MyCourseCardProps {
 
 export function MyCourseCard({
   category,
-  categoryColor,
+  categoryBgColor,
+  categoryTextColor,
   title,
   mentor,
   currentLesson,
@@ -26,7 +29,7 @@ export function MyCourseCard({
 }: MyCourseCardProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-start space-x-6">
+      <div className="flex max-md:gap-3 max-md:flex-col md:items-start md:space-x-6">
         {/* Course Image */}
         <div className="flex-shrink-0">
           <Image
@@ -34,7 +37,7 @@ export function MyCourseCard({
             alt={title}
             width={200}
             height={120}
-            className="w-48 h-28 object-cover rounded-lg"
+            className="w-full md:w-48 h-28 object-cover rounded-lg"
           />
         </div>
 
@@ -42,7 +45,7 @@ export function MyCourseCard({
         <div className="flex-1">
           {/* Category Badge */}
           <div className="mb-3">
-            <span className={`${categoryColor} text-white text-xs px-3 py-1 rounded-full font-medium`}>{category}</span>
+            <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-md font-medium`}>{category}</span>
           </div>
 
           {/* Course Title */}

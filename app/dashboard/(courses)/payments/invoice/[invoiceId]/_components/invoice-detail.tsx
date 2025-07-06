@@ -19,7 +19,7 @@ export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, ca
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-8 max-w-2xl mx-auto">
+    <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-8 max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -27,8 +27,8 @@ export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, ca
           <p className="text-gray-500">{id}</p>
         </div>
         <div className="flex items-center space-x-2 text-green-600">
-          <CheckCircle className="w-5 h-5" />
-          <span className="font-medium">Payment Success</span>
+          <CheckCircle className="w-4 h-4" />
+          <span className="max-md:text-sm font-medium">Payment Success</span>
         </div>
       </div>
 
@@ -64,10 +64,10 @@ export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, ca
       </div>
 
       {/* Download Button */}
-      <div className="flex justify-end">
+      <div className="flex md:justify-end">
         <Button
           onClick={handleDownloadInvoice}
-          className="bg-aqua-mist hover:bg-aqua-depth text-white flex items-center space-x-2"
+          className="max-md:w-full bg-aqua-mist hover:bg-aqua-depth text-white flex items-center space-x-2"
         >
           <Download className="w-4 h-4" />
           <span>Download Invoice</span>

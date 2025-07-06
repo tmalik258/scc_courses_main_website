@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button"
 
 interface CourseProgressCardProps {
   category: string
-  categoryColor: string
+  categoryBgColor: string
+  categoryTextColor: string
   title: string
   currentLesson: number
   totalLessons: number
@@ -11,7 +12,8 @@ interface CourseProgressCardProps {
 
 export function CourseProgressCard({
   category,
-  categoryColor,
+  categoryBgColor,
+  categoryTextColor,
   title,
   currentLesson,
   totalLessons,
@@ -20,7 +22,7 @@ export function CourseProgressCard({
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200 mb-4">
       <div className="mb-4">
-        <span className={`${categoryColor} text-white text-xs px-3 py-1 rounded-full font-medium`}>{category}</span>
+        <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-md font-medium`}>{category}</span>
       </div>
 
       <h3 className="font-semibold text-gray-800 mb-4">{title}</h3>

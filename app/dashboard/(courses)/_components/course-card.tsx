@@ -1,10 +1,15 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "nextjs-toploader/app"
 
 interface CourseCardProps {
+  id: number
   category: string
-  categoryColor: string
+  categoryBgColor: string
+  categoryTextColor: string
   title: string
   mentor: string
   currentLesson: number
@@ -16,8 +21,10 @@ interface CourseCardProps {
 }
 
 export function CourseCard({
+  id,
   category,
-  categoryColor,
+  categoryBgColor,
+  categoryTextColor,
   title,
   mentor,
   currentLesson,
@@ -27,17 +34,19 @@ export function CourseCard({
   isCompleted = false,
   completedDate,
 }: CourseCardProps) {
+  const router = useRouter();
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-      <div className="flex items-start space-x-6">
+    <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 mb-6">
+      <div className="flex max-md:flex-col max-md:gap-3 md:items-start md:space-x-6">
         {/* Course Image */}
-        <div className="flex-shrink-0">
+        <div className="md:flex-shrink-0 max-md:flex-1">
           <Image
             src={image || "/placeholder.svg"}
             alt={title}
             width={200}
             height={120}
-            className="w-48 h-28 object-cover rounded-lg"
+            className="w-full md:w-48 h-28 object-cover rounded-md md:rounded-lg"
           />
         </div>
 
@@ -45,17 +54,17 @@ export function CourseCard({
         <div className="flex-1">
           {/* Category Badge and Completion Status */}
           <div className="flex items-center justify-between mb-3">
-            <span className={`${categoryColor} text-white text-xs px-3 py-1 rounded-full font-medium`}>{category}</span>
+            <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-md font-medium`}>{category}</span>
             {isCompleted && completedDate && (
               <div className="flex items-center space-x-2 text-green-600">
                 <CheckCircle className="w-4 h-4" />
-                <span className="text-sm">Completed on {completedDate}</span>
+                <span className="text-xs md:text-sm">Completed on {completedDate}</span>
               </div>
             )}
           </div>
 
           {/* Course Title */}
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
+          <h3 className="md:text-lg font-semibold text-gray-800 mb-2">{title}</h3>
 
           {/* Mentor */}
           <p className="text-gray-500 text-sm mb-4">{mentor}</p>
@@ -81,7 +90,7 @@ export function CourseCard({
 
         {/* Action Button */}
         <div className="flex-shrink-0">
-          <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">View Course</Button>
+          <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6" onClick={() => router.push(`/courses/${id}`)}>View Course</Button>
         </div>
       </div>
     </div>

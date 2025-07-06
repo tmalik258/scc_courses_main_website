@@ -7,7 +7,9 @@ const Layout = ({ children: children }: { children: React.ReactNode }) => {
       <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="flex">
-          <DashboardSidebar />
+          <div className="max-md:hidden">
+            <DashboardSidebar />
+          </div>
           {children}
         </div>
       </div>

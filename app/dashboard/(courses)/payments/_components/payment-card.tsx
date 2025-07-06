@@ -68,8 +68,8 @@ export function PaymentCard({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-start space-x-6">
+    <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-6">
+      <div className="flex max-md:flex-col md:items-start max-md:gap-3 md:space-x-6">
         {/* Course Image */}
         <div className="flex-shrink-0">
           <Image
@@ -77,7 +77,7 @@ export function PaymentCard({
             alt={title}
             width={200}
             height={120}
-            className="w-48 h-28 object-cover rounded-lg"
+            className="w-full md:w-48 h-28 object-cover rounded-lg"
           />
         </div>
 
@@ -93,10 +93,10 @@ export function PaymentCard({
           </div>
 
           {/* Course Title */}
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
+          <h3 className="md:text-lg font-semibold text-gray-800 mb-2">{title}</h3>
 
           {/* Payment Details */}
-          <div className="space-y-1 mb-4 text-sm text-gray-600">
+          <div className="space-y-1 mb-2 md:mb-4 text-sm text-gray-600">
             {status === "pending" && timeLeft && (
               <p>
                 <span className="font-medium">To pay in</span>{" "}
@@ -118,23 +118,23 @@ export function PaymentCard({
           </div>
 
           {/* Amount */}
-          <p className="text-lg font-semibold text-gray-800 mb-4">{amount}</p>
+          <p className="max-md:text-end text-lg font-semibold text-gray-800 md:mb-4">{amount}</p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex-shrink-0 space-y-2">
+        <div className="flex-shrink-0 max-md:flex-1 space-y-2">
           {status === "success" && (
-            <Button onClick={handleTransactionDetail} className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">
+            <Button onClick={handleTransactionDetail} className="max-md:w-full bg-aqua-mist hover:bg-aqua-depth text-white px-6">
               Transaction Detail
             </Button>
           )}
-          {status === "failed" && <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">Buy Again</Button>}
+          {status === "failed" && <Button className="border border-aqua-mist bg-transparent hover:bg-aqua-mist text-aqua-mist hover:text-white cursor-pointer px-6">Buy Again</Button>}
           {status === "pending" && (
             <div className="space-y-2">
-              <Button variant="outline" className="w-full bg-transparent border-aqua-mist text-aqua-mist hover:bg-sky-50">
-                Change Method
-              </Button>
               <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white">Pay</Button>
+              <Button variant="outline" className="w-full bg-transparent border-aqua-mist text-aqua-mist hover:bg-sky-50">
+                Change Payment
+              </Button>
             </div>
           )}
         </div>

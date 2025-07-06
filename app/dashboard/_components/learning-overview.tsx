@@ -29,7 +29,7 @@ export function LearningOverview() {
       icon: Award,
       iconColor: "text-yellow-500",
       iconBg: "bg-yellow-100",
-      route: "/dashboard/certificates",
+      route: "/dashboard/certificate",
     },
   ]
 

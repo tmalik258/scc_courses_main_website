@@ -5,7 +5,8 @@ export function MyCourses() {
   const courses = [
     {
       category: "Data Science",
-      categoryColor: "bg-blue-600",
+      categoryBgColor: "bg-blue-600/25",
+      categoryTextColor: "text-blue-600",
       title: "Machine Learning with Python: From Basics to Deployment",
       currentLesson: 10,
       totalLessons: 30,
@@ -13,7 +14,8 @@ export function MyCourses() {
     },
     {
       category: "WhatsApp Chatbots",
-      categoryColor: "bg-purple-500",
+      categoryBgColor: "bg-purple-500/50",
+      categoryTextColor: "bg-purple-500",
       title: "Build a WhatsApp Chatbot with Node.js & Twilio API",
       currentLesson: 15,
       totalLessons: 50,
@@ -21,7 +23,8 @@ export function MyCourses() {
     },
     {
       category: "Data Science",
-      categoryColor: "bg-blue-600",
+      categoryBgColor: "bg-blue-600/50",
+      categoryTextColor: "bg-blue-600",
       title: "Data Visualization with Tableau & Power BI",
       currentLesson: 14,
       totalLessons: 40,
@@ -29,7 +32,8 @@ export function MyCourses() {
     },
     {
       category: "AI Calling",
-      categoryColor: "bg-green-500",
+      categoryBgColor: "bg-green-500/50",
+      categoryTextColor: "bg-green-500",
       title: "Create Smart Call Assistants using Voice AI",
       currentLesson: 20,
       totalLessons: 40,

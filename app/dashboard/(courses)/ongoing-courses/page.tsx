@@ -3,8 +3,10 @@ import { CourseCard } from "../_components/course-card";
 export default function OngoingCourses() {
   const ongoingCourses = [
     {
+      id: 1,
       category: "Data Science",
-      categoryColor: "bg-blue-600",
+      categoryBgColor: "bg-blue-600/25",
+      categoryTextColor: "text-blue-600",
       title: "Machine Learning with Python: From Basics to Deployment",
       mentor: "Mentor's Name",
       currentLesson: 10,
@@ -14,8 +16,10 @@ export default function OngoingCourses() {
       isCompleted: false,
     },
     {
+      id: 2,
       category: "WhatsApp Chatbots",
-      categoryColor: "bg-purple-500",
+      categoryBgColor: "bg-purple-500/50",
+      categoryTextColor: "bg-purple-500",
       title: "Build a WhatsApp Chatbot with Node.js & Twilio API",
       mentor: "Mentor's Name",
       currentLesson: 15,
@@ -25,8 +29,10 @@ export default function OngoingCourses() {
       isCompleted: false,
     },
     {
+      id: 3,
       category: "AI Calling",
-      categoryColor: "bg-green-500",
+      categoryBgColor: "bg-green-500/50",
+      categoryTextColor: "bg-green-500",
       title: "Create Smart Call Assistants using Voice AI",
       mentor: "Mentor's Name",
       currentLesson: 20,

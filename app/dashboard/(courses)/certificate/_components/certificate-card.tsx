@@ -4,13 +4,14 @@ import Image from "next/image"
 
 interface CertificateCardProps {
   category: string
-  categoryColor: string
+  categoryBgColor: string
+  categoryTextColor: string
   title: string
   completedDate: string
   certificateImage: string
 }
 
-export function CertificateCard({ category, categoryColor, title, completedDate, certificateImage }: CertificateCardProps) {
+export function CertificateCard({ category, categoryBgColor, categoryTextColor, title, completedDate, certificateImage }: CertificateCardProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       {/* Certificate Image */}
@@ -28,7 +29,7 @@ export function CertificateCard({ category, categoryColor, title, completedDate,
       <div className="p-4">
         {/* Category Badge */}
         <div className="mb-3">
-          <span className={`${categoryColor} text-white text-xs px-3 py-1 rounded-full font-medium`}>{category}</span>
+          <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-full font-medium`}>{category}</span>
         </div>
 
         {/* Course Title */}

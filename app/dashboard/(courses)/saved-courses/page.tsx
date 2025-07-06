@@ -3,8 +3,10 @@ import { SavedCourseCard } from "./_components/saved-course-card"
 export default function SavedCoursePage() {
   const savedCourses = [
     {
+      id: 1,
       category: "Data Science",
-      categoryColor: "bg-blue-600",
+      categoryBgColor: "bg-blue-600/25",
+      categoryTextColor: "text-blue-600",
       title: "Machine Learning with Python: From Basics to Deployment",
       mentor: "Mentor's Name",
       students: "320+ students",
@@ -14,8 +16,10 @@ export default function SavedCoursePage() {
       image: "/images/course_placeholder_2.jpg?height=120&width=200",
     },
     {
+      id: 2,
       category: "WhatsApp Chatbots",
-      categoryColor: "bg-purple-500",
+      categoryBgColor: "bg-green-500/25",
+      categoryTextColor: "text-green-500",
       title: "Build a WhatsApp Chatbot with Node.js & Twilio API",
       mentor: "Mentor's Name",
       students: "230+ students",
@@ -25,8 +29,10 @@ export default function SavedCoursePage() {
       image: "/images/course_placeholder_2.jpg?height=120&width=200",
     },
     {
+      id: 3,
       category: "AI Calling",
-      categoryColor: "bg-green-500",
+      categoryBgColor: "bg-purple-500/25",
+      categoryTextColor: "text-purple-500",
       title: "Create Smart Call Assistants using Voice AI",
       mentor: "Mentor's Name",
       students: "190+ students",

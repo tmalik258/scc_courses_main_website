@@ -10,8 +10,10 @@ export default function MyCoursesPage() {
 
   const allCourses: MyCourseCardProps[] = [
     {
+      id: 1,
       category: "Data Science",
-      categoryColor: "bg-blue-600",
+      categoryBgColor: "bg-blue-600/25",
+      categoryTextColor: "text-blue-600",
       title: "Machine Learning with Python: From Basics to Deployment",
       mentor: "Mentor's Name",
       currentLesson: 10,
@@ -21,8 +23,10 @@ export default function MyCoursesPage() {
       status: "active",
     },
     {
+      id: 2,
       category: "WhatsApp Chatbots",
-      categoryColor: "bg-purple-500",
+      categoryBgColor: "bg-purple-500/25",
+      categoryTextColor: "text-purple-500",
       title: "Build a WhatsApp Chatbot with Node.js & Twilio API",
       mentor: "Mentor's Name",
       currentLesson: 15,
@@ -32,8 +36,10 @@ export default function MyCoursesPage() {
       status: "active",
     },
     {
+      id: 3,
       category: "AI Calling",
-      categoryColor: "bg-green-500",
+      categoryBgColor: "bg-purple-500/25",
+      categoryTextColor: "text-purple-500",
       title: "Create Smart Call Assistants using Voice AI",
       mentor: "Mentor's Name",
       currentLesson: 20,
@@ -43,8 +49,10 @@ export default function MyCoursesPage() {
       status: "active",
     },
     {
+      id: 4,
       category: "Make Automations",
-      categoryColor: "bg-orange-500",
+      categoryBgColor: "bg-orange-500/25",
+      categoryTextColor: "text-orange-500",
       title: "Zapier 101: Automate Tasks Without Code",
       mentor: "Mentor's Name",
       currentLesson: 35,
@@ -54,8 +62,10 @@ export default function MyCoursesPage() {
       status: "finished",
     },
     {
+      id: 5,
       category: "Web Development",
-      categoryColor: "bg-aqua-mist",
+      categoryBgColor: "bg-aqua-mist/25",
+      categoryTextColor: "text-aqua-mist",
       title: "Responsive Web Design with HTML, CSS & Flexbox",
       mentor: "Mentor's Name",
       currentLesson: 30,

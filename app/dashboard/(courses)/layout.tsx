@@ -83,7 +83,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { title, breadcrumbText, showBreadcrumb, showFilters, showHeader } = getPageInfo();
 
   return (
-    <main className="flex-1 p-6">
+    <main className="flex-1 p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb - Only show for non-my-course pages */}
         {pathname !== "/my-course" && showBreadcrumb && (
@@ -124,7 +124,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 {/* Category Filter */}
                 <Suspense fallback={<div>Loading...</div>}>
                   <Select defaultValue="all">
-                    <SelectTrigger className="w-40 bg-white border-gray-200">
+                    <SelectTrigger className="md:w-40 bg-white border-gray-200">
                       <SelectValue placeholder="All Category" />
                     </SelectTrigger>
                     <SelectContent>
