@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Menu, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const Header = () => {
@@ -40,37 +40,33 @@ const Header = () => {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 bg-white relative">
+      <header className="flex sticky top-0 z-50 items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 bg-white">
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMobileMenu}
           className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           aria-label="Toggle mobile menu"
         >
-          {isMobileMenuOpen ? (
-            <X className="w-6 h-6 text-gray-700" />
-          ) : (
-            <svg
-              width="34"
-              height="34"
-              viewBox="0 0 34 34"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13.89 8.66699H27.7789M5.55664 17.0003H27.7789H9.72331M5.55664 25.3337H19.4455"
-                stroke="#1C1C1C"
-                strokeWidth="1.5625"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          )}
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 34 34"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M13.89 8.66699H27.7789M5.55664 17.0003H27.7789H9.72331M5.55664 25.3337H19.4455"
+              stroke="#1C1C1C"
+              strokeWidth="1.5625"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
 
         {/* Logo */}
         <div className="flex items-center flex-1">
-          <div className="w-20 sm:w-10 h-10 sm:h-12 bg-white rounded-full flex items-center justify-center">
+          <div className="w-20 h-10 sm:h-12 bg-white rounded-full flex items-center justify-center">
             <div
               className="flex items-center justify-center w-full h-full cursor-pointer"
               onClick={() => handleRedirect("/")}
@@ -163,68 +159,69 @@ const Header = () => {
       </header>
 
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
+      <div
+        className={`${
+          isMobileMenuOpen ? "visible opacity-100" : "invisible opacity-0"
+        } md:hidden fixed top-0 z-50 bg-black bg-opacity-50 transition-all duration-300 ease-in-out`}
+        onClick={toggleMobileMenu}
+      >
         <div
-          className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
-          onClick={toggleMobileMenu}
+          className={`bg-white w-screen ${
+            isMobileMenuOpen ? "clip-path-inset-0" : "clip-path-inset-full"
+          } transition-all duration-300 ease-in-out shadow-lg`}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div
-            className="bg-white w-64 h-full shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Mobile Menu Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <div className="flex items-center space-x-2">
-                <Image
-                  src="/logo.png"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                  alt="logo"
-                />
-                <span className="font-semibold text-gray-800">Smart</span>
-              </div>
-              <button
-                onClick={toggleMobileMenu}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-700" />
-              </button>
+          {/* Mobile Menu Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="w-14 flex items-center space-x-2">
+              <Image
+                src="/logo.png"
+                width={24}
+                height={24}
+                className="w-full h-fullobject-contain"
+                alt="logo"
+              />
             </div>
-
-            {/* Mobile Navigation */}
-            <nav className="p-4 space-y-4">
-              {navigationItems.map((item) => (
-                <div
-                  key={item.path}
-                  onClick={() => handleRedirect(item.path)}
-                  className="block text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50"
-                >
-                  {item.label}
-                </div>
-              ))}
-
-              {/* Mobile Auth Section */}
-              {!user && (
-                <div className="pt-4 border-t border-gray-200 space-y-3">
-                  <button
-                    onClick={() => handleRedirect("/login")}
-                    className="block w-full text-left text-gray-700 hover:text-aqua-mist transition-colors py-2 px-3 rounded-lg hover:bg-gray-50"
-                  >
-                    Log in
-                  </button>
-                  <Button
-                    onClick={() => handleRedirect("/signup")}
-                    className="w-full bg-aqua-mist hover:bg-aqua-depth"
-                  >
-                    Register
-                  </Button>
-                </div>
-              )}
-            </nav>
+            <button
+              onClick={toggleMobileMenu}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-700" />
+            </button>
           </div>
+
+          {/* Mobile Navigation */}
+          <nav className="p-4 space-y-4">
+            {navigationItems.map((item) => (
+              <div
+                key={item.path}
+                onClick={() => handleRedirect(item.path)}
+                className="block text-gray-700 hover:text-aqua-mist transition-colors cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50"
+              >
+                {item.label}
+              </div>
+            ))}
+
+            {/* Mobile Auth Section */}
+            {!user && (
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={() => handleRedirect("/login")}
+                  className="block w-full text-left text-gray-700 hover:text-aqua-mist transition-colors py-2 px-3 rounded-lg hover:bg-gray-50"
+                >
+                  Log in
+                </button>
+                <Button
+                  onClick={() => handleRedirect("/signup")}
+                  className="w-full bg-aqua-mist hover:bg-aqua-depth"
+                >
+                  Register
+                </Button>
+              </div>
+            )}
+          </nav>
         </div>
-      )}
+      </div>
     </>
   );
 };

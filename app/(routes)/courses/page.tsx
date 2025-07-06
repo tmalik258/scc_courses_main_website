@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -14,12 +14,14 @@ import { CourseCard } from "@/components/course/course-card";
 import { CourseFilters } from "./_components/course-filters";
 import { CoursePagination } from "./_components/course-pagination";
 import { ContactForm } from "../_components/contact-form";
+import { CourseFilterTabs } from "../_components/course-filter-tabs";
 
-const allCoursesData = [
+const coursesData = [
   {
     id: 1,
     category: "AI Calling",
-    categoryColor: "bg-purple-500",
+    categoryBgColor: "bg-purple-500/15",
+    categoryTextColor: "text-purple-500",
     title: "Create Smart Call Assistants using Voice AI",
     mentor: "Mentor's Name",
     students: "320+ students",
@@ -28,13 +30,40 @@ const allCoursesData = [
     discountedPrice: "1,350",
     discount: "10% OFF",
     image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
   },
   {
     id: 2,
+    category: "WhatsApp Chatbots",
+    categoryBgColor: "bg-green-500/15",
+    categoryTextColor: "text-green-500",
+    title: "AI Voice Bots with Google Dialogflow & Twilio",
+    mentor: "Mentor's Name",
+    students: "320+ students",
+    rating: "4.8/5",
+    originalPrice: "1,350",
+    discountedPrice: "1,350",
+    discount: "10% OFF",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
+  },
+  {
+    id: 3,
+    category: "Make Automations",
+    categoryBgColor: "bg-orange-500/15",
+    categoryTextColor: "text-orange-500",
+    title: "Zapier 101: Automate Tasks Without Code",
+    mentor: "Mentor's Name",
+    students: "320+ students",
+    rating: "4.8/5",
+    originalPrice: "1,350",
+    discountedPrice: "1,350",
+    discount: "10% OFF",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
+  },
+  {
+    id: 4,
     category: "App Development",
-    categoryColor: "bg-pink-500",
+    categoryBgColor: "bg-pink-500/15",
+    categoryTextColor: "text-pink-500",
     title: "Flutter for Beginners: Build iOS & Android Apps",
     mentor: "Mentor's Name",
     students: "320+ students",
@@ -43,73 +72,12 @@ const allCoursesData = [
     discountedPrice: "1,350",
     discount: "10% OFF",
     image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 3,
-    category: "AI Calling",
-    categoryColor: "bg-purple-500",
-    title: "Create Smart Call Assistants using Voice AI",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 4,
-    category: "WhatsApp Chatbots",
-    categoryColor: "bg-green-500",
-    title: "AI Voice Bots with Google Dialogflow & Twilio",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
   },
   {
     id: 5,
-    category: "Web Development",
-    categoryColor: "bg-aqua-mist",
-    title: "Responsive Web Design with HTML, CSS & Flexbox",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 6,
-    category: "WhatsApp Chatbots",
-    categoryColor: "bg-green-500",
-    title: "AI Voice Bots with Google Dialogflow & Twilio",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 7,
     category: "Make Automations",
-    categoryColor: "bg-orange-500",
+    categoryBgColor: "bg-orange-500/15",
+    categoryTextColor: "text-orange-500",
     title: "Zapier 101: Automate Tasks Without Code",
     mentor: "Mentor's Name",
     students: "320+ students",
@@ -118,13 +86,40 @@ const allCoursesData = [
     discountedPrice: "1,350",
     discount: "10% OFF",
     image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
+  },
+  {
+    id: 6,
+    category: "App Development",
+    categoryBgColor: "bg-pink-500/15",
+    categoryTextColor: "text-pink-500",
+    title: "Flutter for Beginners: Build iOS & Android Apps",
+    mentor: "Mentor's Name",
+    students: "320+ students",
+    rating: "4.8/5",
+    originalPrice: "1,350",
+    discountedPrice: "1,350",
+    discount: "10% OFF",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
+  },
+  {
+    id: 7,
+    category: "Web Development",
+    categoryBgColor: "bg-cyan-400/15", // closest to aqua-mist
+    categoryTextColor: "text-cyan-400",
+    title: "Responsive Web Design with HTML, CSS & Flexbox",
+    mentor: "Mentor's Name",
+    students: "320+ students",
+    rating: "4.8/5",
+    originalPrice: "1,350",
+    discountedPrice: "1,350",
+    discount: "10% OFF",
+    image: "/images/course_placeholder.jpg?height=200&width=350",
   },
   {
     id: 8,
     category: "Data Science",
-    categoryColor: "bg-blue-600",
+    categoryBgColor: "bg-blue-600/15",
+    categoryTextColor: "text-blue-600",
     title: "Machine Learning with Python: From Basics to Deployment",
     mentor: "Mentor's Name",
     students: "320+ students",
@@ -133,75 +128,15 @@ const allCoursesData = [
     discountedPrice: "1,350",
     discount: "10% OFF",
     image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 9,
-    category: "Make Automations",
-    categoryColor: "bg-orange-500",
-    title: "Zapier 101: Automate Tasks Without Code",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 10,
-    category: "WhatsApp Chatbots",
-    categoryColor: "bg-green-500",
-    title: "AI Voice Bots with Google Dialogflow & Twilio",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 11,
-    category: "Web Development",
-    categoryColor: "bg-aqua-mist",
-    title: "Responsive Web Design with HTML, CSS & Flexbox",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
-  },
-  {
-    id: 12,
-    category: "WhatsApp Chatbots",
-    categoryColor: "bg-green-500",
-    title: "AI Voice Bots with Google Dialogflow & Twilio",
-    mentor: "Mentor's Name",
-    students: "320+ students",
-    rating: "4.8/5",
-    originalPrice: "1,350",
-    discountedPrice: "1,350",
-    discount: "10% OFF",
-    image: "/images/course_placeholder.jpg?height=200&width=350",
-    price: 1350,
-    ratingValue: 4.8,
   },
 ];
 
 export default function BrowseCourses() {
+  const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Most Popular");
-  const [filters, setFilters] = useState({
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
     categories: [] as string[],
     priceRange: "All",
     rating: "All",
@@ -210,7 +145,7 @@ export default function BrowseCourses() {
   const coursesPerPage = 9;
 
   const filteredAndSortedCourses = useMemo(() => {
-    let filtered = allCoursesData;
+    let filtered = coursesData;
 
     // Apply search filter
     if (searchQuery) {
@@ -222,24 +157,28 @@ export default function BrowseCourses() {
     }
 
     // Apply category filter
-    if (filters.categories.length > 0) {
+    if (advancedFilters.categories.length > 0) {
       filtered = filtered.filter((course) =>
-        filters.categories.includes(course.category)
+        advancedFilters.categories.includes(course.category)
       );
     }
 
     // Apply price filter
-    if (filters.priceRange !== "All") {
+    if (advancedFilters.priceRange !== "All") {
       filtered = filtered.filter((course) => {
-        switch (filters.priceRange) {
+        const price = parseFloat(
+          course.discountedPrice?.replace(",", "") ||
+            course.originalPrice.replace(",", "")
+        );
+        switch (advancedFilters.priceRange) {
           case "Under ₹500":
-            return course.price < 500;
+            return price < 500;
           case "₹500 - ₹1000":
-            return course.price >= 500 && course.price <= 1000;
+            return price >= 500 && price <= 1000;
           case "₹1000 - ₹2000":
-            return course.price >= 1000 && course.price <= 2000;
+            return price >= 1000 && price <= 2000;
           case "Above ₹2000":
-            return course.price > 2000;
+            return price > 2000;
           default:
             return true;
         }
@@ -247,23 +186,49 @@ export default function BrowseCourses() {
     }
 
     // Apply rating filter
-    if (filters.rating !== "All") {
+    if (advancedFilters.rating !== "All") {
       filtered = filtered.filter((course) => {
-        const minRating = Number.parseFloat(filters.rating.replace("+", ""));
-        return course.ratingValue >= minRating;
+        const minRating = Number.parseFloat(
+          advancedFilters.rating.replace("+", "")
+        );
+        return parseFloat(course.rating.split("/5")[0]) >= minRating;
       });
     }
 
     // Apply sorting
     switch (sortBy) {
       case "Price: Low to High":
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort(
+          (a, b) =>
+            parseFloat(
+              a.discountedPrice?.replace(",", "") ||
+                a.originalPrice.replace(",", "")
+            ) -
+            parseFloat(
+              b.discountedPrice?.replace(",", "") ||
+                b.originalPrice.replace(",", "")
+            )
+        );
         break;
       case "Price: High to Low":
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort(
+          (a, b) =>
+            parseFloat(
+              b.discountedPrice?.replace(",", "") ||
+                b.originalPrice.replace(",", "")
+            ) -
+            parseFloat(
+              a.discountedPrice?.replace(",", "") ||
+                a.originalPrice.replace(",", "")
+            )
+        );
         break;
       case "Rating":
-        filtered.sort((a, b) => b.ratingValue - a.ratingValue);
+        filtered.sort(
+          (a, b) =>
+            parseFloat(b.rating.split("/5")[0]) -
+            parseFloat(a.rating.split("/5")[0])
+        );
         break;
       case "Most Popular":
       default:
@@ -272,35 +237,40 @@ export default function BrowseCourses() {
     }
 
     return filtered;
-  }, [searchQuery, filters, sortBy]);
+  }, [searchQuery, advancedFilters, sortBy]);
 
   const totalPages = Math.ceil(
     filteredAndSortedCourses.length / coursesPerPage
   );
-  const currentCourses = filteredAndSortedCourses.slice(
-    (currentPage - 1) * coursesPerPage,
-    currentPage * coursesPerPage
-  );
+  const currentCourses = filteredAndSortedCourses
+    .filter(
+      (course) => activeFilter === "All" || course.category === activeFilter
+    )
+    .slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage);
 
-  const handleFilterChange = (newFilters: {
+  const handleFilterChange = (newAdvancedFilters: {
     categories: string[];
     priceRange: string;
     rating: string;
   }) => {
-    setFilters(newFilters);
+    setAdvancedFilters(newAdvancedFilters);
     setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const handleFilterToggle = () => {
+    setFilterOpen(!filterOpen);
   };
 
   return (
     <div className="min-h-screen">
       {/* Header */}
       <div className="bg-white border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="max-w-7xl mx-auto px-6 py-4 sm:py-8">
+          <div className="sm:text-center mb-2 sm:mb-8">
+            <h1 className="text-xl sm:text-3xl font-bold text-gray-800 mb-2">
               Browse All Courses
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm text-gray-600">
               Find the perfect course for your learning journey and start
               building real-world skills today
             </p>
@@ -311,23 +281,44 @@ export default function BrowseCourses() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto flex">
         {/* Sidebar Filters */}
-        <CourseFilters onFilterChange={handleFilterChange} />
+        <div
+          className={`${
+            filterOpen ? "max-sm:translate-x-0 visible opacity-100" : "max-sm:translate-x-full max-sm:invisible max-sm:opacity-0"
+          } transition-all duration-300 ease-in-out max-sm:fixed max-sm:top-0 max-sm:right-0 max-sm:inset-y-0 max-sm:z-50 max-sm:overflow-auto`}
+        >
+          <div className="absolute top-7 right-6"><X onClick={handleFilterToggle} className="w-5 h-5 cursor-pointer" /></div>
+          <CourseFilters onFilterChange={handleFilterChange} />
+        </div>
 
         <div className="flex-1 flex flex-col px-2">
           {/* Search and Sort */}
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-6">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 sm:px-6">
+            <div className="relative flex-1 max-w-md flex items-center gap-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 type="text"
                 placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 flex-1"
+              />
+              <div
+                className="sm:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 h-full text-sm text-gray-600 cursor-pointer"
+                onClick={handleFilterToggle}
+              >
+                <SlidersHorizontal className="w-4 h-4" /> Filter By
+              </div>
+            </div>
+
+            <div className="max-w-[calc(100dvw-3em)] sm:hidden">
+              <CourseFilterTabs
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+                browseCourses={true}
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="max-sm:hidden flex items-center gap-2">
               <span className="text-sm text-gray-600">Sort by:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-40">
@@ -347,7 +338,7 @@ export default function BrowseCourses() {
             </div>
           </div>
           {/* Course Grid */}
-          <div className="p-6">
+          <div className="p-2 sm:p-6">
             {currentCourses.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -356,7 +347,8 @@ export default function BrowseCourses() {
                       key={course.id}
                       id={course.id}
                       category={course.category}
-                      categoryColor={course.categoryColor}
+                      categoryTextColor={course.categoryTextColor}
+                      categoryBgColor={course.categoryBgColor}
                       title={course.title}
                       mentor={course.mentor}
                       students={course.students}
