@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface CourseFiltersProps {
@@ -180,9 +180,16 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
                 />
                 <label
                   htmlFor={rating}
-                  className="text-sm text-gray-600 cursor-pointer"
+                  className="text-sm text-gray-600 cursor-pointer flex items-center gap-2"
                 >
-                  {rating}
+                  <div className="flex">
+                    {rating !== "All" &&
+                      Array.from({ length: parseInt(rating) }, (_, i) => (
+                        <Star key={i} className="w-4 h-4 text-yellow-500 fill-current inline" />
+                      ))
+                    }
+                  </div>
+                  ({rating})
                 </label>
               </div>
             ))}
