@@ -265,9 +265,9 @@ export default function BrowseCourses() {
     <div className="min-h-screen">
       {/* Header */}
       <div className="bg-white border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 sm:py-8">
-          <div className="sm:text-center mb-2 sm:mb-8">
-            <h1 className="text-xl sm:text-3xl font-bold text-gray-800 mb-2">
+        <div className="max-w-7xl mx-auto px-6 py-4 md:py-8">
+          <div className="md:text-center mb-2 md:mb-8">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-2">
               Browse All Courses
             </h1>
             <p className="text-sm text-gray-600">
@@ -283,8 +283,8 @@ export default function BrowseCourses() {
         {/* Sidebar Filters */}
         <div
           className={`${
-            filterOpen ? "max-sm:translate-x-0 visible opacity-100" : "max-sm:translate-x-full max-sm:invisible max-sm:opacity-0"
-          } transition-all duration-300 ease-in-out max-sm:fixed max-sm:top-0 max-sm:right-0 max-sm:inset-y-0 max-sm:z-50 max-sm:overflow-auto`}
+            filterOpen ? "max-md:translate-x-0 visible opacity-100" : "max-md:translate-x-full max-md:invisible max-md:opacity-0"
+          } transition-all duration-300 ease-in-out max-md:fixed max-md:top-0 max-md:right-0 max-md:inset-y-0 max-md:z-50 max-md:overflow-auto`}
         >
           <div className="absolute top-7 right-6"><X onClick={handleFilterToggle} className="w-5 h-5 cursor-pointer" /></div>
           <CourseFilters onFilterChange={handleFilterChange} />
@@ -292,7 +292,7 @@ export default function BrowseCourses() {
 
         <div className="flex-1 flex flex-col px-2">
           {/* Search and Sort */}
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 sm:px-6">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 md:px-6">
             <div className="relative flex-1 max-w-md flex items-center gap-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -303,14 +303,14 @@ export default function BrowseCourses() {
                 className="pl-10 flex-1"
               />
               <div
-                className="sm:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 h-full text-sm text-gray-600 cursor-pointer"
+                className="md:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 h-full text-sm text-gray-600 cursor-pointer"
                 onClick={handleFilterToggle}
               >
                 <SlidersHorizontal className="w-4 h-4" /> Filter By
               </div>
             </div>
 
-            <div className="max-w-[calc(100dvw-3em)] sm:hidden">
+            <div className="max-w-[calc(100dvw-3em)] md:hidden">
               <CourseFilterTabs
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
@@ -318,7 +318,7 @@ export default function BrowseCourses() {
               />
             </div>
 
-            <div className="max-sm:hidden flex items-center gap-2">
+            <div className="max-md:hidden flex items-center gap-2">
               <span className="text-sm text-gray-600">Sort by:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-40">
@@ -338,7 +338,7 @@ export default function BrowseCourses() {
             </div>
           </div>
           {/* Course Grid */}
-          <div className="p-2 sm:p-6">
+          <div className="p-2 md:p-6">
             {currentCourses.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

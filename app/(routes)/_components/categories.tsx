@@ -109,7 +109,7 @@ const Categories = () => {
             >
               <div className="flex space-x-4 h-full">
                 <div
-                  className={`w-20 sm:w-24 h-full ${category.bgColor} rounded-lg flex items-center justify-center`}
+                  className={`w-20 md:w-24 h-full ${category.bgColor} rounded-lg flex items-center justify-center`}
                 >
                   {category.image ? (
                     <span>
@@ -126,13 +126,13 @@ const Categories = () => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                  <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
                     {category.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-500 mb-5 font-manrope">
+                  <p className="text-xs md:text-sm text-gray-500 mb-5 font-manrope">
                     {category.courses}
                   </p>
-                  <p className="text-sm sm:text-base text-aqua-mist font-semibold">
+                  <p className="text-sm md:text-base text-aqua-mist font-semibold">
                     {category.price}
                   </p>
                 </div>

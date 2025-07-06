@@ -17,7 +17,7 @@ export function PaymentSummary() {
   return (
     <>
       <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
-        <h2 className="text-xl font-semibold text-gray-800">Payment Summary</h2>
+        <h2 className="md:text-xl font-semibold text-gray-800">Payment Summary</h2>
 
         {/* Pricing Details */}
         <div className="space-y-3">
@@ -34,7 +34,7 @@ export function PaymentSummary() {
         {/* Choose Payment Method Button */}
         <Button
           onClick={() => setIsPaymentModalOpen(true)}
-          className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3"
+          className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 max-md:text-sm"
         >
           {selectedPaymentMethod ? `Selected: ${selectedPaymentMethod}` : "Choose Payment Method"}
         </Button>
@@ -57,7 +57,7 @@ export function PaymentSummary() {
 
         {/* Pay Now Button */}
         <Button
-          className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-lg"
+          className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-sm md:text-lg"
           disabled={!selectedPaymentMethod}
         >
           Pay Now

@@ -1,8 +1,6 @@
 export function LessonContent() {
   return (
     <div className="space-y-6 text-gray-700">
-      <p>tasks.</p>
-
       <div>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">What is Automation?</h2>
         <p className="mb-4">

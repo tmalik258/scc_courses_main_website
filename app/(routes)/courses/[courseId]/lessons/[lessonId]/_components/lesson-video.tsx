@@ -9,7 +9,7 @@ export function LessonVideo() {
         alt="Course instructor"
         width={600}
         height={300}
-        className="w-full h-[500px] object-cover object-top brightness-45"
+        className="w-full md:h-[500px] object-cover object-top brightness-45"
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <button className="relative bg-transparent hover:bg-opacity-100 rounded-full p-3 py-4 transition-all duration-200">

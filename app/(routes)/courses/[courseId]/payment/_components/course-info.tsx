@@ -9,10 +9,10 @@ export function CourseInfo() {
       </div>
 
       {/* Course Title */}
-      <h1 className="text-2xl font-bold text-gray-800">Machine Learning with Python: From Basics to Deployment</h1>
+      <h1 className="text-xl md:text-2xl font-bold text-gray-800">Machine Learning with Python: From Basics to Deployment</h1>
 
       {/* Course Stats */}
-      <div className="flex items-center gap-6 text-sm text-gray-600">
+      <div className="flex items-center max-md:justify-between md:gap-6 text-xs md:text-sm text-gray-600">
         <div className="flex items-center gap-1">
           <Users className="w-4 h-4 text-orange-500" />
           <span>320+ students</span>

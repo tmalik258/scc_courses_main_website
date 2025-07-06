@@ -65,7 +65,7 @@ export function PaymentMethodModal({ isOpen, onClose, onNext }: PaymentMethodMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="md:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-800">Choose Payment Method</DialogTitle>
         </DialogHeader>

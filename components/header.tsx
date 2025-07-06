@@ -40,7 +40,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="flex sticky top-0 z-50 items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 bg-white">
+      <header className="flex sticky top-0 z-50 items-center justify-between px-4 md:px-6 py-4 border-b border-gray-100 bg-white">
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMobileMenu}
@@ -66,7 +66,7 @@ const Header = () => {
 
         {/* Logo */}
         <div className="flex items-center flex-1">
-          <div className="w-20 h-10 sm:h-12 bg-white rounded-full flex items-center justify-center">
+          <div className="w-20 h-10 md:h-12 bg-white rounded-full flex items-center justify-center">
             <div
               className="flex items-center justify-center w-full h-full cursor-pointer"
               onClick={() => handleRedirect("/")}
@@ -108,12 +108,12 @@ const Header = () => {
                   src="/images/profile.jpg"
                   width={30}
                   height={30}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover object-top"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover object-top"
                   alt="Profile"
                 />
-                <span className="text-gray-700 hidden sm:block">Admin</span>
+                <span className="text-gray-700 hidden md:block">Admin</span>
                 <svg
-                  className="w-4 h-4 text-gray-400 hidden sm:block"
+                  className="w-4 h-4 text-gray-400 hidden md:block"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -140,16 +140,16 @@ const Header = () => {
             </DropdownMenu>
           ) : (
             // Login buttons
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-2 md:space-x-3">
               <button
                 onClick={() => handleRedirect("/login")}
-                className="text-gray-700 hover:text-aqua-mist max-md:px-4 max-md:py-2 max-md:rounded-md max-md:bg-aqua-mist max-md:hover:bg-aqua-depth max-md:text-white transition-colors cursor-pointer text-sm sm:text-base px-2 sm:px-0"
+                className="text-gray-700 md:hover:text-aqua-mist max-md:px-4 max-md:py-2 max-md:rounded-md max-md:bg-aqua-mist max-md:hover:bg-aqua-depth max-md:text-white transition-colors cursor-pointer text-sm md:text-base px-2 md:px-0"
               >
                 Log in
               </button>
               <Button
                 onClick={() => handleRedirect("/signup")}
-                className="bg-aqua-mist hover:bg-aqua-depth cursor-pointer text-sm sm:text-base px-3 sm:px-4 py-2 max-md:hidden"
+                className="bg-aqua-mist hover:bg-aqua-depth cursor-pointer text-sm md:text-base px-3 md:px-4 py-2 max-md:hidden"
               >
                 Register
               </Button>

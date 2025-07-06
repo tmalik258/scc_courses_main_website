@@ -7,9 +7,9 @@ interface AuthLayoutProps {
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex max-md:flex-col max-md:bg-sky-ice">
       {/* Left Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-green-50 items-center justify-center p-8">
+      <div className="flex lg:w-1/2 md:bg-green-50 items-center justify-center p-4 md:p-8">
         <div className="max-w-md w-full">
           {/* Logo */}
           <div className="mb-8">
@@ -18,14 +18,14 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 src="/logo.png"
                 width={50}
                 height={50}
-                className="w-52 h-28 object-contain"
+                className="w-32 h-auto md:w-52 md:h-28 object-contain"
                 alt="logo"
               />
             </div>
           </div>
 
           {/* Illustration */}
-          <div className="relative">
+          <div className="relative max-md:hidden">
             <svg
               width="462"
               height="480"
@@ -1492,9 +1492,12 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
         </div>
       </div>
 
+      {/* Logo for Mobile */}
+
+
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-        <div className="max-w-md w-full">{children}</div>
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 md:p-8 md:bg-white">
+        <div className="max-w-md w-full max-md:p-3 max-md:rounded-md max-md:bg-white">{children}</div>
       </div>
     </div>
   );

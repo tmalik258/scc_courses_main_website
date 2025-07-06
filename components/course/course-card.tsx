@@ -45,14 +45,14 @@ export function CourseCard({
       onClick={handleClick}
     >
       {/* Discount Badge - Mobile positioned absolutely */}
-      <div className="absolute top-3 right-3 z-10 sm:hidden">
+      <div className="absolute top-3 right-3 z-10 md:hidden">
         <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-sm font-medium font-manrope">
           {discount}
         </span>
       </div>
 
       {/* Mobile Layout */}
-      <div className="sm:hidden">
+      <div className="md:hidden">
         <div className="flex gap-2 p-3 px-2">
           {/* Course Image - Left side on mobile */}
           <div className="flex-shrink-0 w-24 h-auto">
@@ -110,7 +110,7 @@ export function CourseCard({
       </div>
 
       {/* Desktop Layout - Hidden on mobile */}
-      <div className="hidden sm:block">
+      <div className="hidden md:block">
         {/* Course Image */}
         <div className="relative w-full h-48 p-3">
           <Image

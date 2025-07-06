@@ -37,7 +37,7 @@ export function CoursePagination({ currentPage, totalPages, onPageChange }: Cour
   }
 
   return (
-    <div className="flex items-center justify-center sm:justify-end space-x-2 mt-8">
+    <div className="flex items-center justify-center md:justify-end space-x-2 mt-8">
       {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}

@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 
 interface LearningProgressProps {
   isPaid: boolean;
+  handleJoinCourse: () => void;
 }
 
-export function LearningProgress({ isPaid }: LearningProgressProps) {
+export function LearningProgress({ isPaid, handleJoinCourse }: LearningProgressProps) {
   return (
-    <div className="border-t border-gray-200 pt-4">
+    <div className="border border-gray-200 p-4 rounded">
       <h3 className="font-medium text-gray-800 mb-2">Learning Progress</h3>
       <p className="text-sm text-gray-600 mb-3">2/50 Lessons</p>
 
@@ -35,7 +36,7 @@ export function LearningProgress({ isPaid }: LearningProgressProps) {
         </>
       ) : (
         // Join Course Button
-        <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3">
+        <Button className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 cursor-pointer" onClick={handleJoinCourse}>
           Join Course
         </Button>
       )}

@@ -9,7 +9,7 @@ export function CourseBreadcrumb() {
             Courses
           </a>
           <ChevronRight className="w-4 h-4 mx-2" />
-          <span className="font-medium">Machine Learning with Python: From Basics to Deployment</span>
+          <span className="font-medium overflow-hidden text-ellipsis">Machine Learning with Python: From Basics to Deployment</span>
         </div>
       </div>
     </div>

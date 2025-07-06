@@ -1,6 +1,6 @@
 import { FilesList } from "./files-list";
 import { LearningProgress } from "./learning-progress";
-import { LessonList } from "./lesson-list";
+import { LessonList } from "../../../_components/lesson-list";
 import { SidebarTabs } from "./sidebar-tabs";
 
 interface Lesson {
@@ -25,6 +25,7 @@ interface CourseSidebarProps {
   currentLesson: string;
   onToggleSection: (sectionId: number) => void;
   onLessonClick: (lessonId: string, isLocked: boolean) => void;
+  handleJoinCourse: () => void;
 }
 
 export function CourseSidebar({
@@ -36,6 +37,7 @@ export function CourseSidebar({
   currentLesson,
   onToggleSection,
   onLessonClick,
+  handleJoinCourse,
 }: CourseSidebarProps) {
   return (
     <div className="lg:col-span-1">
@@ -58,7 +60,7 @@ export function CourseSidebar({
             <FilesList />
           </>
         )}
-        <LearningProgress isPaid={isPaid} />
+        <LearningProgress handleJoinCourse={handleJoinCourse} isPaid={isPaid} />
       </div>
     </div>
   );

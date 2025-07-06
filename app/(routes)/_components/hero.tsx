@@ -8,7 +8,7 @@ const PeopleIcon = () => (
     viewBox="0 0 24 25"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 sm:w-6 sm:h-6"
+    className="w-5 h-5 md:w-6 md:h-6"
   >
     <path
       d="M15.7499 12.5C14.7862 12.5 13.8543 12.0697 13.1249 11.2888C12.4157 10.527 11.9826 9.51125 11.9062 8.42938C11.8246 7.27531 12.1767 6.21406 12.8971 5.44063C13.6176 4.66719 14.6249 4.25 15.7499 4.25C16.867 4.25 17.8771 4.67469 18.5953 5.44625C19.3204 6.22531 19.6734 7.28469 19.5918 8.42891C19.5135 9.51219 19.0809 10.5275 18.3731 11.2883C17.6456 12.0697 16.7142 12.5 15.7499 12.5ZM21.9295 20.75H9.57088C9.37219 20.7511 9.17589 20.7065 8.99711 20.6198C8.81833 20.5331 8.66182 20.4065 8.53963 20.2498C8.41003 20.08 8.32052 19.883 8.27782 19.6736C8.23513 19.4643 8.24034 19.248 8.29307 19.0409C8.68776 17.4561 9.66557 16.1417 11.1206 15.2403C12.412 14.4406 14.0559 14 15.7499 14C17.4773 14 19.0781 14.4219 20.377 15.2211C21.8353 16.1178 22.8145 17.4397 23.2073 19.0438C23.2594 19.251 23.264 19.4673 23.2208 19.6765C23.1777 19.8857 23.0878 20.0825 22.9579 20.2522C22.8359 20.4082 22.6797 20.5341 22.5014 20.6204C22.3232 20.7067 22.1275 20.751 21.9295 20.75ZM6.89057 12.6875C5.24104 12.6875 3.79073 11.1538 3.6562 9.26891C3.58963 8.30328 3.89057 7.41031 4.49995 6.75547C5.10276 6.10719 5.95307 5.75 6.89057 5.75C7.82807 5.75 8.67182 6.10906 9.27792 6.76109C9.89198 7.42109 10.192 8.31219 10.1217 9.26984C9.98713 11.1542 8.53729 12.6875 6.89057 12.6875ZM9.96838 14.1617C9.14385 13.7586 8.0737 13.557 6.89104 13.557C5.5101 13.557 4.16901 13.917 3.11432 14.5705C1.91854 15.3125 1.11417 16.393 0.789322 17.6975C0.741783 17.8851 0.737287 18.0811 0.776169 18.2707C0.815051 18.4603 0.896305 18.6387 1.01385 18.7925C1.12539 18.9357 1.26828 19.0514 1.43154 19.1307C1.5948 19.21 1.77407 19.2508 1.95557 19.25H7.1587C7.24652 19.25 7.33155 19.2192 7.39896 19.1629C7.46638 19.1066 7.51191 19.0284 7.5276 18.942C7.53276 18.9125 7.53932 18.883 7.54682 18.8539C7.94432 17.2573 8.87573 15.9083 10.252 14.9248C10.3026 14.8884 10.3433 14.8398 10.3704 14.7836C10.3975 14.7274 10.4102 14.6653 10.4073 14.603C10.4044 14.5407 10.3859 14.4801 10.3536 14.4267C10.3214 14.3733 10.2763 14.3288 10.2224 14.2972C10.1489 14.2541 10.0645 14.2086 9.96838 14.1617Z"
@@ -24,7 +24,7 @@ const CodeIcon = () => (
     viewBox="0 0 24 25"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 sm:w-6 sm:h-6"
+    className="w-5 h-5 md:w-6 md:h-6"
   >
     <g clipPath="url(#clip0_2025_18705)">
       <path
@@ -47,7 +47,7 @@ const StarIcon = () => (
     viewBox="0 0 19 19"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4 sm:w-5 sm:h-5"
+    className="w-4 h-4 md:w-5 md:h-5"
   >
     <path
       d="M9.5 15.5745L14.1074 18.3368C14.9511 18.843 15.9836 18.0947 15.7616 17.1482L14.5403 11.9537L18.6148 8.45405C19.3586 7.81575 18.959 6.60517 17.982 6.52813L12.6197 6.07692L10.5214 1.16857C10.1439 0.277143 8.85608 0.277143 8.47861 1.16857L6.38032 6.06591L1.01801 6.51713C0.0410305 6.59416 -0.358644 7.80474 0.385195 8.44305L4.45966 11.9427L3.23843 17.1372C3.01639 18.0837 4.04888 18.832 4.89264 18.3258L9.5 15.5745Z"
@@ -64,46 +64,46 @@ const Hero = () => {
   ]
 
   return (
-    <section className="px-4 sm:px-6 py-8 sm:py-12 lg:py-16 max-w-7xl mx-auto">
+    <section className="px-4 md:px-6 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto">
       <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-center">
         {/* Content Section */}
-        <div className="lg:col-span-3 space-y-6 sm:space-y-8 order-2 lg:order-1">
+        <div className="lg:col-span-3 space-y-6 md:space-y-8 order-2 lg:order-1">
           <div className="text-left">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4 sm:mb-6">
+            <h1 className="text-2xl md:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4 md:mb-6">
               Unlock Your Tech Potential & Build the Future!
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
               Learn AI, Chatbots & App Development with Interactive, Hands-on Courses Designed for All Skill Levels.
             </p>
-            <button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6 sm:px-8 py-3 sm:py-4 rounded-md font-semibold transition-colors text-sm sm:text-base">
+            <button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6 md:px-8 py-3 md:py-4 rounded-md font-semibold transition-colors text-sm md:text-base">
               Find Courses
             </button>
           </div>
 
           {/* Stats Section */}
-          <div className="mt-8 sm:mt-12 lg:mt-16">
-            <div className="bg-sky-ice p-4 sm:p-4 rounded-lg">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-2">
+          <div className="mt-8 md:mt-12 lg:mt-16">
+            <div className="bg-sky-ice p-4 md:p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-2">
                 {stats.map((stat, index) => (
                   <React.Fragment key={index}>
-                    <div className="flex items-center sm:justify-equal relative">
-                      <div className="flex flex-col gap-2 max-sm:flex-row flex-1 max-sm:justify-between max-sm:items-center">
+                    <div className="flex items-center md:justify-equal relative">
+                      <div className="flex flex-col gap-2 max-md:flex-row flex-1 max-md:justify-between max-md:items-center">
                         <div className="flex items-center">
-                          <span className="text-2xl sm:text-3xl lg:text-[40px] font-black text-aqua-mist">
+                          <span className="text-2xl md:text-3xl lg:text-[40px] font-black text-aqua-mist">
                             {stat.number}
                           </span>
                         </div>
-                        <div className="flex items-center max-sm:justify-end max-sm:text-right justify-center text-left gap-2 text-gray-600">
+                        <div className="flex items-center max-md:justify-end max-md:text-right justify-center text-left gap-2 text-gray-600">
                           <span className="shrink-0">{stat.icon}</span>
-                          <span className="text-sm sm:text-base font-manrope leading-tight flex-1">
+                          <span className="text-sm md:text-base font-manrope leading-tight flex-1">
                             {stat.label}
                           </span>
                         </div>
                       </div>
                     {/* Divider - only show on larger screens and not after last item */}
                     {index < stats.length - 1 && (
-                      <div className="absolute max-sm:left-0 max-sm:-bottom-2 max-sm:w-full sm:right-5">
-                        <div className="h-px w-full sm:h-14 sm:w-px max-sm:bg-[#c8c8c836] bg-[#c8c8c8] mx-auto" />
+                      <div className="absolute max-md:left-0 max-md:-bottom-2 max-md:w-full md:right-5">
+                        <div className="h-px w-full md:h-14 md:w-px max-md:bg-[#c8c8c836] bg-[#c8c8c8] mx-auto" />
                       </div>
                     )}
                     </div>

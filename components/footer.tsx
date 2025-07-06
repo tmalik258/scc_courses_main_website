@@ -2,7 +2,7 @@ export function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200">
       <div className="max-w-6xl mx-auto px-6 py-6 font-medium">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
           {/* WhatsApp Contact */}
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full flex items-center justify-center">

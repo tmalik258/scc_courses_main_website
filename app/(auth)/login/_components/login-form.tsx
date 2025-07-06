@@ -33,7 +33,7 @@ export function LoginForm() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-2">Log in to your account</h1>
+        <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">Log in to your account</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,13 +91,13 @@ export function LoginForm() {
         </div>
 
         {/* Login Button */}
-        <Button type="submit" className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3">
+        <Button type="submit" className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 max-md:text-sm">
           Log in
         </Button>
       </form>
 
       {/* Sign up Link */}
-      <div className="text-center">
+      <div className="text-center max-md:text-sm">
         <span className="text-gray-600">Haven&apos;t an account? </span>
         <Link href="/signup" className="text-aqua-mist hover:text-aqua-depth font-medium">
           Sign up

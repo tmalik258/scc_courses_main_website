@@ -53,28 +53,28 @@ export default function PaymentSuccessPage({
         </div>
 
         {/* Main Heading */}
-        <h1 className="text-2xl font-semibold text-gray-800">
+        <h1 className="md:text-2xl font-semibold text-gray-800">
           Payment Successful!
         </h1>
 
         {/* Description */}
-        <p className="text-gray-600 leading-relaxed">
+        <p className="max-md:text-sm text-gray-600 leading-relaxed">
           Thank you for your purchase. Your payment has been confirmed and you
           now have full access to the course.
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col md:flex-row gap-4 justify-center">
           <Button
             variant="outline"
             onClick={handleBackToHome}
-            className="px-8 py-3 bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="max-md:text-smpx-8 py-3 bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             Back to Home
           </Button>
           <Button
             onClick={handleStartLearning}
-            className="px-8 py-3 bg-aqua-mist hover:bg-aqua-depth text-white"
+            className="max-md:text-smpx-8 py-3 bg-aqua-mist hover:bg-aqua-depth text-white"
           >
             Start Learning Now
           </Button>
