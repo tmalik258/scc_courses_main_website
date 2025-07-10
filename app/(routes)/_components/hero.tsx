@@ -65,14 +65,14 @@ const Hero = () => {
 
   return (
     <section className="px-4 md:px-6 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto">
-      <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+      <div className="grid md:grid-cols-5 gap-8 lg:gap-12 items-center">
         {/* Content Section */}
-        <div className="lg:col-span-3 space-y-6 md:space-y-8 order-2 lg:order-1">
+        <div className="md:col-span-3 space-y-6 md:space-y-8 order-2 lg:order-1">
           <div className="text-left">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4 md:mb-6">
+            <h1 className="text-2xl sm:text-3xl xl:text-5xl font-bold text-gray-900 leading-tight mb-4 md:mb-6">
               Unlock Your Tech Potential & Build the Future!
             </h1>
-            <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            <p className="text-base md:text-md text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
               Learn AI, Chatbots & App Development with Interactive, Hands-on Courses Designed for All Skill Levels.
             </p>
             <button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6 md:px-8 py-3 md:py-4 rounded-md font-semibold transition-colors text-sm md:text-base">
@@ -83,27 +83,27 @@ const Hero = () => {
           {/* Stats Section */}
           <div className="mt-8 md:mt-12 lg:mt-16">
             <div className="bg-sky-ice p-4 md:p-4 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-2">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-2">
                 {stats.map((stat, index) => (
                   <React.Fragment key={index}>
-                    <div className="flex items-center md:justify-equal relative">
-                      <div className="flex flex-col gap-2 max-md:flex-row flex-1 max-md:justify-between max-md:items-center">
+                    <div className="flex items-center lg:justify-equal relative">
+                      <div className="flex flex-col gap-2 max-lg:flex-row flex-1 max-lg:justify-between max-lg:items-center">
                         <div className="flex items-center">
-                          <span className="text-2xl md:text-3xl lg:text-[40px] font-black text-aqua-mist">
+                          <span className="text-2xl xl:text-[40px] font-black text-aqua-mist">
                             {stat.number}
                           </span>
                         </div>
-                        <div className="flex items-center max-md:justify-end max-md:text-right justify-center text-left gap-2 text-gray-600">
+                        <div className="flex items-center max-lg:justify-end max-lg:text-right justify-center text-left gap-2 text-gray-600">
                           <span className="shrink-0">{stat.icon}</span>
-                          <span className="text-sm md:text-base font-manrope leading-tight flex-1">
+                          <span className="text-sm lg:text-base font-manrope leading-tight flex-1">
                             {stat.label}
                           </span>
                         </div>
                       </div>
                     {/* Divider - only show on larger screens and not after last item */}
                     {index < stats.length - 1 && (
-                      <div className="absolute max-md:left-0 max-md:-bottom-2 max-md:w-full md:right-5">
-                        <div className="h-px w-full md:h-14 md:w-px max-md:bg-[#c8c8c836] bg-[#c8c8c8] mx-auto" />
+                      <div className="absolute max-lg:left-0 max-lg:-bottom-2 max-lg:w-full lg:right-5">
+                        <div className="h-px w-full lg:h-14 lg:w-px max-lg:bg-[#c8c8c836] bg-[#c8c8c8] mx-auto" />
                       </div>
                     )}
                     </div>
@@ -115,7 +115,7 @@ const Hero = () => {
         </div>
 
         {/* Image Section */}
-        <div className="lg:col-span-2 relative order-1 lg:order-2 flex justify-center lg:justify-end">
+        <div className="md:col-span-2 relative order-1 lg:order-2 flex justify-center lg:justify-end overflow-hidden">
           <div className="relative w-full">
             {/* Background SVG - responsive sizing */}
             <div className="relative mx-auto">
@@ -138,8 +138,8 @@ const Hero = () => {
               </svg>
 
               {/* Hero Image - positioned absolutely over SVG */}
-              <div className="absolute inset-0 flex items-center justify-center max-md:bottom-20 max-md:-left-3 lg:-top-2">
-                <div className="w-[350px] h-[380px] lg:w-[470px] lg:h-[450px] rounded-full overflow-hidden">
+              <div className="absolute w-full h-[calc(100%_+_4.5rem)] inset-0 flex items-center justify-center max-md:-left-3 -top-16">
+                <div className="w-full h-full rounded-full overflow-hidden">
                   <Image
                     src="/images/landing_page/hero.png?height=500&width=500"
                     width={500}

@@ -42,9 +42,9 @@ const Header = () => {
 
   const navigationItems = [
     { label: "Courses", path: "/courses" },
-    { label: "About Us", path: "/about-us" },
-    { label: "Reviews", path: "/reviews" },
-    { label: "About Me", path: "/about-me" },
+    // { label: "About Us", path: "/about-us" },
+    // { label: "Reviews", path: "/reviews" },
+    // { label: "About Me", path: "/about-me" },
   ];
 
   const dashboardItems = [
