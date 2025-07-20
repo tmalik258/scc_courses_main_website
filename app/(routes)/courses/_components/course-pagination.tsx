@@ -37,7 +37,7 @@ export function CoursePagination({ currentPage, totalPages, onPageChange }: Cour
   }
 
   return (
-    <div className="flex items-center justify-end space-x-2 mt-8">
+    <div className="flex items-center justify-center md:justify-end space-x-2 mt-8">
       {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
@@ -53,7 +53,7 @@ export function CoursePagination({ currentPage, totalPages, onPageChange }: Cour
           key={page}
           onClick={() => onPageChange(page)}
           className={`px-3 py-2 rounded-lg border ${
-            currentPage === page ? "bg-blue-500 text-white border-blue-500" : "border-gray-300 hover:bg-gray-50"
+            currentPage === page ? "bg-aqua-mist text-white border-aqua-mist" : "border-gray-300 hover:bg-gray-50"
           }`}
         >
           {page}

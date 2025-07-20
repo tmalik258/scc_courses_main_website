@@ -120,3 +120,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+@theme {
+  /* colors */
+  --color-sky-tint: #CFE7FB;
+  --color-sky-ice: #EBF9FF;
+  --color-sky-frost: #F3FBFF;
+  --color-sky-base: #0F5B9C;
+  --color-aqua-mist: #5CB1D1;
+  --color-aqua-depth: #4B9BBA;
+
+  /* font family */
+  --font-dm-sans: var(--font-dm-sans);
+  --font-manrope: var(--font-manrope);
+}

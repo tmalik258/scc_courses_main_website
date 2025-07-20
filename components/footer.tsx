@@ -1,19 +1,28 @@
-import { MessageCircle, Mail } from "lucide-react"
-
 export function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16">
+      <div className="max-w-6xl mx-auto px-6 py-6 font-medium">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
           {/* WhatsApp Contact */}
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-white fill-current" />
+            <div className="w-6 h-6 rounded-full flex items-center justify-center">
+              <svg
+                width="31"
+                height="28"
+                viewBox="0 0 31 28"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M26.9196 4.07407C25.6296 2.77757 24.0931 1.74961 22.3997 1.05015C20.7063 0.35069 18.8898 -0.00627214 17.0563 8.33972e-05C9.37387 8.33972e-05 3.11256 6.23006 3.11256 13.874C3.11256 16.324 3.7598 18.704 4.96985 20.804L3 28L10.3869 26.068C12.4271 27.174 14.7206 27.762 17.0563 27.762C24.7387 27.762 31 21.532 31 13.888C31 10.1781 29.5508 6.69206 26.9196 4.07407ZM17.0563 25.41C14.9739 25.41 12.9337 24.85 11.1467 23.8L10.7246 23.548L6.33467 24.696L7.50251 20.44L7.22111 20.006C6.06417 18.1678 5.44985 16.043 5.44824 13.874C5.44824 7.51806 10.6543 2.33808 17.0422 2.33808C20.1377 2.33808 23.0503 3.54207 25.2312 5.72607C26.311 6.79561 27.1668 8.06779 27.7489 9.46885C28.331 10.8699 28.6278 12.372 28.6221 13.888C28.6503 20.244 23.4442 25.41 17.0563 25.41ZM23.4161 16.786C23.0643 16.618 21.3477 15.778 21.0382 15.652C20.7146 15.54 20.4894 15.484 20.2502 15.82C20.0111 16.17 19.3497 16.954 19.1528 17.178C18.9558 17.416 18.7447 17.444 18.393 17.262C18.0412 17.094 16.9156 16.716 15.593 15.54C14.5518 14.616 13.8623 13.482 13.6513 13.132C13.4543 12.782 13.6231 12.6 13.806 12.418C13.9608 12.264 14.1578 12.012 14.3266 11.816C14.4955 11.62 14.5658 11.466 14.6784 11.242C14.791 11.004 14.7347 10.8081 14.6503 10.6401C14.5658 10.4721 13.8623 8.76406 13.5809 8.06406C13.2995 7.39206 13.004 7.47606 12.793 7.46206H12.1176C11.8784 7.46206 11.5126 7.54606 11.1889 7.89606C10.8794 8.24606 9.97889 9.08606 9.97889 10.7941C9.97889 12.502 11.2312 14.154 11.4 14.378C11.5688 14.616 13.8623 18.116 17.3518 19.614C18.1819 19.978 18.8291 20.188 19.3357 20.342C20.1658 20.608 20.9256 20.566 21.5307 20.482C22.206 20.384 23.599 19.642 23.8804 18.83C24.1759 18.018 24.1759 17.332 24.0774 17.178C23.9789 17.024 23.7678 16.954 23.4161 16.786Z"
+                  fill="#333333"
+                />
+              </svg>
             </div>
             <span className="text-gray-700">WhatsApp us on</span>
             <a
               href="https://wa.me/919773603818"
-              className="text-blue-500 hover:text-blue-600 transition-colors"
+              className="text-aqua-mist hover:text-aqua-depth transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -23,14 +32,16 @@ export function Footer() {
 
           {/* Email Contact */}
           <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-gray-600" />
             <span className="text-gray-700">Email us on</span>
-            <a href="mailto:dummy@gmail.com" className="text-cyan-500 hover:text-cyan-600 transition-colors">
+            <a
+              href="mailto:dummy@gmail.com"
+              className="text-aqua-mist hover:text-aqua-depth transition-colors"
+            >
               dummy@gmail.com
             </a>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }

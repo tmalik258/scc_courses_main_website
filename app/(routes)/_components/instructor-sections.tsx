@@ -4,13 +4,13 @@ import Image from "next/image"
 export function InstructorSection() {
   return (
     <section className="px-6 py-16 bg-[#F3FBFF]">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-12">Hello World</h2>
 
         <div className="flex flex-col lg:flex-row items-center gap-8">
           {/* Profile Image */}
           <div className="flex-shrink-0">
-            <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-sky-400 shadow-xl">
+            <div className="w-64 h-64 rounded-full overflow-hidden border-10 border-aqua-mist shadow-xl">
               <Image
                 width={256}
                 height={256}
@@ -31,7 +31,7 @@ export function InstructorSection() {
               Mobile Application Development, Website Development and Game Development.
             </p>
 
-            <Button className="bg-sky-400 hover:bg-sky-500 text-white px-8 py-3">View Portfolio</Button>
+            <Button className="bg-aqua-mist hover:bg-aqua-depth cursor-pointer font-manrope text-white px-8 py-3">View Portfolio</Button>
           </div>
         </div>
       </div>
