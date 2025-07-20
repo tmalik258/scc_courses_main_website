@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function ConsultancySection() {
   return (
-    <section className="px-6 py-8 max-md:py-16 bg-gray-50">
+    <section className="relative right-8 px-6 py-8 max-md:py-16 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 md:mb-12">
           Our Consultancy Firm
@@ -14,7 +14,13 @@ export function ConsultancySection() {
           <div className="flex items-center gap-6 md:mb-6">
             {/* Logo */}
             <div className="w-40 md:w-56 h-auto flex items-center justify-center flex-shrink-0">
-              <Image src="/images/landing_page/hv_technologies_logo.png" alt="consultancy firm logo" width={96} height={96} className="filter invert brightness-65 w-full h-full object-contain" />
+              <Image
+                src="/images/landing_page/hv_technologies_logo.png"
+                alt="consultancy firm logo"
+                width={96}
+                height={96}
+                className="filter invert brightness-65 w-full h-full object-contain"
+              />
             </div>
           </div>
 
@@ -23,8 +29,8 @@ export function ConsultancySection() {
             <p className="text-gray-600 leading-relaxed mb-8">
               Learning is pivotal for a student&apos;s success in academics and
               life. The Digital Age is deeply shaping the way students learn and
-              will also determine their future prospects, we encourage students to
-              embrace this fast.
+              will also determine their future prospects, we encourage students
+              to embrace this fast.
             </p>
             {/* Visit Website Button */}
             <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-8 py-3 font-manrope max-md:self-end">

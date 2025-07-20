@@ -1,5 +1,5 @@
-import Image from "next/image"
-import React from "react"
+import Image from "next/image";
+import React from "react";
 
 const PeopleIcon = () => (
   <svg
@@ -15,7 +15,7 @@ const PeopleIcon = () => (
       fill="#5CB1D1"
     />
   </svg>
-)
+);
 
 const CodeIcon = () => (
   <svg
@@ -34,11 +34,16 @@ const CodeIcon = () => (
     </g>
     <defs>
       <clipPath id="clip0_2025_18705">
-        <rect width="24" height="24" fill="white" transform="translate(0 0.5)" />
+        <rect
+          width="24"
+          height="24"
+          fill="white"
+          transform="translate(0 0.5)"
+        />
       </clipPath>
     </defs>
   </svg>
-)
+);
 
 const StarIcon = () => (
   <svg
@@ -54,17 +59,17 @@ const StarIcon = () => (
       fill="#5CB1D1"
     />
   </svg>
-)
+);
 
 const Hero = () => {
   const stats = [
     { number: "50+", label: "Students Educated", icon: <PeopleIcon /> },
     { number: "100+", label: "Apps Developed & Published", icon: <CodeIcon /> },
     { number: "50+", label: "Reviews on Google", icon: <StarIcon /> },
-  ]
+  ];
 
   return (
-    <section className="px-4 md:px-6 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto">
+    <section className="relative right-6  px-4 md:px-6 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto">
       <div className="grid md:grid-cols-5 gap-8 lg:gap-12 items-center">
         {/* Content Section */}
         <div className="md:col-span-3 space-y-6 md:space-y-8 order-2 lg:order-1">
@@ -73,7 +78,8 @@ const Hero = () => {
               Unlock Your Tech Potential & Build the Future!
             </h1>
             <p className="text-base md:text-md text-gray-600 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Learn AI, Chatbots & App Development with Interactive, Hands-on Courses Designed for All Skill Levels.
+              Learn AI, Chatbots & App Development with Interactive, Hands-on
+              Courses Designed for All Skill Levels.
             </p>
             <button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6 md:px-8 py-3 md:py-4 rounded-md font-semibold transition-colors text-sm md:text-base">
               Find Courses
@@ -100,12 +106,12 @@ const Hero = () => {
                           </span>
                         </div>
                       </div>
-                    {/* Divider - only show on larger screens and not after last item */}
-                    {index < stats.length - 1 && (
-                      <div className="absolute max-lg:left-0 max-lg:-bottom-2 max-lg:w-full lg:right-5">
-                        <div className="h-px w-full lg:h-14 lg:w-px max-lg:bg-[#c8c8c836] bg-[#c8c8c8] mx-auto" />
-                      </div>
-                    )}
+                      {/* Divider - only show on larger screens and not after last item */}
+                      {index < stats.length - 1 && (
+                        <div className="absolute max-lg:left-0 max-lg:-bottom-2 max-lg:w-full lg:right-5">
+                          <div className="h-px w-full lg:h-14 lg:w-px max-lg:bg-[#c8c8c836] bg-[#c8c8c8] mx-auto" />
+                        </div>
+                      )}
                     </div>
                   </React.Fragment>
                 ))}
@@ -126,7 +132,13 @@ const Hero = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 preserveAspectRatio="xMidYMid meet"
               >
-                <circle cx="212.54" cy="197.46" r="195.92" stroke="#5CB1D1" strokeWidth="1.24" />
+                <circle
+                  cx="212.54"
+                  cy="197.46"
+                  r="195.92"
+                  stroke="#5CB1D1"
+                  strokeWidth="1.24"
+                />
                 <path
                   d="M480.49 192.1C484.037 247.321 469.015 302.142 437.814 347.84C406.612 393.539 361.024 427.49 308.302 444.291C255.58 461.093 198.754 459.78 146.864 440.561C94.9747 421.342 51.0031 385.322 21.9457 338.231L233 208L480.49 192.1Z"
                   fill="#5CB1D1"
@@ -155,7 +167,7 @@ const Hero = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;

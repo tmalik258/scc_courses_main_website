@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export function InstructorSection() {
   return (
-    <section className="px-6 py-16 bg-[#F3FBFF]">
+    <section className="relative right-10 px-6 py-16 bg-[#F3FBFF]">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-12">Hello World</h2>
 
@@ -23,18 +23,25 @@ export function InstructorSection() {
 
           {/* Content */}
           <div className="flex-1 text-center lg:text-left">
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">I&apos;m Hardik Vij</h3>
-            <p className="text-gray-600 mb-4">Developer | Educator | Entrepreneur | Youtuber</p>
-
-            <p className="text-gray-700 leading-relaxed mb-6">
-              I&apos;m a determined passionate and hard working individual with underlying self motivation and experience in
-              Mobile Application Development, Website Development and Game Development.
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              I&apos;m Hardik Vij
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Developer | Educator | Entrepreneur | Youtuber
             </p>
 
-            <Button className="bg-aqua-mist hover:bg-aqua-depth cursor-pointer font-manrope text-white px-8 py-3">View Portfolio</Button>
+            <p className="text-gray-700 leading-relaxed mb-6">
+              I&apos;m a determined passionate and hard working individual with
+              underlying self motivation and experience in Mobile Application
+              Development, Website Development and Game Development.
+            </p>
+
+            <Button className="bg-aqua-mist hover:bg-aqua-depth cursor-pointer font-manrope text-white px-8 py-3">
+              View Portfolio
+            </Button>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

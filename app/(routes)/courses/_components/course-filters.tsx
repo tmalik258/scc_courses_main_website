@@ -185,9 +185,11 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
                   <div className="flex">
                     {rating !== "All" &&
                       Array.from({ length: parseInt(rating) }, (_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-500 fill-current inline" />
-                      ))
-                    }
+                        <Star
+                          key={i}
+                          className="w-4 h-4 text-yellow-500 fill-current inline"
+                        />
+                      ))}
                   </div>
                   ({rating})
                 </label>
