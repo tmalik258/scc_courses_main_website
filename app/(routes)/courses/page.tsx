@@ -270,7 +270,7 @@ export default function BrowseCourses() {
             <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-2">
               Browse All Courses
             </h1>
-            <p className="text-sm text-gray-600">
+            <p className="text-lg text-gray-600">
               Find the perfect course for your learning journey and start
               building real-world skills today
             </p>
@@ -283,25 +283,34 @@ export default function BrowseCourses() {
         {/* Sidebar Filters */}
         <div
           className={`${
-            filterOpen ? "max-md:translate-x-0 visible opacity-100" : "max-md:translate-x-full max-md:invisible max-md:opacity-0"
+            filterOpen
+              ? "max-md:translate-x-0 visible opacity-100"
+              : "max-md:translate-x-full max-md:invisible max-md:opacity-0"
           } transition-all duration-300 ease-in-out max-md:fixed max-md:top-0 max-md:right-0 max-md:inset-y-0 max-md:z-50 max-md:overflow-auto`}
         >
-          <div className="absolute top-7 right-6"><X onClick={handleFilterToggle} className="w-5 h-5 cursor-pointer" /></div>
+          <div className="absolute top-7 right-6">
+            <X
+              onClick={handleFilterToggle}
+              className="w-5 h-5 cursor-pointer"
+            />
+          </div>
           <CourseFilters onFilterChange={handleFilterChange} />
         </div>
 
         <div className="flex-1 flex flex-col px-2">
           {/* Search and Sort */}
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 md:px-6">
-            <div className="relative flex-1 max-w-md flex items-center gap-2">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="relative flex-1 flex items-center gap-2">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+
               <Input
                 type="text"
-                placeholder="Search courses..."
+                placeholder="Search for courses"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 flex-1"
+                className="w-full pl-12 pr-6 py-5 text-base md:text-lg placeholder:text-sm border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
+
               <div
                 className="md:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 h-full text-sm text-gray-600 cursor-pointer"
                 onClick={handleFilterToggle}
