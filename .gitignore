@@ -44,3 +44,4 @@ firebase-debug.log
 firebase-debug.*.log
 
 .firebase/*
+/lib/generated/prisma
