@@ -4,8 +4,8 @@ import { Star } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "nextjs-toploader/app"
 
-interface CourseCardProps {
-  id: number
+export interface CourseCardProps {
+  id: string
   category: string
   categoryTextColor: string
   categoryBgColor: string

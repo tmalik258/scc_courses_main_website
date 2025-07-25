@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CourseCard, CourseCardProps } from "./course-card";
-import { CourseFilterTabs } from "./course-filter-tabs";
+import { CourseFilterTabs } from "../_components/course-filter-tabs";
+import { CourseCard } from "@/components/course/course-card";
 
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -20,7 +20,7 @@ export default function MostPopularCourses() {
         const data: CourseCardProps[] = await response.json();
         setCourses(data);
         setLoading(false);
-      } catch (error: unknown) {
+      } catch {
         setError("Error loading courses. Please try again later.");
         setLoading(false);
       }
@@ -99,7 +99,7 @@ export default function MostPopularCourses() {
               mentor={course.mentor}
               students={course.students}
               rating={course.rating}
-              price={course.price}
+              originalPrice={course.price}
               image={course.thumbnail_url}
             />
           ))}

@@ -3,7 +3,7 @@ import { CourseCard } from "../_components/course-card";
 export default function CompletedCourses() {
   const completedCourses = [
     {
-      id: 1,
+      id: "1",
       category: "Make Automations",
       categoryBgColor: "bg-orange-500/25",
       categoryTextColor: "text-orange-500",
@@ -17,7 +17,7 @@ export default function CompletedCourses() {
       completedDate: "23 Feb 2025",
     },
     {
-      id: 2,
+      id: "2",
       category: "Web Development",
       categoryBgColor: "bg-aqua-mist/25",
       categoryTextColor: "text-aqua-mist",
@@ -31,7 +31,7 @@ export default function CompletedCourses() {
       completedDate: "5 Feb 2025",
     },
     {
-      id: 3,
+      id: "3",
       category: "AI Calling",
       categoryBgColor: "bg-purple-500/25",
       categoryTextColor: "text-purple-500",
