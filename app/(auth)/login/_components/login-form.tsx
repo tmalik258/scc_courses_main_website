@@ -1,30 +1,35 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { login } from "@/actions/auth";
-import GoogleSigninButton from "../../_components/google-signin-button";
-import Divider from "@/app/(routes)/_components/divider";
+import { toast } from "sonner";
+// import GoogleSigninButton from "../../_components/google-signin-button"
+// import Divider from "@/components/divider"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   });
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleSubmit = async (formData: FormData) => {
+    const result = await login(formData);
+    if (result?.error) {
+      toast.error(result.error);
+    }
   };
 
   return (
@@ -35,7 +40,7 @@ export function LoginForm() {
         </h1>
       </div>
 
-      <form className="space-y-4">
+      <form className="space-y-4" action={handleSubmit}>
         {/* Email Field */}
         <div>
           <label
@@ -89,26 +94,8 @@ export function LoginForm() {
           </div>
         </div>
 
-        {/* Remember Me */}
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="remember"
-            checked={formData.rememberMe}
-            onCheckedChange={(checked) =>
-              handleInputChange("rememberMe", checked as boolean)
-            }
-          />
-          <label
-            htmlFor="remember"
-            className="text-sm text-gray-600 cursor-pointer"
-          >
-            Remember me
-          </label>
-        </div>
-
         {/* Login Button */}
         <Button
-          formAction={login}
           type="submit"
           className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 max-md:text-sm"
         >
@@ -116,10 +103,10 @@ export function LoginForm() {
         </Button>
 
         {/* Divider */}
-        <Divider text="atau" />
+        {/* <Divider text="atau" /> */}
 
         {/* Google Sign up */}
-        <GoogleSigninButton />
+        {/* <GoogleSigninButton /> */}
       </form>
 
       {/* Sign up Link */}

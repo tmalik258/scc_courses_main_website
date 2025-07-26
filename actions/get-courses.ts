@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma } from "../generated/prisma";
+import { Prisma } from "../lib/generated/prisma";
 import prisma from "@/lib/prisma";
 import { CourseData } from "@/types/course";
 
