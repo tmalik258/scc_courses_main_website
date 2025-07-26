@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { MyCourseCard } from "./_components/my-course-card";
 import type { MyCourseCardProps } from "./_components/my-course-card";
-import { getMyCourses } from "@/lib/actions/get-my-courses";
+import { getMyCourses } from "@/actions/get-my-courses";
 
 export default function MyCoursesPage() {
   const [activeTab, setActiveTab] = useState("All");

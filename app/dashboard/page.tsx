@@ -3,7 +3,7 @@ import { CourseTopicChart } from "./_components/course-topic-chart";
 import { LearningOverview } from "./_components/learning-overview";
 import { MyCourses } from "./_components/my-courses";
 import { SpendHoursChart } from "./_components/spend-hours-chart";
-import { getDashboardData } from "@/lib/actions/dashboard";
+import { getDashboardData } from "@/actions/dashboard";
 
 export default async function Dashboard() {
   try {

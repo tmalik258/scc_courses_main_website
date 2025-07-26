@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CourseCard } from "@/components/course/course-card";
 import { CourseFilterTabs } from "./course-filter-tabs";
-import { usePopularCourses, useFilteredCourses } from "@/app/hooks/use-courses";
+import { usePopularCourses, useFilteredCourses } from "@/hooks/use-courses";
 
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getSavedCourses } from "@/lib/actions/get-saved-courses";
+import { getSavedCourses } from "@/actions/get-saved-courses";
 import { SavedCourseCard } from "./_components/saved-course-card";
 
 export default async function SavedCoursePage() {

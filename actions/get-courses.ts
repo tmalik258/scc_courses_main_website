@@ -2,7 +2,7 @@
 
 import { Prisma } from "../generated/prisma";
 import prisma from "@/lib/prisma";
-import { CourseData } from "@/app/types/course";
+import { CourseData } from "@/types/course";
 
 // Define the type for the Prisma query result
 type CourseWithRelations = Prisma.coursesGetPayload<{

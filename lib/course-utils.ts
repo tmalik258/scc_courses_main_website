@@ -4,7 +4,7 @@ import type {
   CourseData,
   CategoryColors,
   CategoryColorMap,
-} from "@/app/types/course";
+} from "@/types/course";
 
 export const getCategoryColors = (categoryName: string): CategoryColors => {
   const colorMap: CategoryColorMap = {

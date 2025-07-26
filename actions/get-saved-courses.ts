@@ -1,4 +1,4 @@
-import prisma from "../prisma";
+import prisma from "../lib/prisma";
 import { unstable_noStore as noStore } from "next/cache"; // optional for fresh data
 
 export async function getSavedCourses(userId: string) {

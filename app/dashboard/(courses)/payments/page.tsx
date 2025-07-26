@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PaymentCard } from "./_components/payment-card";
-import { getUserPayments } from "@/lib/actions/get-payments";
+import { getUserPayments } from "@/actions/get-payments";
 import { createClient } from "@/lib/supabase/server";
 export default function PaymentPage() {
   const [activeTab, setActiveTab] = useState("All");
