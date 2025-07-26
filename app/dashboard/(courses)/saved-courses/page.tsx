@@ -1,59 +1,38 @@
-import { SavedCourseCard } from "./_components/saved-course-card"
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { getSavedCourses } from "@/lib/actions/get-saved-courses";
+import { SavedCourseCard } from "./_components/saved-course-card";
 
-export default function SavedCoursePage() {
-  const savedCourses = [
-    {
-      id: 1,
-      category: "Data Science",
-      categoryBgColor: "bg-blue-600/25",
-      categoryTextColor: "text-blue-600",
-      title: "Machine Learning with Python: From Basics to Deployment",
-      mentor: "Mentor's Name",
-      students: "320+ students",
-      rating: "4.8/5",
-      originalPrice: "₹1,350",
-      discountedPrice: "₹1,350",
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-    {
-      id: 2,
-      category: "WhatsApp Chatbots",
-      categoryBgColor: "bg-green-500/25",
-      categoryTextColor: "text-green-500",
-      title: "Build a WhatsApp Chatbot with Node.js & Twilio API",
-      mentor: "Mentor's Name",
-      students: "230+ students",
-      rating: "4.5/5",
-      originalPrice: "₹1,350",
-      discountedPrice: "₹1,550",
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-    {
-      id: 3,
-      category: "AI Calling",
-      categoryBgColor: "bg-purple-500/25",
-      categoryTextColor: "text-purple-500",
-      title: "Create Smart Call Assistants using Voice AI",
-      mentor: "Mentor's Name",
-      students: "190+ students",
-      rating: "4.6/5",
-      originalPrice: "₹1,350",
-      discountedPrice: "₹1,850",
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-  ]
+export default async function SavedCoursePage() {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await (await supabase).auth.getUser();
+
+  if (!user) {
+    redirect("/login"); // or wherever your login page is
+  }
+
+  const userId = user.id;
+
+  const savedCourses = await getSavedCourses(userId);
 
   return (
     <div className="space-y-6">
-      {savedCourses.map((course, index) => (
-        <SavedCourseCard key={index} {...course} />
-      ))}
-
-      {/* Empty State */}
-      {savedCourses.length === 0 && (
+      {savedCourses.length > 0 ? (
+        savedCourses.map((course) => (
+          <SavedCourseCard key={course.id} {...course} />
+        ))
+      ) : (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -62,10 +41,14 @@ export default function SavedCoursePage() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-800 mb-2">No saved courses</h3>
-          <p className="text-gray-600">Courses you bookmark will appear here for easy access.</p>
+          <h3 className="text-lg font-medium text-gray-800 mb-2">
+            No saved courses
+          </h3>
+          <p className="text-gray-600">
+            Courses you bookmark will appear here for easy access.
+          </p>
         </div>
       )}
     </div>
-  )
+  );
 }

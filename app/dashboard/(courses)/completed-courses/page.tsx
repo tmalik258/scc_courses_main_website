@@ -49,7 +49,13 @@ export default function CompletedCourses() {
   return (
     <div>
       {completedCourses.map((course, index) => (
-        <CourseCard key={index} {...course} />
+        <CourseCard
+          students={""}
+          rating={""}
+          price={""}
+          key={index}
+          {...course}
+        />
       ))}
     </div>
   );

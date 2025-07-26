@@ -1,57 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CourseCard } from "@/components/course/course-card";
 import { CourseFilterTabs } from "./course-filter-tabs";
-
-interface Course {
-  id: string;
-  category: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
-  title: string;
-  mentor: string;
-  students: string;
-  rating: string;
-  price: string;
-  image: string;
-}
+import { usePopularCourses, useFilteredCourses } from "@/app/hooks/use-courses";
 
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchCourses() {
-      try {
-        const response = await fetch("/api/courses/popular");
-        if (!response.ok) {
-          throw new Error("Failed to fetch courses");
-        }
-        const data: Course[] = await response.json();
-        setCourses(data);
-        setLoading(false);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error: unknown) {
-        setError("Error loading courses. Please try again later.");
-        setLoading(false);
-      }
-    }
-    fetchCourses();
-  }, []);
-
-  const filteredCourses =
-    activeFilter === "All"
-      ? courses
-      : courses.filter((course) => course.category === activeFilter);
+  const { courses, loading, error, refetch } = usePopularCourses();
+  const filteredCourses = useFilteredCourses(courses, activeFilter);
 
   if (loading) {
     return (
       <section className="bg-aqua-mist px-2 md:px-6 py-12">
         <div className="max-w-7xl mx-auto">
-          <p className="text-white text-center">Loading courses...</p>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-white text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+              <p>Loading popular courses...</p>
+            </div>
+          </div>
         </div>
       </section>
     );
@@ -61,7 +29,31 @@ export default function MostPopularCourses() {
     return (
       <section className="bg-aqua-mist px-2 md:px-6 py-12">
         <div className="max-w-7xl mx-auto">
-          <p className="text-white text-center">{error}</p>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-white text-center">
+              <p className="text-lg mb-4">{error}</p>
+              <button
+                onClick={() => refetch()}
+                className="bg-white text-aqua-mist px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (courses.length === 0) {
+    return (
+      <section className="bg-aqua-mist px-2 md:px-6 py-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-white text-center">
+              <p className="text-lg">No courses available at the moment.</p>
+            </div>
+          </div>
         </div>
       </section>
     );
@@ -101,6 +93,7 @@ export default function MostPopularCourses() {
           onFilterChange={setActiveFilter}
         />
 
+        {/* Grid layout for 8 courses - 2 rows of 4 on large screens */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {filteredCourses.map((course) => (
             <CourseCard
@@ -114,12 +107,24 @@ export default function MostPopularCourses() {
               students={course.students}
               rating={course.rating}
               price={course.price}
-              image={course.image}
+              image={course.thumbnail_url}
+              thumbnail_url={course.thumbnail_url}
+              originalPrice={course.originalPrice}
+              discountedPrice={course.discountedPrice}
+              discount={course.discount}
             />
           ))}
         </div>
 
-        {activeFilter !== "All" && (
+        {filteredCourses.length === 0 && activeFilter !== "All" && (
+          <div className="text-center mt-8">
+            <p className="text-white/80 text-lg">
+              No courses found in the &quot;{activeFilter}&quot; category.
+            </p>
+          </div>
+        )}
+
+        {activeFilter !== "All" && filteredCourses.length > 0 && (
           <div className="text-center mt-8">
             <p className="text-white/80">
               Showing {filteredCourses.length} course

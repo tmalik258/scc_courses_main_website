@@ -1,22 +1,25 @@
-"use client"
+"use client";
 
-import { Star } from "lucide-react"
-import Image from "next/image"
-import { useRouter } from "nextjs-toploader/app"
+import { Star } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "nextjs-toploader/app";
 
 export interface CourseCardProps {
-  id: string
-  category: string
-  categoryTextColor: string
-  categoryBgColor: string
-  title: string
-  mentor: string
-  students: string
-  rating: string
-  originalPrice: string
-  discountedPrice: string
-  discount: string
-  image: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  price: any;
+  thumbnail_url: string;
+  id: string;
+  category: string;
+  categoryTextColor: string;
+  categoryBgColor: string;
+  title: string;
+  mentor: string;
+  students: string;
+  rating: string;
+  originalPrice: string;
+  discountedPrice: string;
+  discount: string;
+  image: string;
 }
 
 export function CourseCard({
@@ -33,11 +36,11 @@ export function CourseCard({
   discount,
   image,
 }: CourseCardProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/courses/${id}`)
-  }
+    router.push(`/courses/${id}`);
+  };
 
   return (
     <div
@@ -69,13 +72,17 @@ export function CourseCard({
           <div className="flex-1 min-w-0">
             {/* Category Badge */}
             <div className="mb-2">
-              <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-2 py-1 rounded-sm font-medium`}>
+              <span
+                className={`${categoryBgColor} ${categoryTextColor} text-xs px-2 py-1 rounded-sm font-medium`}
+              >
                 {category}
               </span>
             </div>
 
             {/* Course Title */}
-            <h3 className="font-bold text-sm text-gray-800 mb-1 line-clamp-2 leading-tight">{title}</h3>
+            <h3 className="font-bold text-sm text-gray-800 mb-1 line-clamp-2 leading-tight">
+              {title}
+            </h3>
 
             {/* Mentor */}
             <p className="text-gray-500 text-xs mb-2 font-manrope">{mentor}</p>
@@ -91,7 +98,13 @@ export function CourseCard({
               <span>{rating}</span>
             </div>
             <div className="flex items-center gap-1">
-              <svg width="16" height="16" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 25"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M16 11.2813C17.66 11.2813 18.99 9.94125 18.99 8.28125C18.99 6.62125 17.66 5.28125 16 5.28125C14.34 5.28125 13 6.62125 13 8.28125C13 9.94125 14.34 11.2813 16 11.2813ZM8 11.2813C9.66 11.2813 10.99 9.94125 10.99 8.28125C10.99 6.62125 9.66 5.28125 8 5.28125C6.34 5.28125 5 6.62125 5 8.28125C5 9.94125 6.34 11.2813 8 11.2813ZM8 13.2813C5.67 13.2813 1 14.4513 1 16.7813V19.2813H15V16.7813C15 14.4513 10.33 13.2813 8 13.2813ZM16 13.2813C15.71 13.2813 15.38 13.3013 15.03 13.3313C16.19 14.1713 17 15.3013 17 16.7813V19.2813H23V16.7813C23 14.4513 18.33 13.2813 16 13.2813Z"
                   fill="#FFBB00"
@@ -103,8 +116,12 @@ export function CourseCard({
 
           {/* Pricing */}
           <div className="flex items-center gap-2">
-            <span className="text-gray-400 line-through text-sm">₹{originalPrice}</span>
-            <span className="text-aqua-mist font-extrabold text-lg">₹{discountedPrice}</span>
+            <span className="text-gray-400 line-through text-sm">
+              ₹{originalPrice}
+            </span>
+            <span className="text-aqua-mist font-extrabold text-lg">
+              ₹{discountedPrice}
+            </span>
           </div>
         </div>
       </div>
@@ -126,7 +143,9 @@ export function CourseCard({
         <div className="p-4 pt-0 pb-3">
           {/* Category Badge */}
           <div className="mb-3">
-            <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-sm font-medium`}>
+            <span
+              className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-sm font-medium`}
+            >
               {category}
             </span>
           </div>
@@ -134,7 +153,13 @@ export function CourseCard({
           {/* Stats */}
           <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
             <div className="flex items-center gap-1">
-              <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="24"
+                height="25"
+                viewBox="0 0 24 25"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M16 11.2813C17.66 11.2813 18.99 9.94125 18.99 8.28125C18.99 6.62125 17.66 5.28125 16 5.28125C14.34 5.28125 13 6.62125 13 8.28125C13 9.94125 14.34 11.2813 16 11.2813ZM8 11.2813C9.66 11.2813 10.99 9.94125 10.99 8.28125C10.99 6.62125 9.66 5.28125 8 5.28125C6.34 5.28125 5 6.62125 5 8.28125C5 9.94125 6.34 11.2813 8 11.2813ZM8 13.2813C5.67 13.2813 1 14.4513 1 16.7813V19.2813H15V16.7813C15 14.4513 10.33 13.2813 8 13.2813ZM16 13.2813C15.71 13.2813 15.38 13.3013 15.03 13.3313C16.19 14.1713 17 15.3013 17 16.7813V19.2813H23V16.7813C23 14.4513 18.33 13.2813 16 13.2813Z"
                   fill="#FFBB00"
@@ -149,7 +174,9 @@ export function CourseCard({
           </div>
 
           {/* Course Title */}
-          <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2 leading-tight">{title}</h3>
+          <h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2 leading-tight">
+            {title}
+          </h3>
 
           {/* Mentor */}
           <p className="text-gray-500 mb-4 font-manrope">{mentor}</p>
@@ -157,8 +184,12 @@ export function CourseCard({
           {/* Pricing */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 line-through text-xl">₹{originalPrice}</span>
-              <span className="text-aqua-mist font-extrabold text-2xl">₹{discountedPrice}</span>
+              <span className="text-gray-400 line-through text-xl">
+                ₹{originalPrice}
+              </span>
+              <span className="text-aqua-mist font-extrabold text-2xl">
+                ₹{discountedPrice}
+              </span>
             </div>
             <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-sm font-medium font-manrope">
               {discount}
@@ -167,5 +198,5 @@ export function CourseCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -6,7 +6,7 @@ import Image from "next/image";
 // import { useRouter } from "nextjs-toploader/app";
 
 interface SavedCourseCardProps {
-  id: number;
+  id: string;
   category: string;
   categoryBgColor: string;
   categoryTextColor: string;
@@ -107,7 +107,11 @@ export function SavedCourseCard({
                 : "text-gray-400 hover:text-aqua-depth hover:bg-sky-50"
             }`}
           >
-            <Bookmark className={`w-4 h-4 md:w-6 md:h-6 ${isSaved ? "fill-current" : ""}`} />
+            <Bookmark
+              className={`w-4 h-4 md:w-6 md:h-6 ${
+                isSaved ? "fill-current" : ""
+              }`}
+            />
           </button>
         </div>
 

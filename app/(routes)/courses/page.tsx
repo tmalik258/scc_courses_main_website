@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CourseFilterTabs } from "../_components/course-filter-tabs";
-import { CourseCard } from "@/components/course/course-card";
+import { CourseCard, CourseCardProps } from "@/components/course/course-card";
 
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -99,8 +99,12 @@ export default function MostPopularCourses() {
               mentor={course.mentor}
               students={course.students}
               rating={course.rating}
-              originalPrice={course.price}
+              price={course.price}
               image={course.thumbnail_url}
+              originalPrice={course.originalPrice}
+              discountedPrice={course.discountedPrice}
+              discount={course.discount}
+              thumbnail_url={""}
             />
           ))}
         </div>

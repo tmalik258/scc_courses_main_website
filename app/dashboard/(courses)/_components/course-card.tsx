@@ -15,6 +15,9 @@ interface CourseCardProps {
   rating: string;
   price: string;
   image: string;
+  originalPrice?: string;
+  discountedPrice?: string;
+  discount?: string;
 }
 
 export function CourseCard({

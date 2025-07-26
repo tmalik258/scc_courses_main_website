@@ -1,70 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PaymentCard } from "./_components/payment-card"
-
+import { useEffect, useState } from "react";
+import { PaymentCard } from "./_components/payment-card";
+import { getUserPayments } from "@/lib/actions/get-payments";
+import { createClient } from "@/lib/supabase/server";
 export default function PaymentPage() {
-  const [activeTab, setActiveTab] = useState("All")
+  const [activeTab, setActiveTab] = useState("All");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [allPayments, setAllPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const allPayments = [
-    {
-      id: "213SHAUDJ382713HS",
-      title: "Machine Learning with Python: From Basics to Deployment",
-      paymentDate: "Mar 15, 2025",
-      method: "Credit Card",
-      amount: "₹1,350",
-      status: "success" as const,
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-    {
-      id: "213SHAUDJ382714HS",
-      title: "Machine Learning with Python: From Basics to Deployment",
-      paymentDate: "Mar 15, 2025",
-      method: "Credit Card",
-      amount: "₹1,350",
-      status: "success" as const,
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-    {
-      id: "213SHAUDJ382715HS",
-      title: "Machine Learning with Python: From Basics to Deployment",
-      paymentDate: "Mar 15, 2025",
-      method: "Credit Card",
-      amount: "₹1,350",
-      status: "failed" as const,
-      reason: "Bad Internet Connection",
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-    {
-      id: "213SHAUDJ382716HS",
-      title: "Machine Learning with Python: From Basics to Deployment",
-      paymentDate: "Mar 15, 2025",
-      method: "Credit Card",
-      amount: "₹1,350",
-      status: "pending" as const,
-      timeLeft: "23:57:55",
-      image: "/images/course_placeholder_2.jpg?height=120&width=200",
-    },
-  ]
+  useEffect(() => {
+    async function fetchPayments() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await (await supabase).auth.getUser();
+
+      if (!user) {
+        // Optionally redirect or handle logged-out state
+        return;
+      }
+
+      const payments = await getUserPayments(user.id);
+      setAllPayments(payments);
+      setLoading(false);
+    }
+
+    fetchPayments();
+  }, []);
 
   const getFilteredPayments = () => {
     switch (activeTab) {
       case "Pending":
-        return allPayments.filter((payment) => payment.status === "pending")
+        return allPayments.filter((payment) => payment.status === "pending");
       case "Success":
-        return allPayments.filter((payment) => payment.status === "success")
+        return allPayments.filter((payment) => payment.status === "success");
       case "Failed":
-        return allPayments.filter((payment) => payment.status === "failed")
+        return allPayments.filter((payment) => payment.status === "failed");
       default:
-        return allPayments
+        return allPayments;
     }
-  }
+  };
 
-  const filteredPayments = getFilteredPayments()
+  const filteredPayments = getFilteredPayments();
 
   return (
     <div>
-      {/* Tab Navigation */}
+      {/* Tabs */}
       <div className="mb-8">
         <div className="flex space-x-8 border-b border-gray-200">
           {["All", "Pending", "Success", "Failed"].map((tab) => (
@@ -83,18 +66,27 @@ export default function PaymentPage() {
         </div>
       </div>
 
-      {/* Payment List */}
+      {/* Content */}
       <div className="space-y-6">
-        {filteredPayments.map((payment, index) => (
-          <PaymentCard key={index} {...payment} />
-        ))}
+        {loading ? (
+          <p>Loading payments...</p>
+        ) : (
+          filteredPayments.map((payment) => (
+            <PaymentCard key={payment.id} {...payment} />
+          ))
+        )}
       </div>
 
       {/* Empty State */}
-      {filteredPayments.length === 0 && (
+      {!loading && filteredPayments.length === 0 && (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -103,18 +95,20 @@ export default function PaymentPage() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-800 mb-2">No {activeTab.toLowerCase()} payments</h3>
+          <h3 className="text-lg font-medium text-gray-800 mb-2">
+            No {activeTab.toLowerCase()} payments
+          </h3>
           <p className="text-gray-600">
             {activeTab === "Pending"
               ? "You don't have any pending payments."
               : activeTab === "Success"
-                ? "You don't have any successful payments yet."
-                : activeTab === "Failed"
-                  ? "You don't have any failed payments."
-                  : "You don't have any payment history yet."}
+              ? "You don't have any successful payments yet."
+              : activeTab === "Failed"
+              ? "You don't have any failed payments."
+              : "You don't have any payment history yet."}
           </p>
         </div>
       )}
     </div>
-  )
+  );
 }

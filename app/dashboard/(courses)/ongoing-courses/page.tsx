@@ -46,7 +46,13 @@ export default function OngoingCourses() {
   return (
     <div>
       {ongoingCourses.map((course, index) => (
-        <CourseCard key={index} {...course} />
+        <CourseCard
+          students={""}
+          rating={""}
+          price={""}
+          key={index}
+          {...course}
+        />
       ))}
     </div>
   );

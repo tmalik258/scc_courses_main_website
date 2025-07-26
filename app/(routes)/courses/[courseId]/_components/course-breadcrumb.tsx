@@ -1,17 +1,46 @@
-import { ChevronRight } from "lucide-react"
+"use client";
 
-export function CourseBreadcrumb() {
-  return (
-    <div className="bg-white">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center text-sm text-gray-600">
-          <a href="#" className="hover:font-medium font-normal">
-            Courses
-          </a>
-          <ChevronRight className="w-4 h-4 mx-2" />
-          <span className="font-medium overflow-hidden text-ellipsis">Machine Learning with Python: From Basics to Deployment</span>
-        </div>
-      </div>
-    </div>
-  )
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface CourseBreadcrumbProps {
+  courseId: string;
 }
+
+const CourseBreadcrumb = ({ courseId }: CourseBreadcrumbProps) => {
+  const [title, setTitle] = useState<string>("");
+
+  useEffect(() => {
+    const fetchTitle = async () => {
+      try {
+        const res = await fetch(`/api/courses/${courseId}`);
+        if (!res.ok) throw new Error("Course not found");
+        const data = await res.json();
+        setTitle(data.title || "Untitled Course");
+      } catch (error) {
+        console.error("Error fetching course title:", error);
+        setTitle("Course");
+      }
+    };
+
+    fetchTitle();
+  }, [courseId]);
+
+  return (
+    <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-4 ml-37">
+      <Link
+        href="/courses"
+        className="hover:underline text-primary font-medium"
+      >
+        Courses
+      </Link>
+      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+      <span className="truncate text-primary font-medium max-w-[250px] sm:max-w-[400px]">
+        {title || "Loading..."}
+      </span>
+    </nav>
+  );
+};
+
+export default CourseBreadcrumb;
