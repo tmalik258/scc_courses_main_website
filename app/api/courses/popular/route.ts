@@ -47,9 +47,6 @@ export async function GET() {
       },
     })) as CourseWithRelations[];
 
-    // Debug raw data
-    console.log("Raw courses result:", courses);
-
     const formattedCourses = courses.map((course: CourseWithRelations) => {
       const studentCount = course.purchases?.length || 0;
       const averageRating =
@@ -89,9 +86,6 @@ export async function GET() {
         discount: `${discountPercentage}% OFF`,
       };
     });
-
-    // Debug formatted output
-    console.log("Formatted courses:", formattedCourses);
 
     return NextResponse.json(formattedCourses);
   } catch (error) {

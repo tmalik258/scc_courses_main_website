@@ -106,7 +106,6 @@ export default function MostPopularCourses() {
               rating={course.rating}
               price={course.price}
               image={course.thumbnail_url}
-              thumbnail_url={course.thumbnail_url}
               originalPrice={course.originalPrice}
               discountedPrice={course.discountedPrice}
               discount={course.discount}

@@ -1,13 +1,13 @@
 "use client";
 
+import { fetchImage } from "@/utils/supabase/fetchImage";
 import { Star } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
+import { useEffect, useState } from "react";
 
 export interface CourseCardProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  price: any;
-  thumbnail_url: string;
+  price: string | number;
   id: string;
   category: string;
   categoryTextColor: string;
@@ -37,10 +37,23 @@ export function CourseCard({
   image,
 }: CourseCardProps) {
   const router = useRouter();
+  const [thumbnailUrl, setThumbnailUrl] = useState(null as string | null);
 
   const handleClick = () => {
     router.push(`/courses/${id}`);
   };
+
+  useEffect(() => {
+    console.log("Image URL:", image);
+    (async () => {
+      if (image && !thumbnailUrl) {
+        console.log("Fetching image for course:", id);
+        const fetchedUrl = await fetchImage(image);
+        setThumbnailUrl(fetchedUrl ?? "");
+        console.log("Fetched thumbnail URL:", fetchedUrl);
+      }
+    })()
+  }, [id, image, thumbnailUrl]);
 
   return (
     <div
@@ -60,7 +73,7 @@ export function CourseCard({
           {/* Course Image - Left side on mobile */}
           <div className="flex-shrink-0 w-24 h-auto">
             <Image
-              src={image || "/images/course_placeholder.jpg"}
+              src={thumbnailUrl || "/images/course_placeholder.jpg"}
               alt={title}
               width={96}
               height={80}
@@ -131,7 +144,7 @@ export function CourseCard({
         {/* Course Image */}
         <div className="relative w-full h-48 p-3">
           <Image
-            src={image || "/images/course_placeholder.jpg"}
+            src={thumbnailUrl || "/images/course_placeholder.jpg"}
             alt={title}
             width={350}
             height={200}

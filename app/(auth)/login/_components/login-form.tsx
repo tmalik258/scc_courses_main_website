@@ -8,8 +8,8 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { login } from "@/actions/auth";
 import { toast } from "sonner";
-// import GoogleSigninButton from "../../_components/google-signin-button"
-// import Divider from "@/components/divider"
+import GoogleSigninButton from "../../_components/google-signin-button";
+import Divider from "@/components/divider";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -104,10 +104,10 @@ export function LoginForm() {
         </Button>
 
         {/* Divider */}
-        {/* <Divider text="atau" /> */}
+        <Divider text="atau" />
 
         {/* Google Sign up */}
-        {/* <GoogleSigninButton /> */}
+        <GoogleSigninButton />
       </form>
 
       {/* Sign up Link */}

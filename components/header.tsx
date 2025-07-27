@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -21,15 +21,28 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { signout } from "@/actions/auth";
 
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
 
-  // Simulating user authentication state
-  // In a real application, you would fetch this from your authentication context or state management
-  const user = null;
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+      }
+    };
+    fetchUser();
+  }, [supabase.auth]);
 
   const handleRedirect = (path: string) => {
     router.push(path);
@@ -169,7 +182,7 @@ const Header = () => {
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem className="text-red-600" onClick={signout}>
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
