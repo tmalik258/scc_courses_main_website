@@ -3,18 +3,15 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { supabase } from "@/scc_courses_main_website/lib/supabase"; // ✅ import your preconfigured server client
 import prisma from "@/lib/prisma";
 
+// LOGIN
 export async function login(formData: FormData) {
-  const supabase = await createClient();
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
-
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     console.error("Login error:", error.message);
@@ -25,19 +22,16 @@ export async function login(formData: FormData) {
   redirect("/dashboard");
 }
 
+// SIGNUP
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
-
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    fullName: (formData.get("fullName") as string) || null,
-    avatarUrl: (formData.get("avatarUrl") as string) || null,
-  };
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const fullName = (formData.get("fullName") as string) || null;
+  const avatarUrl = (formData.get("avatarUrl") as string) || null;
 
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
+    email,
+    password,
   });
 
   if (signUpError) {
@@ -52,9 +46,9 @@ export async function signup(formData: FormData) {
         update: {},
         create: {
           user_id: signUpData.user.id,
-          email: data.email,
-          full_name: data.fullName,
-          avatar_url: data.avatarUrl,
+          email,
+          full_name: fullName,
+          avatar_url: avatarUrl,
           role: "STUDENT",
           is_active: true,
           created_at: new Date(),
@@ -62,8 +56,8 @@ export async function signup(formData: FormData) {
         },
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (profileError: any) {
-      console.error("Profile creation error:", profileError.message);
+    } catch (err: any) {
+      console.error("Profile creation error:", err.message);
       redirect("/error");
     }
   }
@@ -72,9 +66,10 @@ export async function signup(formData: FormData) {
   redirect("/dashboard");
 }
 
+// SIGNOUT
 export async function signout() {
-  const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
+
   if (error) {
     console.error("Signout error:", error.message);
     redirect("/error");
@@ -84,8 +79,8 @@ export async function signout() {
   redirect("/");
 }
 
+// GOOGLE SIGN-IN
 export async function signInWithGoogle() {
-  const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -93,7 +88,7 @@ export async function signInWithGoogle() {
         access_type: "offline",
         prompt: "consent",
       },
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`, // must be set in Supabase dashboard
     },
   });
 

@@ -2,7 +2,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { createClient } from "../lib/supabase/server";
+import { supabase } from "@/scc_courses_main_website/lib/supabase";
 import { redirect } from "next/navigation";
 
 interface Course {
@@ -16,7 +16,6 @@ interface Course {
 }
 
 export async function getDashboardData() {
-  const supabase = await createClient();
   const {
     data: { user },
     error: authError,
@@ -29,7 +28,7 @@ export async function getDashboardData() {
 
   const userId = user.id;
 
-  // Fetch or create profile
+  // Fetch or create user profile
   let profile = await prisma.profiles.findUnique({
     where: { user_id: userId },
     select: { id: true, email: true, full_name: true },
@@ -39,11 +38,11 @@ export async function getDashboardData() {
     profile = await prisma.profiles.create({
       data: {
         user_id: userId,
-        email: user.email || null,
+        email: user.email ?? null,
         full_name:
-          user.user_metadata?.full_name || user.user_metadata?.name || null,
+          user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
         avatar_url:
-          user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+          user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null,
         role: "STUDENT",
         is_active: true,
         created_at: new Date(),
@@ -55,9 +54,13 @@ export async function getDashboardData() {
 
   const studentId = profile.id;
 
+  // Get purchases and certificates in one transaction
   const [purchases, certificates] = await prisma.$transaction([
     prisma.purchases.findMany({
-      where: { student_id: studentId, courses: { is_published: true } },
+      where: {
+        student_id: studentId,
+        courses: { is_published: true },
+      },
       select: {
         course_id: true,
         courses: {
@@ -76,7 +79,7 @@ export async function getDashboardData() {
     }),
   ]);
 
-  // Compute completed lessons and total lessons manually
+  // Build course progress list
   const courseProgress: Course[] = await Promise.all(
     purchases.map(async (purchase) => {
       const { course_id, courses } = purchase;
@@ -92,9 +95,7 @@ export async function getDashboardData() {
           },
         }),
         prisma.lessons.count({
-          where: {
-            course_id,
-          },
+          where: { course_id },
         }),
       ]);
 
@@ -114,7 +115,10 @@ export async function getDashboardData() {
           bgColor: "bg-green-500/50",
           textColor: "text-green-500",
         },
-        Other: { bgColor: "bg-gray-500/50", textColor: "text-gray-500" },
+        Other: {
+          bgColor: "bg-gray-500/50",
+          textColor: "text-gray-500",
+        },
       };
 
       const styles = categoryStyles[category] || categoryStyles["Other"];

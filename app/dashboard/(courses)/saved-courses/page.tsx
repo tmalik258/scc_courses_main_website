@@ -1,22 +1,20 @@
-import { createClient } from "@/lib/supabase/server";
+// app/dashboard/saved/page.tsx (or wherever this file lives)
 import { redirect } from "next/navigation";
 import { getSavedCourses } from "@/actions/get-saved-courses";
 import { SavedCourseCard } from "./_components/saved-course-card";
+import { supabase } from "@/scc_courses_main_website/lib/supabase";
 
 export default async function SavedCoursePage() {
-  const supabase = createClient();
-
   const {
     data: { user },
-  } = await (await supabase).auth.getUser();
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login"); // or wherever your login page is
+  if (error || !user) {
+    return redirect("/login");
   }
 
-  const userId = user.id;
-
-  const savedCourses = await getSavedCourses(userId);
+  const savedCourses = await getSavedCourses(user.id);
 
   return (
     <div className="space-y-6">

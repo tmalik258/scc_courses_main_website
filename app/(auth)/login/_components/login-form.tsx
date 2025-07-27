@@ -26,7 +26,8 @@ export function LoginForm() {
   };
 
   const handleSubmit = async (formData: FormData) => {
-    const result = await login(formData);
+    const result = (await login(formData)) as { error?: string } | void;
+
     if (result?.error) {
       toast.error(result.error);
     }
