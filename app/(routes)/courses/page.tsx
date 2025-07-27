@@ -1,123 +1,284 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CourseCard } from "@/components/course/course-card";
+import { CourseFilters } from "./_components/course-filters";
+import { CoursePagination } from "./_components/course-pagination";
+import { ContactForm } from "../_components/contact-form";
 import { CourseFilterTabs } from "../_components/course-filter-tabs";
-import { CourseCard, CourseCardProps } from "@/components/course/course-card";
+import { CourseData } from "@/types/course";
+import { getPopularCourses } from "@/actions/get-courses";
 
-export default function MostPopularCourses() {
+export default function BrowseCourses() {
+  const [coursesData, setCoursesData] = useState<CourseData[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
-  const [courses, setCourses] = useState<CourseCardProps[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("Most Popular");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    categories: [] as string[],
+    priceRange: "All",
+    rating: "All",
+  });
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const coursesPerPage = 9;
 
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const response = await fetch("/api/courses/popular");
-        if (!response.ok) {
-          throw new Error("Failed to fetch courses");
-        }
-        const data: CourseCardProps[] = await response.json();
-        setCourses(data);
-        setLoading(false);
-      } catch {
-        setError("Error loading courses. Please try again later.");
+        setLoading(true);
+        const courses = await getPopularCourses();
+        setCoursesData(courses);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError("Failed to load courses. Please try again later.");
+      } finally {
         setLoading(false);
       }
     }
     fetchCourses();
   }, []);
 
-  const filteredCourses =
-    activeFilter === "All"
-      ? courses
-      : courses.filter((course) => course.category === activeFilter);
+  const filteredAndSortedCourses = useMemo(() => {
+    let filtered = coursesData;
 
-  if (loading) {
-    return (
-      <section className="bg-aqua-mist px-2 md:px-6 py-12">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-white text-center">Loading courses...</p>
-        </div>
-      </section>
-    );
-  }
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (course) =>
+          course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  if (error) {
-    return (
-      <section className="bg-aqua-mist px-2 md:px-6 py-12">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-white text-center">{error}</p>
-        </div>
-      </section>
-    );
-  }
+    // Apply category filter
+    if (advancedFilters.categories.length > 0) {
+      filtered = filtered.filter((course) =>
+        advancedFilters.categories.includes(course.category)
+      );
+    }
+
+    // Apply price filter
+    if (advancedFilters.priceRange !== "All") {
+      filtered = filtered.filter((course) => {
+        const price = parseFloat(course.discountedPrice);
+        switch (advancedFilters.priceRange) {
+          case "Under ₹500":
+            return price < 500;
+          case "₹500 - ₹1000":
+            return price >= 500 && price <= 1000;
+          case "₹1000 - ₹2000":
+            return price >= 1000 && price <= 2000;
+          case "Above ₹2000":
+            return price > 2000;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply rating filter
+    if (advancedFilters.rating !== "All") {
+      filtered = filtered.filter((course) => {
+        const minRating = Number.parseFloat(
+          advancedFilters.rating.replace("+", "")
+        );
+        return parseFloat(course.rating.split("/5")[0]) >= minRating;
+      });
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case "Price: Low to High":
+        filtered.sort(
+          (a, b) =>
+            parseFloat(a.discountedPrice) - parseFloat(b.discountedPrice)
+        );
+        break;
+      case "Price: High to Low":
+        filtered.sort(
+          (a, b) =>
+            parseFloat(b.discountedPrice) - parseFloat(a.discountedPrice)
+        );
+        break;
+      case "Rating":
+        filtered.sort(
+          (a, b) =>
+            parseFloat(b.rating.split("/5")[0]) -
+            parseFloat(a.rating.split("/5")[0])
+        );
+        break;
+      case "Most Popular":
+      default:
+        filtered.sort((a, b) => b.purchaseCount - a.purchaseCount);
+        break;
+    }
+
+    return filtered;
+  }, [searchQuery, advancedFilters, sortBy, coursesData]);
+
+  const totalPages = Math.ceil(
+    filteredAndSortedCourses.length / coursesPerPage
+  );
+  const currentCourses = filteredAndSortedCourses
+    .filter(
+      (course) => activeFilter === "All" || course.category === activeFilter
+    )
+    .slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage);
+
+  const handleFilterChange = (newAdvancedFilters: {
+    categories: string[];
+    priceRange: string;
+    rating: string;
+  }) => {
+    setAdvancedFilters(newAdvancedFilters);
+    setCurrentPage(1);
+  };
+
+  const handleFilterToggle = () => {
+    setFilterOpen(!filterOpen);
+  };
 
   return (
-    <section className="bg-aqua-mist px-2 md:px-6 py-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex max-md:flex-col max-md:gap-4 items-center justify-between mb-4 md:mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-2">
-              Most Popular Courses
-            </h2>
-            <p className="text-white/90">
-              Master top tech skills with our most popular courses!
+    <div className="min-h-screen">
+      <div className="bg-white border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4 md:py-8">
+          <div className="md:text-center mb-2 md:mb-8">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-2">
+              Browse All Courses
+            </h1>
+            <p className="text-lg text-gray-600">
+              Find the perfect course for your learning journey and start
+              building real-world skills today
             </p>
           </div>
-          <button className="flex max-md:self-end md:items-center gap-2 text-white hover:text-white/80 transition-colors font-manrope">
-            <span>View More</span>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13.4697 8.53015C13.396 8.46149 13.3369 8.37869 13.2959 8.28669C13.2549 8.19469 13.2329 8.09538 13.2311 7.99468C13.2293 7.89397 13.2478 7.79394 13.2856 7.70056C13.3233 7.60717 13.3794 7.52233 13.4506 7.45112C13.5219 7.3799 13.6067 7.32375 13.7001 7.28603C13.7935 7.24831 13.8935 7.22979 13.9942 7.23156C14.0949 7.23334 14.1942 7.25538 14.2862 7.29637C14.3782 7.33736 14.461 7.39647 14.5297 7.47015L18.5297 11.4702C18.6701 11.6108 18.749 11.8014 18.749 12.0002C18.749 12.1989 18.6701 12.3895 18.5297 12.5302L14.5297 16.5302C14.461 16.6038 14.3782 16.6629 14.2862 16.7039C14.1942 16.7449 14.0949 16.767 13.9942 16.7687C13.8935 16.7705 13.7935 16.752 13.7001 16.7143C13.6067 16.6766 13.5219 16.6204 13.4506 16.5492C13.3794 16.478 13.3233 16.3931 13.2856 16.2998C13.2478 16.2064 13.2293 16.1063 13.2311 16.0056C13.2329 15.9049 13.2549 15.8056 13.2959 15.7136C13.3369 15.6216 13.396 15.5388 13.4697 15.4702L16.1897 12.7502H6.49968C6.30077 12.7502 6.11 12.6711 5.96935 12.5305C5.8287 12.3898 5.74968 12.1991 5.74968 12.0002C5.74968 11.8012 5.8287 11.6105 5.96935 11.4698C6.11 11.3292 6.30077 11.2502 6.49968 11.2502H16.1897L13.4697 8.53015Z"
-                fill="#fff"
-              />
-            </svg>
-          </button>
         </div>
-
-        <CourseFilterTabs
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              id={course.id}
-              category={course.category}
-              categoryTextColor={course.categoryTextColor}
-              categoryBgColor={course.categoryBgColor}
-              title={course.title}
-              mentor={course.mentor}
-              students={course.students}
-              rating={course.rating}
-              price={course.price}
-              image={course.thumbnail_url}
-              originalPrice={course.originalPrice}
-              discountedPrice={course.discountedPrice}
-              discount={course.discount}
-              thumbnail_url={""}
-            />
-          ))}
-        </div>
-
-        {activeFilter !== "All" && (
-          <div className="text-center mt-8">
-            <p className="text-white/80">
-              Showing {filteredCourses.length} course
-              {filteredCourses.length !== 1 ? "s" : ""} in {activeFilter}
-            </p>
-          </div>
-        )}
       </div>
-    </section>
+
+      <div className="max-w-7xl mx-auto flex">
+        <div
+          className={`${
+            filterOpen
+              ? "max-md:translate-x-0 visible opacity-100"
+              : "max-md:translate-x-full max-md:invisible max-md:opacity-0"
+          } transition-all duration-300 ease-in-out max-md:fixed max-md:top-0 max-md:right-0 max-md:inset-y-0 max-md:z-50 max-md:overflow-auto`}
+        >
+          <div className="absolute top-7 right-6">
+            <X
+              onClick={handleFilterToggle}
+              className="w-5 h-5 cursor-pointer"
+            />
+          </div>
+          <CourseFilters onFilterChange={handleFilterChange} />
+        </div>
+
+        <div className="flex-1 flex flex-col px-2">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 md:px-6">
+            <div className="relative flex-1 flex items-center gap-2">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                type="text"
+                placeholder="Search for courses"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-6 py-5 text-base md:text-lg placeholder:text-sm border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              />
+              <div
+                className="md:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 h-full text-sm text-gray-600 cursor-pointer"
+                onClick={handleFilterToggle}
+              >
+                <SlidersHorizontal className="w-4 h-4" /> Filter By
+              </div>
+            </div>
+
+            <div className="max-w-[calc(100dvw-3em)] md:hidden">
+              <CourseFilterTabs
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+                browseCourses={true}
+              />
+            </div>
+
+            <div className="max-md:hidden flex items-center gap-2">
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Most Popular">Most Popular</SelectItem>
+                  <SelectItem value="Price: Low to High">
+                    Price: Low to High
+                  </SelectItem>
+                  <SelectItem value="Price: High to Low">
+                    Price: High to Low
+                  </SelectItem>
+                  <SelectItem value="Rating">Rating</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="p-2 md:p-6">
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">Loading courses...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="text-red-500 text-lg">{error}</p>
+              </div>
+            ) : currentCourses.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {currentCourses.map((course) => (
+                    <CourseCard
+                      key={course.id}
+                      id={course.id}
+                      category={course.category}
+                      categoryTextColor={course.categoryTextColor}
+                      categoryBgColor={course.categoryBgColor}
+                      title={course.title}
+                      mentor={course.mentor}
+                      students={course.students}
+                      rating={course.rating}
+                      originalPrice={course.originalPrice}
+                      discountedPrice={course.discountedPrice}
+                      discount={course.discount}
+                      image={course.image}
+                      price={""}
+                    />
+                  ))}
+                </div>
+                <CoursePagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">
+                  No courses found matching your criteria.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <ContactForm />
+    </div>
   );
 }

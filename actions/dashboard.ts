@@ -2,8 +2,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { supabase } from "@/scc_courses_main_website/lib/supabase";
-import { redirect } from "next/navigation";
 
 interface Course {
   category: string;
@@ -15,20 +13,11 @@ interface Course {
   progress: number;
 }
 
-export async function getDashboardData() {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user?.id) {
-    console.error("Authentication failed:", authError?.message || "No user ID");
-    redirect("/login");
+export async function getDashboardData(userId: string) {
+  if (!userId) {
+    throw new Error("Missing user ID");
   }
 
-  const userId = user.id;
-
-  // Fetch or create user profile
   let profile = await prisma.profiles.findUnique({
     where: { user_id: userId },
     select: { id: true, email: true, full_name: true },
@@ -38,11 +27,9 @@ export async function getDashboardData() {
     profile = await prisma.profiles.create({
       data: {
         user_id: userId,
-        email: user.email ?? null,
-        full_name:
-          user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
-        avatar_url:
-          user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null,
+        email: null,
+        full_name: null,
+        avatar_url: null,
         role: "STUDENT",
         is_active: true,
         created_at: new Date(),
@@ -54,7 +41,6 @@ export async function getDashboardData() {
 
   const studentId = profile.id;
 
-  // Get purchases and certificates in one transaction
   const [purchases, certificates] = await prisma.$transaction([
     prisma.purchases.findMany({
       where: {
@@ -79,7 +65,6 @@ export async function getDashboardData() {
     }),
   ]);
 
-  // Build course progress list
   const courseProgress: Course[] = await Promise.all(
     purchases.map(async (purchase) => {
       const { course_id, courses } = purchase;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { PaymentCard } from "./_components/payment-card";
 import { getUserPayments } from "@/actions/get-payments";
-import { supabase } from "@/scc_courses_main_website/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
 
 export default function PaymentPage() {
   const [activeTab, setActiveTab] = useState("All");
@@ -13,23 +13,37 @@ export default function PaymentPage() {
 
   useEffect(() => {
     async function fetchPayments() {
+      setLoading(true);
+
+      const supabase = createClient(); // ✅ Use browser-safe Supabase client
+
       const {
         data: { user },
         error,
       } = await supabase.auth.getUser();
 
+      console.log("Fetched user:", user);
+
       if (error) {
         console.error("Error fetching user:", error);
+        setLoading(false);
         return;
       }
 
-      if (!user) {
-        // Optionally handle logged-out state
+      if (!user || !user.id) {
+        console.warn("No user logged in or missing ID");
+        setLoading(false);
         return;
       }
 
-      const payments = await getUserPayments(user.id);
-      setAllPayments(payments);
+      try {
+        const payments = await getUserPayments(user.id);
+        console.log("Fetched payments:", payments);
+        setAllPayments(payments);
+      } catch (fetchErr) {
+        console.error("Error fetching user payments:", fetchErr);
+      }
+
       setLoading(false);
     }
 

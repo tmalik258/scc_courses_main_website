@@ -1,27 +1,43 @@
-// app/dashboard/saved/page.tsx (or wherever this file lives)
-import { redirect } from "next/navigation";
+// app/dashboard/saved/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
 import { getSavedCourses } from "@/actions/get-saved-courses";
 import { SavedCourseCard } from "./_components/saved-course-card";
-import { supabase } from "@/scc_courses_main_website/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
 
-export default async function SavedCoursePage() {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+export default function SavedCoursePage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (error || !user) {
-    return redirect("/login");
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (user && !error) {
+        const saved = await getSavedCourses(user.id);
+        setCourses(saved);
+      }
+
+      setLoading(false);
+    };
+
+    fetchCourses();
+  }, []);
+
+  if (loading) {
+    return <div className="p-6 text-center">Loading...</div>;
   }
-
-  const savedCourses = await getSavedCourses(user.id);
 
   return (
     <div className="space-y-6">
-      {savedCourses.length > 0 ? (
-        savedCourses.map((course) => (
-          <SavedCourseCard key={course.id} {...course} />
-        ))
+      {courses.length > 0 ? (
+        courses.map((course) => <SavedCourseCard key={course.id} {...course} />)
       ) : (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
