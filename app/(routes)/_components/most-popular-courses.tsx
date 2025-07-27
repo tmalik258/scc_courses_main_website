@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CourseCard } from "@/components/course/course-card";
 import { CourseFilterTabs } from "./course-filter-tabs";
 import { usePopularCourses, useFilteredCourses } from "@/hooks/use-courses";
+import { DashedSpinner } from "@/components/dashed-spinner";
 
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -15,10 +16,7 @@ export default function MostPopularCourses() {
       <section className="bg-aqua-mist px-2 md:px-6 py-12">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-white text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-              <p>Loading popular courses...</p>
-            </div>
+            <DashedSpinner />
           </div>
         </div>
       </section>
