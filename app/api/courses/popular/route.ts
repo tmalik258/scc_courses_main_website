@@ -3,10 +3,10 @@ import { Prisma } from "@/lib/generated/prisma";
 import prisma from "@/lib/prisma";
 
 // Define the type for the Prisma query result
-type CourseWithRelations = Prisma.coursesGetPayload<{
+type CourseWithRelations = Prisma.CourseGetPayload<{
   include: {
-    categories: { select: { name: true; color: true } };
-    profiles: { select: { full_name: true } };
+    category: { select: { name: true; color: true } };
+    instructor?: { select: { fullName: true, email: true } };
     purchases: { select: { id: true } };
     reviews: { select: { rating: true } };
   };
@@ -14,26 +14,24 @@ type CourseWithRelations = Prisma.coursesGetPayload<{
 
 export async function GET() {
   try {
-    // Uncomment this line to skip the `is_published` filter during testing
-    // const courses = await prisma.courses.findMany({ ... });
-
-    const courses = (await prisma.courses.findMany({
+    const courses = (await prisma.course.findMany({
       // 👉 Remove this condition temporarily if no courses are returned
       where: {
-        is_published: true,
+        isPublished: true,
       },
       take: 8,
-      orderBy: [{ purchases: { _count: "desc" } }, { created_at: "desc" }],
+      orderBy: [{ purchases: { _count: "desc" } }, { createdAt: "desc" }],
       include: {
-        categories: {
+        category: {
           select: {
             name: true,
             color: true,
           },
         },
-        profiles: {
+        instructor: {
           select: {
-            full_name: true,
+            fullName: true,
+            email: true,
           },
         },
         purchases: {
@@ -65,7 +63,7 @@ export async function GET() {
             ).toFixed(1)
           : "0.0";
 
-      const categoryColor = course.categories?.color || "#3b82f6";
+      const categoryColor = course.category?.color || "#3b82f6";
 
       const originalPrice = course.price
         ? parseFloat(course.price.toString())
@@ -75,17 +73,17 @@ export async function GET() {
 
       return {
         id: course.id,
-        category: course.categories?.name || "Uncategorized",
+        category: course.category?.name || "Uncategorized",
         categoryColor: categoryColor,
         categoryBgColor: `bg-[${categoryColor}]/15`, // Not production-safe
         categoryTextColor: `text-[${categoryColor}]`,
         title: course.title,
-        mentor: course.profiles?.full_name || "Unknown Instructor",
+        mentor: course?.instructor?.fullName || course?.instructor?.email?.split("@")[0] || "Unknown Instructor",
         students: `${studentCount}+ students`,
         rating: `${averageRating}/5`,
         price: originalPrice.toFixed(2),
-        image: course.thumbnail_url || "/images/course_placeholder.jpg",
-        thumbnail_url: course.thumbnail_url || "/images/course_placeholder.jpg",
+        image: course.thumbnailUrl || "/images/course_placeholder.jpg",
+        thumbnail_url: course.thumbnailUrl || "/images/course_placeholder.jpg",
         originalPrice: originalPrice.toFixed(2),
         discountedPrice: discountedPrice.toFixed(2),
         discount: `${discountPercentage}% OFF`,
