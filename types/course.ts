@@ -15,6 +15,8 @@ export interface CourseData {
   discount: string;
   totalLessons: number;
   purchaseCount: number;
+  duration?: string;
+  description?: string; // Added for CourseDetail description
 }
 
 export interface MyCourseCardProps {

@@ -4,13 +4,25 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { CourseData } from "@/types/course";
 
+// Color mapping for categories
+const categoryColors: Record<string, { bgColor: string; textColor: string }> = {
+  "AI Calling": { bgColor: "bg-purple-100", textColor: "text-purple-600" },
+  "WhatsApp Chatbots": { bgColor: "bg-green-100", textColor: "text-green-600" },
+  "Make Automations": {
+    bgColor: "bg-yellow-100",
+    textColor: "text-yellow-600",
+  },
+  "App Development": { bgColor: "bg-pink-100", textColor: "text-pink-600" },
+  "Web Development": { bgColor: "bg-cyan-100", textColor: "text-aqua-depth" },
+  "Data Science": { bgColor: "bg-blue-100", textColor: "text-blue-600" },
+};
+
 // Define the type for course with relations
 type CourseWithRelations = Prisma.CourseGetPayload<{
   include: {
     category: {
       select: {
         name: true;
-        color: true;
       };
     };
     instructor: {
@@ -44,9 +56,12 @@ function transformCourse(course: CourseWithRelations): CourseData {
         ).toFixed(1)
       : "0.0";
 
-  const categoryColor = course.category?.color || "#3b82f6";
-  const categoryBgColor = `bg-[${categoryColor}]/15`;
-  const categoryTextColor = `text-[${categoryColor}]`;
+  const categoryName = course.category?.name ?? "Unknown";
+  const { bgColor: categoryBgColor, textColor: categoryTextColor } =
+    categoryColors[categoryName] || {
+      bgColor: "bg-gray-100",
+      textColor: "text-gray-600",
+    };
 
   const originalPrice =
     course.price instanceof Prisma.Decimal
@@ -58,10 +73,14 @@ function transformCourse(course: CourseWithRelations): CourseData {
   const discountPercentage = 20;
   const discountedPrice = originalPrice * (1 - discountPercentage / 100);
 
+  // Calculate approximate duration based on number of lessons (e.g., 1 hour per lesson)
+  const durationHours = totalLessons; // Assuming 1 hour per lesson; adjust as needed
+  const duration = `${durationHours} hours duration`;
+
   return {
     id: course.id,
     title: course.title,
-    category: course.category?.name ?? "Unknown",
+    category: categoryName,
     categoryBgColor,
     categoryTextColor,
     mentor: course.instructor?.fullName ?? "Unknown Instructor",
@@ -75,6 +94,8 @@ function transformCourse(course: CourseWithRelations): CourseData {
     discount: `${discountPercentage}% OFF`,
     totalLessons,
     purchaseCount: studentCount,
+    duration,
+    description: course.description ?? "No description available",
   };
 }
 
@@ -88,7 +109,6 @@ export async function getPopularCourses(): Promise<CourseData[]> {
         category: {
           select: {
             name: true,
-            color: true,
           },
         },
         instructor: {
@@ -115,5 +135,45 @@ export async function getPopularCourses(): Promise<CourseData[]> {
   } catch (error) {
     console.error("Error fetching courses:", error);
     throw new Error("Failed to fetch popular courses");
+  }
+}
+
+export async function getCourseById(
+  courseId: string
+): Promise<CourseData | null> {
+  try {
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        instructor: {
+          select: {
+            fullName: true,
+          },
+        },
+        modules: {
+          include: {
+            lessons: true,
+          },
+        },
+        purchases: true,
+        reviews: true,
+      },
+    });
+
+    if (!course) {
+      return null;
+    }
+
+    return transformCourse(course);
+  } catch (error) {
+    console.error("Error fetching course by ID:", error);
+    throw new Error("Failed to fetch course");
   }
 }

@@ -1,9 +1,7 @@
 "use client";
 
-import React, { use, useState } from "react";
+import React, { use, useState, useEffect } from "react";
 import {
-  Users,
-  Star,
   Check,
   Play,
   Download,
@@ -15,11 +13,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { CourseInfo } from "./payment/_components/course-info";
 import CourseBreadcrumb from "./_components/course-breadcrumb";
 import { CourseTabs } from "./_components/course-tabs";
 import { useRouter } from "nextjs-toploader/app";
 import { LessonList } from "./_components/lesson-list";
 import TestimonialCard from "../../_components/testimonial-card";
+import { getCourseById } from "@/actions/get-courses";
+import { CourseData } from "@/types/course";
 
 const CourseDetail = ({
   params,
@@ -29,10 +30,33 @@ const CourseDetail = ({
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
   const [expandedSections, setExpandedSections] = useState<number[]>([1]);
+  const [course, setCourse] = useState<CourseData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { courseId } = use(params); // courseId extracted here
 
-  // Learning and feature data
+  useEffect(() => {
+    async function fetchCourse() {
+      try {
+        setLoading(true);
+        const courseData = await getCourseById(courseId);
+        if (courseData) {
+          setCourse(courseData);
+        } else {
+          setError("Course not found");
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError("Failed to load course data");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCourse();
+  }, [courseId]);
+
+  // Learning and feature data (hardcoded for now)
   const learningPoints = [
     "Understand the fundamentals of automation and APIs",
     "Work with HTTP requests, JSON data, and third-party APIs",
@@ -41,13 +65,13 @@ const CourseDetail = ({
   const courseFeatures = [
     { icon: Play, label: "32 Videos" },
     { icon: Download, label: "40 Downloadable Materials" },
-    { icon: Clock, label: "20 Hours Duration" },
+    { icon: Clock, label: course?.duration || "20 Hours Duration" }, // Use dynamic duration
     { icon: FileText, label: "8 Articles" },
     { icon: FolderOpen, label: "20 Projects" },
     { icon: TestTube, label: "10 Practice Test" },
   ];
 
-  // Dummy content sections
+  // Dummy content sections (hardcoded for now)
   const courseSections = [
     {
       id: 1,
@@ -76,12 +100,11 @@ const CourseDetail = ({
         },
       ],
     },
-    // Add more sections if needed
   ];
 
   const instructors = [
     {
-      name: "Amit Sharma",
+      name: course?.mentor || "Amit Sharma",
       title: "Software Engineer & Automation Expert",
       image: "/images/instructor_placeholder_2.jpg",
     },
@@ -118,45 +141,29 @@ const CourseDetail = ({
 
   const currentLesson = "what-is-automation";
 
+  if (loading) {
+    return (
+      <div className="text-gray-500 text-center py-12">Loading course...</div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="text-red-500 text-center py-12">
+        {error || "Course not found"}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
-      {/* ✅ Pass courseId to breadcrumb */}
       <CourseBreadcrumb courseId={courseId} />
 
       <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left - Main */}
           <div className="lg:col-span-2 max-md:order-2">
-            {/* Category */}
-            <div className="mb-4">
-              <span className="bg-sky-tint text-sky-base text-sm px-3 py-1 rounded font-medium">
-                Data Science
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
-              Machine Learning with Python: From Basics to Deployment
-            </h1>
-
-            {/* Stats */}
-            <div className="flex items-center gap-6 mb-6 text-sm">
-              <div className="flex items-center gap-1 text-gray-600">
-                <Users className="w-4 h-4 text-orange-500" />
-                <span>320+ students</span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-600">
-                <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                <span>4.8/5</span>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="text-gray-600 leading-relaxed mb-8">
-              Learn to streamline workflows by integrating Python and APIs for
-              automation, reducing manual tasks, improving efficiency, and
-              enhancing productivity with real-world projects.
-            </p>
+            <CourseInfo courseId={courseId} />
 
             {/* Tabs */}
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -174,8 +181,7 @@ const CourseDetail = ({
                           Description
                         </h4>
                         <p className="text-gray-600 leading-relaxed">
-                          In today&apos;s fast-paced digital world, automation
-                          is key to boosting productivity and efficiency...
+                          {course.description || "No description available"}
                         </p>
                       </div>
 
@@ -263,8 +269,8 @@ const CourseDetail = ({
                 <Image
                   width={350}
                   height={200}
-                  src="/images/course_placeholder.jpg?height=200&width=350"
-                  alt="Machine Learning with Python"
+                  src={course.image}
+                  alt={course.title}
                   className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
                 />
               </div>
@@ -272,13 +278,13 @@ const CourseDetail = ({
               <div className="max-md:flex max-md:flex-col max-md:justify-between text-right">
                 <div className="flex items-center max-md:flex-wrap max-md:justify-start justify-end gap-3 mb-4">
                   <span className="text-gray-400 line-through md:text-lg">
-                    ₹1,350
+                    ₹{course.originalPrice}
                   </span>
                   <span className="text-aqua-mist font-bold text-lg md:text-2xl">
-                    ₹1,336
+                    ₹{course.discountedPrice}
                   </span>
                   <span className="bg-red-100 min-w-fit text-red-600 text-xs md:text-sm px-2 py-1 rounded font-medium">
-                    10% OFF
+                    {course.discount}
                   </span>
                 </div>
 

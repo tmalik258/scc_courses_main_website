@@ -34,7 +34,7 @@ export default function PaymentPage() {
             <div className="md:bg-white md:p-6 rounded-lg md:border md:border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <CourseImage />
-                <CourseInfo />
+                <CourseInfo courseId={""} />
               </div>
             </div>
 
@@ -43,12 +43,18 @@ export default function PaymentPage() {
               <PromoCode />
             </div>
 
-            <div className="md:hidden"><PaymentSummary /></div>
+            <div className="md:hidden">
+              <PaymentSummary />
+            </div>
 
             {/* Description */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h3 className="md:text-lg font-semibold text-gray-800 mb-4">Description</h3>
-              <p className="max-md:text-sm text-gray-600">Build automation with Python and APIs in real-world scenarios.</p>
+              <h3 className="md:text-lg font-semibold text-gray-800 mb-4">
+                Description
+              </h3>
+              <p className="max-md:text-sm text-gray-600">
+                Build automation with Python and APIs in real-world scenarios.
+              </p>
             </div>
 
             {/* Benefits */}
@@ -71,5 +77,5 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
