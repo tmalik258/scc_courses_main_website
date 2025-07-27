@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { PaymentCard } from "./_components/payment-card";
 import { getUserPayments } from "@/actions/get-payments";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 export default function PaymentPage() {
   const [activeTab, setActiveTab] = useState("All");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
