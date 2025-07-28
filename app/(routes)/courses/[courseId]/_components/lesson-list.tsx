@@ -1,26 +1,13 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Lock } from "lucide-react";
-
-interface Lesson {
-  id: string;
-  title: string;
-  completed: boolean;
-  locked: boolean;
-}
-
-interface Section {
-  id: number;
-  title: string;
-  lessons: Lesson[];
-}
+import { SectionData } from "@/types/lesson";
 
 interface LessonListProps {
   isPaid: boolean;
-  sections: Section[];
-  expandedSections: number[];
+  sections: SectionData[];
+  expandedSections: string[];
   currentLesson: string;
-  onToggleSection: (sectionId: number) => void;
+  onToggleSection: (sectionId: string) => void;
   onLessonClick: (lessonId: string, isLocked: boolean) => void;
 }
 
@@ -33,63 +20,41 @@ export function LessonList({
   onLessonClick,
 }: LessonListProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {sections.map((section) => (
-        <div key={section.id} className="border border-gray-200 rounded">
+        <div key={section.id} className="border rounded-lg">
           <button
             onClick={() => onToggleSection(section.id)}
-            className="flex items-center justify-between w-full text-left px-4 p-2 bg-sky-ice hover:bg-sky-tint transition-colors duration-300 cursor-pointer rounded"
+            className="w-full px-4 py-2 text-left font-medium text-gray-800 hover:bg-gray-50"
           >
-            <div className="flex gap-3 max-md:text-sm font-medium text-gray-800">
-              <div>{section.id}</div>
-              <div>{section.title}</div>
-            </div>
-            {expandedSections.includes(section.id) ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
-            )}
+            {section.title}
           </button>
-
           {expandedSections.includes(section.id) && (
-            <div className="px-3 mt-2 space-y-2">
+            <div className="p-4 space-y-2">
               {section.lessons.map((lesson) => (
                 <button
                   key={lesson.id}
                   onClick={() => onLessonClick(lesson.id, lesson.locked)}
-                  className={`flex items-center space-x-3 p-2 rounded-lg w-full text-left transition-colors ${
-                    currentLesson === lesson.id && !lesson.locked
-                      ? "bg-blue-50"
-                      : "hover:bg-gray-50"
+                  className={`w-full text-left px-2 py-1 rounded-md ${
+                    lesson.id === currentLesson
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  } ${
+                    lesson.locked && !isPaid
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
+                  disabled={lesson.locked && !isPaid}
                 >
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      lesson.completed
-                        ? "bg-aqua-mist"
-                        : lesson.locked
-                        ? "bg-gray-300"
-                        : currentLesson === lesson.id
-                        ? "bg-aqua-mist"
-                        : "bg-gray-700"
-                    }`}
-                  ></div>
-                  <div className="flex items-center flex-1">
-                    <span
-                      className={`text-sm ${
-                        lesson.locked
-                          ? "text-gray-500"
-                          : currentLesson === lesson.id
-                          ? "text-aqua-depth font-medium"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {lesson.title}
+                  <div className="flex justify-between">
+                    <span>{lesson.title}</span>
+                    <span className="text-sm text-gray-500">
+                      {lesson.duration}
                     </span>
-                    {lesson.locked && !isPaid && (
-                      <Lock className="w-3 h-3 ml-2 text-gray-400" />
-                    )}
                   </div>
+                  {lesson.completed && (
+                    <span className="text-green-500 text-sm">Completed</span>
+                  )}
                 </button>
               ))}
             </div>

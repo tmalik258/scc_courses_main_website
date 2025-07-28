@@ -1,4 +1,3 @@
-// actions/dashboard.ts
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -13,18 +12,30 @@ interface Course {
   progress: number;
 }
 
+interface Purchase {
+  course_id: string;
+  courses: {
+    title: string | null;
+    categories: { name: string | null } | null;
+  } | null;
+}
+
+interface Certificate {
+  course_id: string;
+}
+
 export async function getDashboardData(userId: string) {
   if (!userId) {
     throw new Error("Missing user ID");
   }
 
-  let profile = await prisma.profiles.findUnique({
+  let profile = await prisma.profile.findUnique({
     where: { user_id: userId },
     select: { id: true, email: true, full_name: true },
   });
 
   if (!profile) {
-    profile = await prisma.profiles.create({
+    profile = await prisma.profile.create({
       data: {
         user_id: userId,
         email: null,
@@ -42,7 +53,7 @@ export async function getDashboardData(userId: string) {
   const studentId = profile.id;
 
   const [purchases, certificates] = await prisma.$transaction([
-    prisma.purchases.findMany({
+    prisma.purchase.findMany({
       where: {
         student_id: studentId,
         courses: { is_published: true },
@@ -59,14 +70,14 @@ export async function getDashboardData(userId: string) {
         },
       },
     }),
-    prisma.certificates.findMany({
+    prisma.certificate.findMany({
       where: { student_id: studentId },
       select: { course_id: true },
     }),
   ]);
 
   const courseProgress: Course[] = await Promise.all(
-    purchases.map(async (purchase) => {
+    purchases.map(async (purchase: Purchase) => {
       const { course_id, courses } = purchase;
       const category = courses?.categories?.name ?? "Other";
       const title = courses?.title ?? "Untitled Course";
@@ -75,12 +86,12 @@ export async function getDashboardData(userId: string) {
         prisma.progress.count({
           where: {
             student_id: studentId,
-            lessons: { course_id },
+            lessons: { modules: { course_id } }, // Use relation to filter by course_id
             is_completed: true,
           },
         }),
         prisma.lessons.count({
-          where: { course_id },
+          where: { modules: { course_id } }, // Use relation to filter by course_id
         }),
       ]);
 
@@ -122,10 +133,12 @@ export async function getDashboardData(userId: string) {
     })
   );
 
-  const completedCourseIds = new Set(certificates.map((c) => c.course_id));
+  const completedCourseIds = new Set(
+    certificates.map((c: Certificate) => c.course_id)
+  );
   const completedCount = completedCourseIds.size;
   const ongoingCount = purchases.filter(
-    (p) => !completedCourseIds.has(p.course_id)
+    (p: Purchase) => !completedCourseIds.has(p.course_id)
   ).length;
 
   return {

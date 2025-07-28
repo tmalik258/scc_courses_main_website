@@ -7,124 +7,12 @@ import { LessonNavigation } from "./_components/lesson-navigation";
 import { LessonContent } from "./_components/lesson-content";
 import { CourseSidebar } from "./_components/course-sidebar";
 import { useRouter } from "nextjs-toploader/app";
-
-// Course sections data
-const courseSections = [
-  {
-    id: 1,
-    title: "Introduction to Automation",
-    lessons: [
-      {
-        id: "what-is-automation",
-        title: "What is Automation and Why It Matters",
-        completed: true,
-        locked: false,
-      },
-      {
-        id: "real-world-cases",
-        title: "Real-World Use Cases of Automation",
-        completed: true,
-        locked: false,
-      },
-      {
-        id: "intro-apis",
-        title: "Introduction to APIs and How They Work",
-        completed: false,
-        locked: true,
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Working with APIs in Python",
-    lessons: [
-      {
-        id: "python-requests",
-        title: "Making HTTP Requests with Python",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "handling-json",
-        title: "Handling JSON Data and Responses",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "api-authentication",
-        title: "API Authentication Methods",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "error-handling",
-        title: "Error Handling and Best Practices",
-        completed: false,
-        locked: true,
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Automating Tasks with Python",
-    lessons: [
-      {
-        id: "file-automation",
-        title: "Automating File Operations",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "email-automation",
-        title: "Email Automation with Python",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "web-scraping",
-        title: "Web Scraping and Data Collection",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "scheduling-tasks",
-        title: "Scheduling Automated Tasks",
-        completed: false,
-        locked: true,
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: "Building Real-World Automation Projects",
-    lessons: [
-      {
-        id: "project-planning",
-        title: "Planning Your Automation Project",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "social-media-bot",
-        title: "Building a Social Media Bot",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "data-pipeline",
-        title: "Creating an Automated Data Pipeline",
-        completed: false,
-        locked: true,
-      },
-      {
-        id: "deployment",
-        title: "Deploying Your Automation Scripts",
-        completed: false,
-        locked: true,
-      },
-    ],
-  },
-];
+import {
+  getLessonById,
+  getCourseLessons,
+  LessonData,
+  SectionData,
+} from "@/actions/get-lessons";
 
 export default function LessonPage({
   params,
@@ -133,31 +21,54 @@ export default function LessonPage({
 }) {
   const { courseId, lessonId } = use(params);
   const router = useRouter();
-  // To test free course behavior, change isPaid to false
-  const [isPaid, setIsPaid] = useState(false); // Set to true for paid course, false for free
-  const [expandedSections, setExpandedSections] = useState<number[]>([1]);
+  const [isPaid, setIsPaid] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [sidebarActiveTab, setSidebarActiveTab] = useState("lessons");
   const [isPaidLesson, setIsPaidLesson] = useState(false);
-  const [currentLesson, setCurrentLesson] = useState("what-is-automation");
-
-  console.log("Current Lesson ID:", lessonId);
+  const [currentLesson, setCurrentLesson] = useState<LessonData | null>(null);
+  const [sections, setSections] = useState<SectionData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsPaid(false);
-  }, []);
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const [lessonData, courseSections] = await Promise.all([
+          getLessonById(lessonId, courseId),
+          getCourseLessons(courseId),
+        ]);
+        if (!lessonData || !courseSections) {
+          setError("Lesson or course data not found");
+        } else {
+          setCurrentLesson(lessonData);
+          setSections(courseSections);
+          setExpandedSections(
+            courseSections.length > 0 ? [courseSections[0].id] : []
+          );
+          setIsPaid(lessonData.is_free);
+          setIsPaidLesson(!lessonData.is_free && !lessonData.completed);
+        }
+      } catch (err) {
+        console.error("Error in fetchData:", err);
+        setError("Failed to load data");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [courseId, lessonId]);
 
-  // Get all lessons in order
-  const getAllLessons = () => {
-    return courseSections.flatMap((section) => section.lessons);
+  const getAllLessons = (): LessonData[] => {
+    return sections.flatMap((section) => section.lessons);
   };
 
-  const toggleSection = (sectionId: number) => {
-    setExpandedSections((prev) => {
-      if (prev.includes(sectionId)) {
-        return prev.filter((id) => id !== sectionId);
-      }
-      return [sectionId];
-    });
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(sectionId)
+        ? prev.filter((id) => id !== sectionId)
+        : [sectionId]
+    );
   };
 
   const handleLessonClick = (lessonId: string, isLocked: boolean) => {
@@ -165,53 +76,45 @@ export default function LessonPage({
       setIsPaidLesson(true);
     } else {
       setIsPaidLesson(false);
-      setCurrentLesson(lessonId);
+      const lesson = getAllLessons().find((l: LessonData) => l.id === lessonId);
+      if (lesson) {
+        setCurrentLesson(lesson);
+        router.push(`/courses/${courseId}/lessons/${lessonId}`);
+      }
     }
   };
 
   const getCurrentLessonTitle = () => {
-    for (const section of courseSections) {
-      const lesson = section.lessons.find((l) => l.id === currentLesson);
-      if (lesson) return lesson.title;
-    }
-    return "What is Automation and Why It Matters";
+    return currentLesson?.title || "Lesson not found";
   };
 
   const navigateToLesson = (direction: "next" | "previous") => {
     const allLessons = getAllLessons();
     const currentIndex = allLessons.findIndex(
-      (lesson) => lesson.id === currentLesson
+      (lesson) => lesson.id === currentLesson?.id
     );
 
     if (direction === "next" && currentIndex < allLessons.length - 1) {
       const nextLesson = allLessons[currentIndex + 1];
       handleLessonClick(nextLesson.id, nextLesson.locked);
-
-      // Auto-expand the section containing the next lesson
-      for (const section of courseSections) {
-        if (section.lessons.some((lesson) => lesson.id === nextLesson.id)) {
-          setExpandedSections([section.id]);
-          break;
-        }
-      }
+      const section = sections.find((s) =>
+        s.lessons.some((l: LessonData) => l.id === nextLesson.id)
+      );
+      if (section) setExpandedSections([section.id]);
     } else if (direction === "previous" && currentIndex > 0) {
       const previousLesson = allLessons[currentIndex - 1];
       handleLessonClick(previousLesson.id, previousLesson.locked);
-
-      // Auto-expand the section containing the previous lesson
-      for (const section of courseSections) {
-        if (section.lessons.some((lesson) => lesson.id === previousLesson.id)) {
-          setExpandedSections([section.id]);
-          break;
-        }
-      }
+      const section = sections.find((s) =>
+        s.lessons.some((l: LessonData) => l.id === previousLesson.id)
+      );
+      if (section) setExpandedSections([section.id]);
     }
   };
 
   const getNavigationState = () => {
     const allLessons = getAllLessons();
     const currentIndex = allLessons.findIndex(
-      (lesson) => lesson.id === currentLesson
+      (lesson) => lesson.id === currentLesson?.id
     );
 
     return {
@@ -221,8 +124,19 @@ export default function LessonPage({
   };
 
   const handleJoinCourse = () => {
-    // Navigate to the payment page or handle subscription logic
     router.push(`/courses/${courseId}/payment`);
+  };
+
+  if (loading) {
+    return <div className="text-gray-500 text-center py-12">Loading...</div>;
+  }
+
+  if (error || !currentLesson || !sections) {
+    return (
+      <div className="text-red-500 text-center py-12">
+        {error || "Data not found"}
+      </div>
+    );
   }
 
   const { hasPrevious, hasNext } = getNavigationState();
@@ -238,7 +152,9 @@ export default function LessonPage({
             </a>
             <span className="mx-2">&gt;</span>
             <a href="#" className="hover:text-gray-800 truncate">
-              Machine Learning with Python: From Basics to Deployment
+              {sections.find((s) =>
+                s.lessons.some((l: LessonData) => l.id === currentLesson.id)
+              )?.title || "Course"}
             </a>
             <span className="mx-2">&gt;</span>
             <span className="text-gray-800">Course Lessons</span>
@@ -249,7 +165,7 @@ export default function LessonPage({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-2 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Content - 3/4 width */}
+          {/* Left Content */}
           <div className="lg:col-span-3">
             {isPaidLesson && !isPaid ? (
               <div className="order-1">
@@ -264,9 +180,9 @@ export default function LessonPage({
                     isPaid={isPaid}
                     activeTab={sidebarActiveTab}
                     onTabChange={setSidebarActiveTab}
-                    sections={courseSections}
+                    sections={sections}
                     expandedSections={expandedSections}
-                    currentLesson={currentLesson}
+                    currentLesson={currentLesson.id}
                     onToggleSection={toggleSection}
                     onLessonClick={handleLessonClick}
                     handleJoinCourse={handleJoinCourse}
@@ -275,7 +191,7 @@ export default function LessonPage({
               </div>
             ) : (
               <>
-                <LessonVideo />
+                <LessonVideo video_url={currentLesson.video_url} />
                 <LessonNavigation
                   lessonTitle={getCurrentLessonTitle()}
                   onPrevious={() => navigateToLesson("previous")}
@@ -288,28 +204,28 @@ export default function LessonPage({
                     isPaid={isPaid}
                     activeTab={sidebarActiveTab}
                     onTabChange={setSidebarActiveTab}
-                    sections={courseSections}
+                    sections={sections}
                     expandedSections={expandedSections}
-                    currentLesson={currentLesson}
+                    currentLesson={currentLesson.id}
                     onToggleSection={toggleSection}
                     onLessonClick={handleLessonClick}
                     handleJoinCourse={handleJoinCourse}
                   />
                 </div>
-                <LessonContent />
+                <LessonContent content={currentLesson.content} />
               </>
             )}
           </div>
 
-          {/* Right Sidebar - 1/4 width */}
+          {/* Right Sidebar */}
           <div className="max-md:hidden">
             <CourseSidebar
               isPaid={isPaid}
               activeTab={sidebarActiveTab}
               onTabChange={setSidebarActiveTab}
-              sections={courseSections}
+              sections={sections}
               expandedSections={expandedSections}
-              currentLesson={currentLesson}
+              currentLesson={currentLesson.id}
               onToggleSection={toggleSection}
               onLessonClick={handleLessonClick}
               handleJoinCourse={handleJoinCourse}
