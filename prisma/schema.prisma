@@ -22,15 +22,17 @@ model Profile {
   isActive          Boolean         @default(true) @map("is_active")
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
+  savedCourses Course[] @relation("SavedCourses")
+
   certificates      Certificate[]
   instructorCourses Course[]        @relation("CourseInstructor")
-  paypalCustomer    PaypalCustomer?
   progress          Progress[]
   purchases         Purchase[]
   reviews           Review[]
 
   @@map("profiles")
 }
+
 
 model Course {
   id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -50,6 +52,7 @@ model Course {
   purchases    Purchase[]
   resources    Resources[]
   reviews      Review[]
+  savedBy   Profile[]  @relation("SavedCourses")
 
   @@map("courses")
 }
@@ -147,17 +150,6 @@ model Invoice {
   purchase      Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 
   @@map("invoices")
-}
-
-model PaypalCustomer {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  studentId        String   @unique @map("student_id") @db.Uuid
-  paypalCustomerId String   @unique
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  student          Profile  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@map("paypal_customers")
 }
 
 model Module {

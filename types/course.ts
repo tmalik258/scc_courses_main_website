@@ -64,4 +64,5 @@ export interface SavedCourseCardProps {
   originalPrice: string;
   discountedPrice: string;
   image: string;
+  isSaved?: boolean;
 }

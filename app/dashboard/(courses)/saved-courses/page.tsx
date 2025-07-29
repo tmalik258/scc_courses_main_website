@@ -1,18 +1,17 @@
-// app/dashboard/saved/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { SavedCourseCard } from "./_components/saved-course-card";
 import { createClient } from "@/utils/supabase/client";
 
-export default function SavedCoursePage() {
+export default function SavedCoursesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      const supabase = createClient();
+    const fetchSavedCourses = async () => {
+      const supabase = await createClient();
       const {
         data: { user },
         error,
@@ -21,17 +20,20 @@ export default function SavedCoursePage() {
       if (user && !error) {
         const res = await fetch("/api/saved-courses", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ userId: user.id }),
         });
-        const { courses } = await res.json();
-        setCourses(courses);
+
+        const data = await res.json();
+        setCourses(data.courses || []);
       }
 
       setLoading(false);
     };
 
-    fetchCourses();
+    fetchSavedCourses();
   }, []);
 
   if (loading) {
@@ -41,7 +43,9 @@ export default function SavedCoursePage() {
   return (
     <div className="space-y-6">
       {courses.length > 0 ? (
-        courses.map((course) => <SavedCourseCard key={course.id} {...course} />)
+        courses.map((course) => (
+          <SavedCourseCard key={course.id} {...course} isSaved={true} />
+        ))
       ) : (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

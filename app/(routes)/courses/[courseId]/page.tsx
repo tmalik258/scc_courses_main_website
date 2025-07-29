@@ -23,6 +23,7 @@ import { getCourseById } from "@/actions/get-courses";
 import { getTestimonials } from "@/actions/get-testimonials";
 import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
+import { createClient } from "@/utils/supabase/client"; // ✅ NEW
 
 const CourseDetail = ({
   params,
@@ -36,8 +37,24 @@ const CourseDetail = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<TestimonialType[]>([]);
+  const [userId, setUserId] = useState<string | null>(null); // ✅ NEW
   const router = useRouter();
   const { courseId } = use(params);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+
+    getUser();
+  }, []);
 
   useEffect(() => {
     async function fetchCourseAndTestimonials() {
@@ -307,7 +324,17 @@ const CourseDetail = ({
                     <Button
                       variant="outline"
                       className="w-full border-gray-300 text-aqua-mist hover:bg-gray-50 py-3 max-md:border-0 max-md:shadow-none bg-transparent cursor-pointer"
-                      onClick={() => setIsFavorite(!isFavorite)}
+                      onClick={async () => {
+                        if (!userId) return;
+
+                        setIsFavorite(!isFavorite);
+
+                        await fetch("/api/toggle-save-course", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ userId, courseId }),
+                        });
+                      }}
                     >
                       <span className="max-md:hidden">
                         {isFavorite
