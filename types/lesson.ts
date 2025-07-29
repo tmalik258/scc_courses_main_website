@@ -1,5 +1,4 @@
 export interface LessonData {
-  thumbnail_url: string | null;
   id: string;
   title: string;
   content: string | null;
@@ -8,6 +7,7 @@ export interface LessonData {
   completed: boolean;
   locked: boolean;
   duration: string;
+  resources: { id: string; name: string; url: string }[];
 }
 
 export interface SectionData {

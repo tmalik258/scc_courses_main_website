@@ -5,11 +5,11 @@ export async function GET(
   req: Request,
   { params }: { params: { courseId: string } }
 ) {
-  const course = await prisma.courses.findUnique({
+  const course = await prisma.course.findUnique({
     where: { id: params.courseId },
     select: {
       title: true,
-      categories: {
+      category: {
         select: {
           name: true,
           slug: true,

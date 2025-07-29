@@ -16,7 +16,16 @@ export interface CourseData {
   totalLessons: number;
   purchaseCount: number;
   duration?: string;
-  description?: string; // Added for CourseDetail description
+  description?: string;
+
+  reviews?: {
+    id: string;
+    name: string;
+    title: string;
+    rating: number;
+    review: string;
+    avatar: string;
+  }[];
 }
 
 export interface MyCourseCardProps {

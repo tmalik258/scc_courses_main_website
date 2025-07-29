@@ -4,7 +4,7 @@ import { FilesList } from "./files-list";
 import { LearningProgress } from "./learning-progress";
 import { LessonList } from "../../../_components/lesson-list";
 import { SidebarTabs } from "./sidebar-tabs";
-import { SectionData } from "@/actions/get-lessons";
+import { SectionData } from "../../../../../../../types/lesson";
 
 interface CourseSidebarProps {
   isPaid: boolean;

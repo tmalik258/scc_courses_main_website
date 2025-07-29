@@ -3,19 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TestimonialCard from "./testimonial-card";
+import { TestimonialType } from "@/types/testimonial";
 
 interface TestimonialSliderProps {
-  testimonialsData: {
-    id: number;
-    name: string;
-    title: string;
-    rating: number;
-    review: string;
-    avatar: string;
-  }[];
+  testimonialsData: TestimonialType[];
 }
 
-export function TestimonialSlider({ testimonialsData }: TestimonialSliderProps) {
+export function TestimonialSlider({
+  testimonialsData,
+}: TestimonialSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
 
@@ -45,7 +41,6 @@ export function TestimonialSlider({ testimonialsData }: TestimonialSliderProps) 
     setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
   };
 
-  // Auto-slide functionality
   useEffect(() => {
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);

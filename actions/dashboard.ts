@@ -2,51 +2,29 @@
 
 import prisma from "@/lib/prisma";
 
-interface Course {
-  category: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
-  title: string;
-  currentLesson: number;
-  totalLessons: number;
-  progress: number;
-}
-
-interface Purchase {
-  course_id: string;
-  courses: {
-    title: string | null;
-    categories: { name: string | null } | null;
-  } | null;
-}
-
-interface Certificate {
-  course_id: string;
-}
-
 export async function getDashboardData(userId: string) {
   if (!userId) {
     throw new Error("Missing user ID");
   }
 
   let profile = await prisma.profile.findUnique({
-    where: { user_id: userId },
-    select: { id: true, email: true, full_name: true },
+    where: { userId },
+    select: { id: true, email: true, fullName: true },
   });
 
   if (!profile) {
     profile = await prisma.profile.create({
       data: {
-        user_id: userId,
+        userId,
         email: null,
-        full_name: null,
-        avatar_url: null,
+        fullName: null,
+        avatarUrl: null,
         role: "STUDENT",
-        is_active: true,
-        created_at: new Date(),
-        updated_at: new Date(),
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
-      select: { id: true, email: true, full_name: true },
+      select: { id: true, email: true, fullName: true },
     });
   }
 
@@ -54,46 +32,64 @@ export async function getDashboardData(userId: string) {
 
   const [purchases, certificates] = await prisma.$transaction([
     prisma.purchase.findMany({
-      where: {
-        student_id: studentId,
-        courses: { is_published: true },
-      },
+      where: { studentId },
       select: {
-        course_id: true,
-        courses: {
+        course: {
           select: {
+            id: true,
             title: true,
-            categories: {
-              select: { name: true },
+            category: {
+              select: {
+                name: true,
+              },
+            },
+            instructor: {
+              select: {
+                fullName: true,
+              },
             },
           },
         },
       },
     }),
     prisma.certificate.findMany({
-      where: { student_id: studentId },
-      select: { course_id: true },
+      where: { studentId },
+      select: {
+        courseId: true,
+      },
     }),
   ]);
 
-  const courseProgress: Course[] = await Promise.all(
-    purchases.map(async (purchase: Purchase) => {
-      const { course_id, courses } = purchase;
-      const category = courses?.categories?.name ?? "Other";
-      const title = courses?.title ?? "Untitled Course";
-
-      const [completedLessons, totalLessons] = await Promise.all([
-        prisma.progress.count({
-          where: {
-            student_id: studentId,
-            lessons: { modules: { course_id } }, // Use relation to filter by course_id
-            is_completed: true,
+  const courseProgress = await Promise.all(
+    purchases.map(async (purchase) => {
+      const course = purchase.course;
+      const courseId = course.id;
+      const completedLessons = await prisma.progress.count({
+        where: {
+          studentId,
+          isCompleted: true,
+          lessons: {
+            modules: {
+              courseId,
+            },
           },
-        }),
-        prisma.lessons.count({
-          where: { modules: { course_id } }, // Use relation to filter by course_id
-        }),
-      ]);
+        },
+      });
+
+      const totalLessons = await prisma.lessons.count({
+        where: {
+          modules: {
+            courseId,
+          },
+        },
+      });
+
+      const total = totalLessons || 1;
+      const progress = Math.round((completedLessons / total) * 100);
+
+      const category = course.category?.name ?? "Other";
+      const title = course.title;
+      const mentorName = course.instructor?.fullName ?? "Unknown";
 
       const categoryStyles: Record<
         string,
@@ -117,15 +113,14 @@ export async function getDashboardData(userId: string) {
         },
       };
 
-      const styles = categoryStyles[category] || categoryStyles["Other"];
-      const total = totalLessons || 1;
-      const progress = Math.round((completedLessons / total) * 100);
+      const styles = categoryStyles[category] || categoryStyles.Other;
 
       return {
         category,
         categoryBgColor: styles.bgColor,
         categoryTextColor: styles.textColor,
         title,
+        mentorName,
         currentLesson: completedLessons,
         totalLessons: total,
         progress,
@@ -133,12 +128,10 @@ export async function getDashboardData(userId: string) {
     })
   );
 
-  const completedCourseIds = new Set(
-    certificates.map((c: Certificate) => c.course_id)
-  );
+  const completedCourseIds = new Set(certificates.map((c) => c.courseId));
   const completedCount = completedCourseIds.size;
   const ongoingCount = purchases.filter(
-    (p: Purchase) => !completedCourseIds.has(p.course_id)
+    (p) => !completedCourseIds.has(p.course.id)
   ).length;
 
   return {

@@ -4,6 +4,20 @@ import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
+interface CourseData {
+  id: string;
+  category: string;
+  categoryBgColor: string;
+  categoryTextColor: string;
+  title: string;
+  mentor: string;
+  currentLesson: number;
+  totalLessons: number;
+  progress: number;
+  image: string;
+  status: "active" | "finished";
+}
+
 export async function getMyCourses() {
   const supabase = createClient();
   const {
@@ -15,8 +29,8 @@ export async function getMyCourses() {
     redirect("/login");
   }
 
-  const profile = await prisma.profiles.findUnique({
-    where: { user_id: user.id },
+  const profile = await prisma.profile.findUnique({
+    where: { userId: user.id },
     select: { id: true },
   });
 
@@ -24,41 +38,42 @@ export async function getMyCourses() {
 
   const studentId = profile.id;
 
-  const purchases = await prisma.purchases.findMany({
+  const purchases = await prisma.purchase.findMany({
     where: {
-      student_id: studentId,
-      courses: { is_published: true },
+      studentId: studentId,
+      course: { isPublished: true },
     },
     select: {
-      course_id: true,
-      courses: {
+      courseId: true,
+      course: {
         select: {
           title: true,
-          categories: { select: { name: true } },
+          category: { select: { name: true } },
         },
       },
     },
   });
 
-  const courseData = await Promise.all(
+  const courseData: CourseData[] = await Promise.all(
     purchases.map(async (purchase) => {
-      const courseId = purchase.course_id;
-      const title = purchase.courses?.title || "Untitled";
-      const category = purchase.courses?.categories?.name || "Other";
+      const courseId = purchase.courseId;
+      const title = purchase.course?.title || "Untitled";
+      const category = purchase.course?.category?.name || "Other";
 
-      const completedLessons = await prisma.progress.count({
-        where: {
-          student_id: studentId,
-          lessons: { course_id: courseId },
-          is_completed: true,
-        },
-      });
-
-      const totalLessons = await prisma.lessons.count({
-        where: {
-          course_id: courseId,
-        },
-      });
+      const [completedLessons, totalLessons] = await Promise.all([
+        prisma.progress.count({
+          where: {
+            studentId: studentId,
+            lessons: { modules: { courseId } },
+            isCompleted: true,
+          },
+        }),
+        prisma.lessons.count({
+          where: {
+            modules: { courseId },
+          },
+        }),
+      ]);
 
       const progress = totalLessons
         ? Math.round((completedLessons / totalLessons) * 100)
@@ -96,7 +111,7 @@ export async function getMyCourses() {
         categoryBgColor: styles.bgColor,
         categoryTextColor: styles.textColor,
         title,
-        mentor: "Mentor's Name", // You can replace with real data
+        mentor: "Mentor's Name", // Replace with real data if available
         currentLesson: completedLessons,
         totalLessons,
         progress,

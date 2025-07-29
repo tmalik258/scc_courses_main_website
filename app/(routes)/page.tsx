@@ -1,26 +1,29 @@
-"use client"
+"use client";
 
-import Hero from './_components/hero'
-import Categories from './_components/categories'
-import MostPopularCourses from './_components/most-popular-courses'
-import TestimonialsSection from './_components/testimonials-section'
-import { InstructorSection } from './_components/instructor-sections'
-import ConsultancyContact from './_components/consultancy-contact'
-import { useEffect } from 'react'
+import Hero from "./_components/hero";
+import Categories from "./_components/categories";
+import MostPopularCourses from "./_components/most-popular-courses";
+import TestimonialsSection from "./_components/testimonials-section";
+import { InstructorSection } from "./_components/instructor-sections";
+import ConsultancyContact from "./_components/consultancy-contact";
+import { useEffect } from "react";
 
 export default function HomePage() {
   useEffect(() => {
     const sections = [
-      { id: 'hero', element: document.getElementById('hero') },
-      { id: 'categories', element: document.getElementById('categories') },
-      { id: 'most-popular-courses', element: document.getElementById('most-popular-courses') },
-      { id: 'testimonials', element: document.getElementById('testimonials') },
-      { id: 'instructors', element: document.getElementById('instructors') },
-      { id: 'consultancy', element: document.getElementById('consultancy') },
-    ].filter(section => section.element); // Filter out null elements
+      { id: "hero", element: document.getElementById("hero") },
+      { id: "categories", element: document.getElementById("categories") },
+      {
+        id: "most-popular-courses",
+        element: document.getElementById("most-popular-courses"),
+      },
+      { id: "testimonials", element: document.getElementById("testimonials") },
+      { id: "instructors", element: document.getElementById("instructors") },
+      { id: "consultancy", element: document.getElementById("consultancy") },
+    ].filter((section) => section.element); // Filter out null elements
 
     const handleScroll = () => {
-      let currentSection = '';
+      let currentSection = "";
       const scrollPosition = window.scrollY + window.innerHeight / 2; // Use midpoint of viewport
 
       for (const section of sections) {
@@ -36,14 +39,14 @@ export default function HomePage() {
       }
 
       if (currentSection && window.location.hash !== `#${currentSection}`) {
-        window.history.replaceState(null, '', `#${currentSection}`);
+        window.history.replaceState(null, "", `#${currentSection}`);
       } else if (!currentSection && window.location.hash) {
-        window.history.replaceState(null, '', window.location.pathname);
+        window.history.replaceState(null, "", window.location.pathname);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (

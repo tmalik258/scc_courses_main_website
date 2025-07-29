@@ -1,7 +1,14 @@
 "use server";
 
-import prisma from "../lib/prisma";
+import prisma from "@/lib/prisma";
 import { LessonData, SectionData } from "@/types/lesson";
+
+// Validate UUID format
+const isValidUUID = (id: string): boolean => {
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+};
 
 export async function getLessonById(
   lessonId: string,
@@ -9,31 +16,70 @@ export async function getLessonById(
   userId?: string
 ): Promise<LessonData | null> {
   try {
+    if (!lessonId || !courseId) {
+      console.error(
+        `Invalid input: lessonId=${lessonId}, courseId=${courseId}`
+      );
+      return null;
+    }
+
+    if (!isValidUUID(lessonId) || !isValidUUID(courseId)) {
+      console.error(
+        `Invalid UUID format: lessonId=${lessonId}, courseId=${courseId}`
+      );
+      return null;
+    }
+
     const lesson = await prisma.lessons.findUnique({
       where: { id: lessonId },
       include: {
         modules: { select: { courseId: true } },
         progress: userId
           ? { where: { studentId: userId }, select: { isCompleted: true } }
-          : false,
+          : undefined,
       },
     });
 
-    if (!lesson || lesson.modules.courseId !== courseId) {
+    if (!lesson) {
+      console.error(`Lesson not found in database: lessonId=${lessonId}`);
       return null;
     }
 
-    const isPaid = userId
-      ? Boolean(
-          await prisma.purchase.findFirst({
-            where: { courseId, studentId: userId },
-          })
-        )
-      : false;
+    if (lesson.modules.courseId !== courseId) {
+      console.error(
+        `Lesson does not belong to course: lessonId=${lessonId}, courseId=${courseId}, moduleCourseId=${lesson.modules.courseId}`
+      );
+      return null;
+    }
+
+    const profile = userId
+      ? await prisma.profile.findUnique({
+          where: { userId },
+          select: { id: true },
+        })
+      : null;
+
+    const studentId = profile?.id;
+    if (userId && !studentId) {
+      console.warn(`No profile found for userId=${userId}`);
+    }
+
+    const isPaid =
+      userId && studentId
+        ? Boolean(
+            await prisma.purchase.findFirst({
+              where: { courseId, studentId },
+            })
+          )
+        : false;
+
+    const resources = await prisma.resources.findMany({
+      where: { course_id: courseId },
+    });
 
     const completed =
       userId && lesson.progress?.length
-        ? lesson.progress.some((p) => p.isCompleted)
+        ? lesson.progress.some((p: { isCompleted: boolean }) => p.isCompleted)
         : false;
 
     return {
@@ -49,10 +95,17 @@ export async function getLessonById(
             Math.floor(Math.random() * 60)
           ).padStart(2, "0")}`
         : "Unknown",
-      thumbnail_url: "https://picsum.photos/600/400",
+      resources: resources.map((r) => ({
+        id: r.id,
+        name: r.name,
+        url: r.url,
+      })),
     };
   } catch (error) {
-    console.error("Error fetching lesson by ID:", error);
+    console.error(
+      `Error fetching lesson by ID: lessonId=${lessonId}, courseId=${courseId}, userId=${userId}`,
+      error
+    );
     throw new Error("Failed to fetch lesson");
   }
 }
@@ -62,6 +115,28 @@ export async function getCourseLessons(
   userId?: string
 ): Promise<SectionData[]> {
   try {
+    if (!courseId) {
+      console.error(`Invalid input: courseId=${courseId}`);
+      return [];
+    }
+
+    if (!isValidUUID(courseId)) {
+      console.error(`Invalid UUID format: courseId=${courseId}`);
+      return [];
+    }
+
+    const profile = userId
+      ? await prisma.profile.findUnique({
+          where: { userId },
+          select: { id: true },
+        })
+      : null;
+
+    const studentId = profile?.id;
+    if (userId && !studentId) {
+      console.warn(`No profile found for userId=${userId}`);
+    }
+
     const course = await prisma.course.findUnique({
       where: { id: courseId },
       include: {
@@ -69,23 +144,31 @@ export async function getCourseLessons(
           include: {
             lessons: {
               include: {
-                progress: userId
-                  ? {
-                      where: { studentId: userId },
-                      select: { isCompleted: true },
-                    }
-                  : false,
+                progress:
+                  userId && studentId
+                    ? {
+                        where: { studentId },
+                        select: { isCompleted: true },
+                      }
+                    : undefined,
               },
             },
           },
         },
-        purchases: userId ? { where: { studentId: userId } } : undefined,
+        purchases: userId && studentId ? { where: { studentId } } : undefined,
       },
     });
 
-    if (!course) return [];
+    if (!course) {
+      console.error(`Course not found in database: courseId=${courseId}`);
+      return [];
+    }
 
-    const isPaid = userId ? course.purchases.length > 0 : false;
+    const isPaid = userId && studentId ? course.purchases.length > 0 : false;
+
+    const resources = await prisma.resources.findMany({
+      where: { course_id: courseId },
+    });
 
     return course.modules.map((module) => ({
       id: module.id,
@@ -93,7 +176,9 @@ export async function getCourseLessons(
       lessons: module.lessons.map((lesson) => {
         const completed =
           userId && lesson.progress?.length
-            ? lesson.progress.some((p) => p.isCompleted)
+            ? lesson.progress.some(
+                (p: { isCompleted: boolean }) => p.isCompleted
+              )
             : false;
 
         return {
@@ -109,14 +194,19 @@ export async function getCourseLessons(
                 Math.floor(Math.random() * 60)
               ).padStart(2, "0")}`
             : "Unknown",
-          thumbnail_url: "https://picsum.photos/600/400",
+          resources: resources.map((r) => ({
+            id: r.id,
+            name: r.name,
+            url: r.url,
+          })),
         };
       }),
     }));
   } catch (error) {
-    console.error("Error fetching course lessons:", error);
+    console.error(
+      `Error fetching course lessons: courseId=${courseId}, userId=${userId}`,
+      error
+    );
     throw new Error("Failed to fetch course lessons");
   }
 }
-
-export type { LessonData, SectionData };

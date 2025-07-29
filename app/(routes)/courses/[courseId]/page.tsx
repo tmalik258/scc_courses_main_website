@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   Check,
   Play,
@@ -20,7 +20,9 @@ import { useRouter } from "nextjs-toploader/app";
 import { LessonList } from "./_components/lesson-list";
 import TestimonialCard from "../../_components/testimonial-card";
 import { getCourseById } from "@/actions/get-courses";
+import { getTestimonials } from "@/actions/get-testimonials";
 import { CourseData } from "@/types/course";
+import { TestimonialType } from "@/types/testimonial";
 
 const CourseDetail = ({
   params,
@@ -29,23 +31,30 @@ const CourseDetail = ({
 }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<number[]>([1]);
+  const [expandedSections, setExpandedSections] = useState<string[]>(["1"]);
   const [course, setCourse] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<TestimonialType[]>([]);
   const router = useRouter();
-  const { courseId } = use(params); // courseId extracted here
+  const { courseId } = use(params);
 
   useEffect(() => {
-    async function fetchCourse() {
+    async function fetchCourseAndTestimonials() {
       try {
         setLoading(true);
-        const courseData = await getCourseById(courseId);
+        const [courseData, testimonialsData] = await Promise.all([
+          getCourseById(courseId),
+          getTestimonials(),
+        ]);
+
         if (courseData) {
           setCourse(courseData);
         } else {
           setError("Course not found");
         }
+
+        setReviews(testimonialsData);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("Failed to load course data");
@@ -53,10 +62,10 @@ const CourseDetail = ({
         setLoading(false);
       }
     }
-    fetchCourse();
+
+    fetchCourseAndTestimonials();
   }, [courseId]);
 
-  // Learning and feature data (hardcoded for now)
   const learningPoints = [
     "Understand the fundamentals of automation and APIs",
     "Work with HTTP requests, JSON data, and third-party APIs",
@@ -65,16 +74,15 @@ const CourseDetail = ({
   const courseFeatures = [
     { icon: Play, label: "32 Videos" },
     { icon: Download, label: "40 Downloadable Materials" },
-    { icon: Clock, label: course?.duration || "20 Hours Duration" }, // Use dynamic duration
+    { icon: Clock, label: course?.duration || "20 Hours Duration" },
     { icon: FileText, label: "8 Articles" },
     { icon: FolderOpen, label: "20 Projects" },
     { icon: TestTube, label: "10 Practice Test" },
   ];
 
-  // Dummy content sections (hardcoded for now)
   const courseSections = [
     {
-      id: 1,
+      id: "1",
       title: "Introduction to Automation",
       lessons: [
         {
@@ -83,6 +91,10 @@ const CourseDetail = ({
           completed: false,
           locked: false,
           duration: "10:03",
+          content: "Introduction to automation concepts.",
+          video_url: "https://example.com/video1.mp4",
+          is_free: true,
+          resources: [],
         },
         {
           id: "real-world-cases",
@@ -90,6 +102,10 @@ const CourseDetail = ({
           completed: false,
           locked: false,
           duration: "12:03",
+          content: "Explore practical automation use cases.",
+          video_url: "https://example.com/video2.mp4",
+          is_free: true,
+          resources: [],
         },
         {
           id: "intro-apis",
@@ -97,6 +113,10 @@ const CourseDetail = ({
           completed: false,
           locked: true,
           duration: "20:03",
+          content: "Deep dive into APIs.",
+          video_url: "https://example.com/video3.mp4",
+          is_free: false,
+          resources: [],
         },
       ],
     },
@@ -110,19 +130,6 @@ const CourseDetail = ({
     },
   ];
 
-  const reviews = [
-    {
-      id: 1,
-      name: "Rahul M.",
-      title: "AI Developer at Tech Solutions",
-      rating: 5,
-      review:
-        "The AI Call Bot course was a game-changer! The lessons were easy to follow, and now I've built my own AI-powered customer service system. Highly recommended!",
-      avatar:
-        "/images/landing_page/testimonial_placeholder.jpg?height=60&width=60",
-    },
-  ];
-
   const handleGetStarted = () => {
     router.push(`/courses/${courseId}/lessons/1`);
   };
@@ -131,7 +138,7 @@ const CourseDetail = ({
     router.push(`/courses/${courseId}/lessons/${lessonId}`);
   };
 
-  const toggleSection = (sectionId: number) => {
+  const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) =>
       prev.includes(sectionId)
         ? prev.filter((id) => id !== sectionId)
@@ -161,11 +168,8 @@ const CourseDetail = ({
 
       <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left - Main */}
           <div className="lg:col-span-2 max-md:order-2">
             <CourseInfo courseId={courseId} />
-
-            {/* Tabs */}
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
             <div>
@@ -184,7 +188,6 @@ const CourseDetail = ({
                           {course.description || "No description available"}
                         </p>
                       </div>
-
                       <div>
                         <h4 className="font-medium text-gray-800 mb-3">
                           What You&apos;ll Learn
@@ -254,15 +257,18 @@ const CourseDetail = ({
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
                     Student Reviews
                   </h3>
-                  {reviews.map((review) => (
-                    <TestimonialCard key={review.id} testimonial={review} />
-                  ))}
+                  {reviews.length > 0 ? (
+                    reviews.map((review) => (
+                      <TestimonialCard key={review.id} testimonial={review} />
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No reviews yet.</p>
+                  )}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right - Sidebar */}
           <div className="lg:col-span-1 max-md:order-1">
             <div className="flex md:flex-col gap-3 md:gap-6 relative">
               <div>
