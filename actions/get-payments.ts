@@ -3,29 +3,29 @@
 import prisma from "@/lib/prisma";
 
 export async function getUserPayments(userId: string) {
-  const purchases = await prisma.purchases.findMany({
-    where: { student_id: userId },
+  const purchases = await prisma.purchase.findMany({
+    where: { studentId: userId },
     include: {
-      courses: true,
-      invoices: true,
+      course: true,
+      invoice: true,
     },
     orderBy: { createdAt: "desc" },
   });
 
   return purchases.map((purchase) => ({
     id: purchase.id,
-    title: purchase.courses.title,
+    title: purchase.course.title,
     paymentDate:
-      purchase.invoices?.payment_date.toDateString() ??
+      purchase.invoice?.paymentDate.toDateString() ??
       purchase.createdAt.toDateString(),
-    method: purchase.invoices?.payment_method ?? "Unknown",
-    amount: purchase.invoices?.total_amount
-      ? `₹${purchase.invoices.total_amount.toFixed(0)}`
+    method: purchase.invoice?.paymentMethod ?? "Unknown",
+    amount: purchase.invoice?.totalAmount
+      ? `₹${purchase.invoice.totalAmount.toFixed(0)}`
       : "₹0",
-    status: purchase.invoices?.status.toLowerCase() ?? "pending",
-    image: purchase.courses.thumbnail_url ?? "/images/course_placeholder_2.jpg",
+    status: purchase.invoice?.status.toLowerCase() ?? "pending",
+    image: purchase.course.thumbnailUrl ?? "/images/course_placeholder_2.jpg",
     reason:
-      purchase.invoices?.status === "FAILED" ? "Payment failed" : undefined,
-    timeLeft: purchase.invoices?.status === "PENDING" ? "23:57:55" : undefined,
+      purchase.invoice?.status === "FAILED" ? "Payment failed" : undefined,
+    timeLeft: purchase.invoice?.status === "PENDING" ? "23:57:55" : undefined,
   }));
 }

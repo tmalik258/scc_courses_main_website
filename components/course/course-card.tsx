@@ -52,7 +52,7 @@ export function CourseCard({
         setThumbnailUrl(fetchedUrl ?? "");
         console.log("Fetched thumbnail URL:", fetchedUrl);
       }
-    })()
+    })();
   }, [id, image, thumbnailUrl]);
 
   return (

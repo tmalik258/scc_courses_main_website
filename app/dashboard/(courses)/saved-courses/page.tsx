@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSavedCourses } from "@/actions/get-saved-courses";
 import { SavedCourseCard } from "./_components/saved-course-card";
 import { createClient } from "@/utils/supabase/client";
 
@@ -20,8 +19,13 @@ export default function SavedCoursePage() {
       } = await supabase.auth.getUser();
 
       if (user && !error) {
-        const saved = await getSavedCourses(user.id);
-        setCourses(saved);
+        const res = await fetch("/api/saved-courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        const { courses } = await res.json();
+        setCourses(courses);
       }
 
       setLoading(false);

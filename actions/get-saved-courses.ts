@@ -1,38 +1,38 @@
 import prisma from "../lib/prisma";
-import { unstable_noStore as noStore } from "next/cache"; // optional for fresh data
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function getSavedCourses(userId: string) {
-  noStore(); // disables caching if needed
+  noStore(); // Ensures fresh data (optional)
 
-  const purchases = await prisma.purchases.findMany({
+  const purchases = await prisma.purchase.findMany({
     where: {
-      student_id: userId,
+      studentId: userId,
     },
     include: {
-      courses: {
+      course: {
         include: {
-          categories: true,
-          profiles: true,
+          category: true,
+          instructor: true,
         },
       },
     },
   });
 
   return purchases.map((purchase) => {
-    const course = purchase.courses;
+    const course = purchase.course;
 
     return {
       id: course.id,
-      category: course.categories.name,
+      category: course.category.name,
       categoryBgColor: "bg-blue-600/25",
       categoryTextColor: "text-blue-600",
       title: course.title,
-      mentor: course.profiles.full_name ?? "Unknown Mentor",
+      mentor: course.instructor.fullName ?? "Unknown Mentor",
       students: "300+ students",
       rating: "4.5/5",
       originalPrice: "₹1,350",
       discountedPrice: "₹1,350",
-      image: course.thumbnail_url ?? "/images/course_placeholder_2.jpg",
+      image: course.thumbnailUrl ?? "/images/course_placeholder_2.jpg",
     };
   });
 }
