@@ -22,7 +22,6 @@ interface SavedCourseCardProps {
 
 export function SavedCourseCard(props: SavedCourseCardProps) {
   const [isSaved, setIsSaved] = useState<boolean>(props.isSaved ?? false);
-
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
 
@@ -33,7 +32,6 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
         const uid = data.user.id;
         setUserId(uid);
 
-        // Check if this course is saved
         const res = await fetch("/api/saved-courses", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -62,7 +60,7 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
 
     const data = await res.json();
     if (data?.success) {
-      setIsSaved(data.saved); // true if saved, false if unsaved
+      setIsSaved(data.saved);
     }
   };
 
@@ -114,8 +112,8 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
           </div>
         </div>
 
-        {/* Bookmark button */}
-        <div className="flex-shrink-0 max-md:absolute max-md:top-4 max-md:left-4">
+        {/* Bookmark button + label */}
+        <div className="flex-shrink-0 max-md:absolute max-md:top-4 max-md:left-4 flex flex-col items-center gap-1">
           <button
             onClick={handleBookmarkToggle}
             className={`p-1 md:p-2 rounded md:rounded-lg transition-colors ${
@@ -130,6 +128,9 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
               }`}
             />
           </button>
+          <span className="text-xs text-gray-600">
+            {isSaved ? "Remove from favourites" : "Add to favourites"}
+          </span>
         </div>
 
         <div className="md:hidden flex justify-between flex-1 items-center gap-4 text-sm text-gray-600">
