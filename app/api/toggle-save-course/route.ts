@@ -1,42 +1,40 @@
-// /app/api/toggle-save-course/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getUserProfile } from "@/actions/get-user-profile";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, courseId } = body;
+    const { courseId } = body;
 
-    console.log("🔹 Incoming toggle-save request:", { userId, courseId });
+    const profile = await getUserProfile();
 
-    if (!userId || !courseId) {
-      console.warn("⛔ Missing userId or courseId");
-      return NextResponse.json(
-        { error: "Missing userId or courseId" },
-        { status: 400 }
-      );
+    if (!profile) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const profile = await prisma.profile.findUnique({
+    const userId = profile.userId;
+
+    if (!courseId) {
+      return NextResponse.json({ error: "Missing courseId" }, { status: 400 });
+    }
+
+    const existingProfile = await prisma.profile.findUnique({
       where: { userId },
       include: { savedCourses: true },
     });
 
-    if (!profile) {
-      console.warn("⚠️ Profile not found for userId:", userId);
+    if (!existingProfile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    const alreadySaved = profile.savedCourses.some(
+    const alreadySaved = existingProfile.savedCourses.some(
       (course) => course.id === courseId
     );
-
-    console.log("🔍 alreadySaved =", alreadySaved);
 
     let updatedProfile;
 
     if (alreadySaved) {
-      console.log("🔄 Removing saved course...");
       updatedProfile = await prisma.profile.update({
         where: { userId },
         data: {
@@ -46,7 +44,6 @@ export async function POST(req: NextRequest) {
         },
       });
     } else {
-      console.log(" Adding saved course...");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       updatedProfile = await prisma.profile.update({
         where: { userId },
@@ -57,8 +54,6 @@ export async function POST(req: NextRequest) {
         },
       });
     }
-
-    console.log("✅ Profile updated. Saved state is now:", !alreadySaved);
 
     return NextResponse.json({ success: true, saved: !alreadySaved });
   } catch (error) {
