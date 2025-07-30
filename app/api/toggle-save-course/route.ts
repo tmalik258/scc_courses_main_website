@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, saved: !alreadySaved });
   } catch (error) {
-    console.error("🔥 Toggle save error:", error);
+    console.error("Toggle save error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

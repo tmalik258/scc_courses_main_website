@@ -10,8 +10,8 @@ import { CourseSidebar } from "./_components/course-sidebar";
 import { useRouter } from "nextjs-toploader/app";
 import { getLessonById, getCourseLessons } from "@/actions/get-lessons";
 import { SectionData, LessonData } from "../../../../../../types/lesson";
+import { fetchVideoUrl } from "@/utils/supabase/fetchVideo";
 
-// Validate UUID format
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -24,7 +24,6 @@ export default function LessonPage({
   params: Promise<{ courseId: string; lessonId: string }>;
 }) {
   const { courseId, lessonId } = use(params);
-
   const router = useRouter();
   const supabase = createClient();
 
@@ -37,6 +36,7 @@ export default function LessonPage({
   const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [videoSignedUrl, setVideoSignedUrl] = useState<string | null>(null);
 
   const hasRedirectedRef = useRef(false);
 
@@ -47,7 +47,6 @@ export default function LessonPage({
         error,
       } = await supabase.auth.getUser();
       if (error || !user?.id) {
-        console.warn("No user authenticated, proceeding without userId");
         setUserId(undefined);
       } else {
         setUserId(user.id);
@@ -81,7 +80,6 @@ export default function LessonPage({
 
         if (!selectedLesson && !hasRedirectedRef.current) {
           const firstLesson = allLessons[0] || null;
-
           if (firstLesson) {
             hasRedirectedRef.current = true;
             router.replace(`/courses/${courseId}/lessons/${firstLesson.id}`);
@@ -98,6 +96,14 @@ export default function LessonPage({
         }
 
         setCurrentLesson(selectedLesson);
+
+        if (selectedLesson.video_url) {
+          const signedUrl = await fetchVideoUrl(selectedLesson.video_url);
+          setVideoSignedUrl(signedUrl);
+        } else {
+          setVideoSignedUrl(null);
+        }
+
         setSections(courseSections);
         setExpandedSections(
           courseSections.length > 0
@@ -112,7 +118,6 @@ export default function LessonPage({
         setIsPaidLesson(selectedLesson.locked);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(err);
         setError(err.message || "Failed to load course data");
       } finally {
         setLoading(false);
@@ -122,7 +127,7 @@ export default function LessonPage({
     if (userId !== undefined) {
       fetchData();
     }
-  }, [courseId, lessonId, userId, router]);
+  }, [courseId, lessonId, userId]);
 
   const getAllLessons = (): LessonData[] => {
     return sections.flatMap((section) => section.lessons);
@@ -256,7 +261,7 @@ export default function LessonPage({
               </div>
             ) : (
               <>
-                <LessonVideo video_url={currentLesson.video_url} />
+                <LessonVideo signedUrl={videoSignedUrl} />
                 <LessonNavigation
                   lessonTitle={getCurrentLessonTitle()}
                   onPrevious={() => navigateToLesson("previous")}
