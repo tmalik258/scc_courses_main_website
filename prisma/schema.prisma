@@ -27,7 +27,7 @@ model Profile {
   progress             Progress[]
   purchases            Purchase[]
   reviews              Review[]
-  courses_SavedCourses Course[]      @relation("SavedCourses")
+  savedCourses         Course[]      @relation("SavedCourses")
 
   @@map("profiles")
 }
@@ -51,7 +51,7 @@ model Course {
   purchases             Purchase[]
   resources             Resources[]
   reviews               Review[]
-  profiles_SavedCourses Profile[]     @relation("SavedCourses")
+  savedBy               Profile[]     @relation("SavedCourses")
 
   @@map("courses")
 }
@@ -138,9 +138,9 @@ model Invoice {
   purchaseId    String   @unique @map("purchase_id") @db.Uuid
   invoiceNumber String   @unique @map("invoice_number")
   paymentDate   DateTime @map("payment_date")
-  paymentMethod String   @map("payment_method")
+  paymentMethod PaymentMethod  @map("payment_method")
   totalAmount   Decimal  @map("total_amount") @db.Decimal(10, 2)
-  status        String   @default("SUCCESS") @map("status")
+  status        PaymentStatus  @default(SUCCESS) @map("status") 
   category      String?
   courseName    String   @map("course_name")
   studentName   String   @map("student_name")
@@ -195,4 +195,15 @@ enum Role {
   STUDENT
   INSTRUCTOR
   ADMIN
+}
+
+enum PaymentMethod {
+  PAYPAL
+  RAZORPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
