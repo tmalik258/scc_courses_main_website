@@ -1,72 +1,82 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { PaywallContent } from "./_components/paywall-content";
 import { LessonVideo } from "./_components/lesson-video";
 import { LessonNavigation } from "./_components/lesson-navigation";
 import { LessonContent } from "./_components/lesson-content";
 import { CourseSidebar } from "./_components/course-sidebar";
-import { useRouter } from "nextjs-toploader/app";
+import { useRouter } from "next/navigation";
 import { getLessonById, getCourseLessons } from "@/actions/get-lessons";
 import { SectionData, LessonData } from "../../../../../../types/lesson";
-import { fetchVideoUrl } from "@/utils/supabase/fetchVideo";
+import Link from "next/link";
 
+// Validate UUID format
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(id);
 };
 
-export default function LessonPage({
-  params,
-}: {
-  params: Promise<{ courseId: string; lessonId: string }>;
-}) {
-  const { courseId, lessonId } = use(params);
+interface LessonPageProps {
+  params: { courseId: string; lessonId: string };
+}
+
+export default function LessonPage({ params }: LessonPageProps) {
+  const { courseId, lessonId } = params;
   const router = useRouter();
   const supabase = createClient();
 
-  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isPaid, setIsPaid] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [sidebarActiveTab, setSidebarActiveTab] = useState("lessons");
+  const [sidebarActiveTab, setSidebarActiveTab] = useState<string>("lessons");
   const [isPaidLesson, setIsPaidLesson] = useState(false);
   const [currentLesson, setCurrentLesson] = useState<LessonData | null>(null);
   const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [videoSignedUrl, setVideoSignedUrl] = useState<string | null>(null);
 
   const hasRedirectedRef = useRef(false);
 
   useEffect(() => {
-    async function fetchUser() {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error || !user?.id) {
-        setUserId(undefined);
-      } else {
-        setUserId(user.id);
+    const fetchUser = async () => {
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+        if (error || !user?.id) {
+          console.warn("No user authenticated, proceeding without userId");
+          setUserId(null);
+        } else {
+          setUserId(user.id);
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setUserId(null);
       }
-    }
+    };
     fetchUser();
   }, [supabase]);
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         if (!isValidUUID(courseId)) {
           setError("Invalid course ID");
           return;
         }
 
-        const courseSections = await getCourseLessons(courseId, userId);
-        if (!courseSections || courseSections.length === 0) {
+        const courseSections = await getCourseLessons(
+          courseId,
+          userId || undefined
+        );
+        if (!courseSections?.length) {
           setError("No lessons available for this course");
           return;
         }
@@ -75,59 +85,56 @@ export default function LessonPage({
         const allLessons = courseSections.flatMap((section) => section.lessons);
 
         if (lessonId && isValidUUID(lessonId)) {
-          selectedLesson = await getLessonById(lessonId, courseId, userId);
+          selectedLesson = await getLessonById(
+            lessonId,
+            courseId,
+            userId || undefined
+          );
         }
 
         if (!selectedLesson && !hasRedirectedRef.current) {
-          const firstLesson = allLessons[0] || null;
+          const firstLesson = allLessons[0];
           if (firstLesson) {
             hasRedirectedRef.current = true;
             router.replace(`/courses/${courseId}/lessons/${firstLesson.id}`);
             return;
-          } else {
-            setError("No lessons available for this course");
-            return;
           }
+          setError("No lessons available for this course");
+          return;
         }
 
         if (!selectedLesson) {
-          setError("Lesson not found.");
+          setError("Lesson not found");
           return;
         }
 
         setCurrentLesson(selectedLesson);
-
-        if (selectedLesson.video_url) {
-          const signedUrl = await fetchVideoUrl(selectedLesson.video_url);
-          setVideoSignedUrl(signedUrl);
-        } else {
-          setVideoSignedUrl(null);
-        }
-
         setSections(courseSections);
         setExpandedSections(
           courseSections.length > 0
             ? [
                 courseSections.find((s) =>
-                  s.lessons.some((l) => l.id === selectedLesson!.id)
+                  s.lessons.some((l) => l.id === selectedLesson.id)
                 )?.id || courseSections[0].id,
               ]
             : []
         );
         setIsPaid(!selectedLesson.locked);
         setIsPaidLesson(selectedLesson.locked);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        setError(err.message || "Failed to load course data");
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load course data";
+        console.error("Error fetching data:", err);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     if (userId !== undefined) {
       fetchData();
     }
-  }, [courseId, lessonId, userId]);
+  }, [courseId, lessonId, userId, router]);
 
   const getAllLessons = (): LessonData[] => {
     return sections.flatMap((section) => section.lessons);
@@ -137,25 +144,26 @@ export default function LessonPage({
     setExpandedSections((prev) =>
       prev.includes(sectionId)
         ? prev.filter((id) => id !== sectionId)
-        : [sectionId]
+        : [...prev, sectionId]
     );
   };
 
   const handleLessonClick = (lessonId: string, isLocked: boolean) => {
     if (isLocked) {
       setIsPaidLesson(true);
-    } else {
-      setIsPaidLesson(false);
-      const lesson = getAllLessons().find((l) => l.id === lessonId);
-      if (lesson) {
-        setCurrentLesson(lesson);
-        router.push(`/courses/${courseId}/lessons/${lessonId}`);
-      }
+      return;
+    }
+
+    setIsPaidLesson(false);
+    const lesson = getAllLessons().find((l) => l.id === lessonId);
+    if (lesson) {
+      setCurrentLesson(lesson);
+      router.push(`/courses/${courseId}/lessons/${lessonId}`);
     }
   };
 
   const getCurrentLessonTitle = () => {
-    return currentLesson?.title || "Lesson not found";
+    return currentLesson?.title ?? "Lesson not found";
   };
 
   const navigateToLesson = (direction: "next" | "previous") => {
@@ -189,7 +197,7 @@ export default function LessonPage({
 
     return {
       hasPrevious: currentIndex > 0,
-      hasNext: currentIndex < allLessons.length - 1,
+      hasNext: currentIndex >= 0 && currentIndex < allLessons.length - 1,
     };
   };
 
@@ -197,16 +205,21 @@ export default function LessonPage({
     router.push(`/courses/${courseId}/payment`);
   };
 
+  const totalLessons = getAllLessons().length;
+  const completedLessons = getAllLessons().filter(
+    (lesson) => lesson.completed
+  ).length;
+
   if (loading) {
     return (
       <div className="text-gray-600 text-center py-8">Loading lesson...</div>
     );
   }
 
-  if (error || !currentLesson?.id) {
+  if (error || !currentLesson) {
     return (
       <div className="text-red-600 text-center py-8">
-        Error: {error || "Lesson data not found"}
+        Error: {error ?? "Lesson data not found"}
       </div>
     );
   }
@@ -218,15 +231,18 @@ export default function LessonPage({
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center text-sm text-gray-600">
-            <a href="#" className="hover:text-gray-800">
+            <Link href="/courses" className="hover:text-gray-800">
               Courses
-            </a>
+            </Link>
             <span className="mx-2">&gt;</span>
-            <a href="#" className="hover:text-gray-800 truncate">
+            <Link
+              href={`/courses/${courseId}`}
+              className="hover:text-gray-800 truncate"
+            >
               {sections.find((s) =>
                 s.lessons.some((l) => l.id === currentLesson.id)
-              )?.title || "Course"}
-            </a>
+              )?.title ?? "Course"}
+            </Link>
             <span className="mx-2">&gt;</span>
             <span className="text-gray-800">Course Lessons</span>
           </div>
@@ -255,19 +271,29 @@ export default function LessonPage({
                     onToggleSection={toggleSection}
                     onLessonClick={handleLessonClick}
                     handleJoinCourse={handleJoinCourse}
-                    resources={currentLesson.resources}
+                    courseId={courseId}
+                    totalLessons={totalLessons}
+                    completedLessons={completedLessons}
                   />
                 </div>
               </div>
             ) : (
               <>
-                <LessonVideo signedUrl={videoSignedUrl} />
+                {currentLesson.video_url ? (
+                  <LessonVideo signedUrl={currentLesson.video_url} />
+                ) : (
+                  <div className="text-gray-600 text-center py-4">
+                    No video available for this lesson
+                  </div>
+                )}
                 <LessonNavigation
                   lessonTitle={getCurrentLessonTitle()}
                   onPrevious={() => navigateToLesson("previous")}
                   onNext={() => navigateToLesson("next")}
                   hasPrevious={hasPrevious}
                   hasNext={hasNext}
+                  isPaid={isPaid}
+                  isPaidLesson={isPaidLesson}
                 />
                 <div className="md:hidden">
                   <CourseSidebar
@@ -280,10 +306,18 @@ export default function LessonPage({
                     onToggleSection={toggleSection}
                     onLessonClick={handleLessonClick}
                     handleJoinCourse={handleJoinCourse}
-                    resources={currentLesson.resources}
+                    courseId={courseId}
+                    totalLessons={totalLessons}
+                    completedLessons={completedLessons}
                   />
                 </div>
-                <LessonContent content={currentLesson.content} />
+                {currentLesson.content ? (
+                  <LessonContent content={currentLesson.content} />
+                ) : (
+                  <div className="text-gray-600 text-center py-4">
+                    No content available for this lesson
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -299,7 +333,9 @@ export default function LessonPage({
               onToggleSection={toggleSection}
               onLessonClick={handleLessonClick}
               handleJoinCourse={handleJoinCourse}
-              resources={currentLesson.resources}
+              courseId={courseId}
+              totalLessons={totalLessons}
+              completedLessons={completedLessons}
             />
           </div>
         </div>

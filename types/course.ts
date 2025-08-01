@@ -17,7 +17,27 @@ export interface CourseData {
   purchaseCount: number;
   duration?: string;
   description?: string;
-
+  videoCount: number;
+  articleCount: number;
+  downloadableResources: number;
+  projectCount: number;
+  practiceTestCount: number;
+  learningPoints: string[];
+  sections: {
+    id: string;
+    title: string;
+    lessons: {
+      id: string;
+      title: string;
+      completed: boolean;
+      locked: boolean;
+      duration: string;
+      content: string | null;
+      video_url: string | null;
+      is_free: boolean;
+      resources: { name: string; url: string }[];
+    }[];
+  }[];
   reviews?: {
     id: string;
     name: string;

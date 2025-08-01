@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown, ChevronUp, Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -12,7 +13,10 @@ interface CourseFiltersProps {
   }) => void;
 }
 
-export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
+export default function CourseFilters({ onFilterChange }: CourseFiltersProps) {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || "";
+
   const [expandedSections, setExpandedSections] = useState({
     category: true,
     price: true,
@@ -20,7 +24,7 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
   });
 
   const [selectedFilters, setSelectedFilters] = useState({
-    categories: [] as string[],
+    categories: initialCategory ? [initialCategory] : [],
     priceRange: "All",
     rating: "All",
   });
@@ -43,6 +47,19 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
   ];
 
   const ratings = ["All", "5.0", "4.0+", "3.0+", "2.0+", "1.0+"];
+
+  useEffect(() => {
+    // Sync categories with URL query parameter
+    const category = searchParams.get("category") || "";
+    setSelectedFilters((prev) => ({
+      ...prev,
+      categories: category && categories.includes(category) ? [category] : [],
+    }));
+    onFilterChange({
+      ...selectedFilters,
+      categories: category && categories.includes(category) ? [category] : [],
+    });
+  }, [searchParams]);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -74,20 +91,22 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
   };
 
   return (
-    <div className="w-64 bg-white p-6 border rounded-sm h-fit border-gray-200">
-      <h3 className="font-semibold text-gray-800 mb-4">Filter by</h3>
+    <div className="max-w-7xl mx-auto px-6 py-6 md:py-16">
+      <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 font-manrope">
+        Filter by
+      </h3>
 
       {/* Category Filter */}
       <div className="mb-6">
         <button
           onClick={() => toggleSection("category")}
-          className="flex items-center justify-between w-full text-left font-medium text-gray-700 mb-3"
+          className="flex items-center justify-between w-full text-left text-base md:text-lg font-semibold text-gray-800 mb-3 font-manrope"
         >
           Category
           {expandedSections.category ? (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp className="w-4 h-4 text-gray-600" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-4 h-4 text-gray-600" />
           )}
         </button>
 
@@ -101,10 +120,11 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
                   onCheckedChange={(checked) =>
                     handleCategoryChange(category, checked as boolean)
                   }
+                  className="text-blue-500"
                 />
                 <label
                   htmlFor={category}
-                  className="text-sm text-gray-600 cursor-pointer"
+                  className="text-sm text-gray-600 cursor-pointer font-manrope"
                 >
                   {category}
                 </label>
@@ -118,13 +138,13 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
       <div className="mb-6">
         <button
           onClick={() => toggleSection("price")}
-          className="flex items-center justify-between w-full text-left font-medium text-gray-700 mb-3"
+          className="flex items-center justify-between w-full text-left text-base md:text-lg font-semibold text-gray-800 mb-3 font-manrope"
         >
           Price
           {expandedSections.price ? (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp className="w-4 h-4 text-gray-600" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-4 h-4 text-gray-600" />
           )}
         </button>
 
@@ -138,11 +158,11 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
                   name="price"
                   checked={selectedFilters.priceRange === price}
                   onChange={() => handlePriceChange(price)}
-                  className="text-blue-500"
+                  className="text-blue-500 focus:ring-blue-500"
                 />
                 <label
                   htmlFor={price}
-                  className="text-sm text-gray-600 cursor-pointer"
+                  className="text-sm text-gray-600 cursor-pointer font-manrope"
                 >
                   {price}
                 </label>
@@ -156,13 +176,13 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
       <div className="mb-6">
         <button
           onClick={() => toggleSection("rating")}
-          className="flex items-center justify-between w-full text-left font-medium text-gray-700 mb-3"
+          className="flex items-center justify-between w-full text-left text-base md:text-lg font-semibold text-gray-800 mb-3 font-manrope"
         >
           Rating
           {expandedSections.rating ? (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp className="w-4 h-4 text-gray-600" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-4 h-4 text-gray-600" />
           )}
         </button>
 
@@ -176,11 +196,11 @@ export function CourseFilters({ onFilterChange }: CourseFiltersProps) {
                   name="rating"
                   checked={selectedFilters.rating === rating}
                   onChange={() => handleRatingChange(rating)}
-                  className="text-blue-500"
+                  className="text-blue-500 focus:ring-blue-500"
                 />
                 <label
                   htmlFor={rating}
-                  className="text-sm text-gray-600 cursor-pointer flex items-center gap-2"
+                  className="text-sm text-gray-600 cursor-pointer font-manrope flex items-center gap-2"
                 >
                   <div className="flex">
                     {rating !== "All" &&
