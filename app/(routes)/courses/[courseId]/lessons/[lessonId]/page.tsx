@@ -1,30 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PaywallContent } from "./_components/paywall-content";
 import { LessonVideo } from "./_components/lesson-video";
 import { LessonNavigation } from "./_components/lesson-navigation";
 import { LessonContent } from "./_components/lesson-content";
 import { CourseSidebar } from "./_components/course-sidebar";
-import { useRouter } from "next/navigation";
 import { getLessonById, getCourseLessons } from "@/actions/get-lessons";
 import { SectionData, LessonData } from "../../../../../../types/lesson";
 import Link from "next/link";
+import { LearningProgress } from "./_components/learning-progress";
 
-// Validate UUID format
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(id);
 };
 
-interface LessonPageProps {
-  params: { courseId: string; lessonId: string };
-}
-
-export default function LessonPage({ params }: LessonPageProps) {
-  const { courseId, lessonId } = params;
+export default function LessonPage() {
+  const { courseId, lessonId } = useParams() as {
+    courseId: string;
+    lessonId: string;
+  };
   const router = useRouter();
   const supabase = createClient();
 
@@ -42,21 +41,10 @@ export default function LessonPage({ params }: LessonPageProps) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-        if (error || !user?.id) {
-          console.warn("No user authenticated, proceeding without userId");
-          setUserId(null);
-        } else {
-          setUserId(user.id);
-        }
-      } catch (err) {
-        console.error("Error fetching user:", err);
-        setUserId(null);
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUserId(user?.id ?? null);
     };
     fetchUser();
   }, [supabase]);
@@ -76,13 +64,14 @@ export default function LessonPage({ params }: LessonPageProps) {
           courseId,
           userId || undefined
         );
+
         if (!courseSections?.length) {
-          setError("No lessons available for this course");
+          setError("No lessons found.");
           return;
         }
 
+        const allLessons = courseSections.flatMap((s) => s.lessons);
         let selectedLesson: LessonData | null = null;
-        const allLessons = courseSections.flatMap((section) => section.lessons);
 
         if (lessonId && isValidUUID(lessonId)) {
           selectedLesson = await getLessonById(
@@ -99,33 +88,27 @@ export default function LessonPage({ params }: LessonPageProps) {
             router.replace(`/courses/${courseId}/lessons/${firstLesson.id}`);
             return;
           }
-          setError("No lessons available for this course");
+          setError("No lessons available.");
           return;
         }
 
         if (!selectedLesson) {
-          setError("Lesson not found");
+          setError("Lesson not found.");
           return;
         }
 
         setCurrentLesson(selectedLesson);
         setSections(courseSections);
-        setExpandedSections(
-          courseSections.length > 0
-            ? [
-                courseSections.find((s) =>
-                  s.lessons.some((l) => l.id === selectedLesson.id)
-                )?.id || courseSections[0].id,
-              ]
-            : []
-        );
+        setExpandedSections([
+          courseSections.find((s) =>
+            s.lessons.some((l) => l.id === selectedLesson?.id)
+          )?.id || courseSections[0].id,
+        ]);
         setIsPaid(!selectedLesson.locked);
         setIsPaidLesson(selectedLesson.locked);
-      } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to load course data";
-        console.error("Error fetching data:", err);
-        setError(errorMessage);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch course data.");
       } finally {
         setLoading(false);
       }
@@ -136,8 +119,16 @@ export default function LessonPage({ params }: LessonPageProps) {
     }
   }, [courseId, lessonId, userId, router]);
 
-  const getAllLessons = (): LessonData[] => {
-    return sections.flatMap((section) => section.lessons);
+  const getAllLessons = (): LessonData[] =>
+    sections.flatMap((section) => section.lessons);
+
+  const getNavigationState = () => {
+    const lessons = getAllLessons();
+    const index = lessons.findIndex((l) => l.id === currentLesson?.id);
+    return {
+      hasPrevious: index > 0,
+      hasNext: index < lessons.length - 1,
+    };
   };
 
   const toggleSection = (sectionId: string) => {
@@ -153,7 +144,6 @@ export default function LessonPage({ params }: LessonPageProps) {
       setIsPaidLesson(true);
       return;
     }
-
     setIsPaidLesson(false);
     const lesson = getAllLessons().find((l) => l.id === lessonId);
     if (lesson) {
@@ -162,43 +152,71 @@ export default function LessonPage({ params }: LessonPageProps) {
     }
   };
 
-  const getCurrentLessonTitle = () => {
-    return currentLesson?.title ?? "Lesson not found";
-  };
-
-  const navigateToLesson = (direction: "next" | "previous") => {
+  const navigateToLesson = async (direction: "next" | "previous") => {
     const allLessons = getAllLessons();
     const currentIndex = allLessons.findIndex(
       (lesson) => lesson.id === currentLesson?.id
     );
+    const nextIndex =
+      direction === "next" ? currentIndex + 1 : currentIndex - 1;
 
-    if (direction === "next" && currentIndex < allLessons.length - 1) {
-      const nextLesson = allLessons[currentIndex + 1];
-      handleLessonClick(nextLesson.id, nextLesson.locked);
-      const section = sections.find((s) =>
-        s.lessons.some((l) => l.id === nextLesson.id)
-      );
-      if (section) setExpandedSections([section.id]);
-    } else if (direction === "previous" && currentIndex > 0) {
-      const previousLesson = allLessons[currentIndex - 1];
-      handleLessonClick(previousLesson.id, previousLesson.locked);
-      const section = sections.find((s) =>
-        s.lessons.some((l) => l.id === previousLesson.id)
-      );
-      if (section) setExpandedSections([section.id]);
+    if (nextIndex < 0 || nextIndex >= allLessons.length) {
+      console.log("No more lessons in this direction.");
+      return;
     }
-  };
 
-  const getNavigationState = () => {
-    const allLessons = getAllLessons();
-    const currentIndex = allLessons.findIndex(
-      (lesson) => lesson.id === currentLesson?.id
+    const nextLesson = allLessons[nextIndex];
+
+    if (currentLesson && !currentLesson.completed && userId) {
+      try {
+        console.log("Marking lesson as completed:", currentLesson.id);
+
+        const res = await fetch("/api/progress/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, lessonId: currentLesson.id }),
+        });
+
+        const result = await res.json();
+        console.log("Progress update response:", result);
+
+        if (res.ok) {
+          setCurrentLesson((prev) =>
+            prev ? { ...prev, completed: true } : prev
+          );
+
+          setSections((prev) => {
+            const updated = prev.map((section) => ({
+              ...section,
+              lessons: section.lessons.map((lesson) =>
+                lesson.id === currentLesson.id
+                  ? { ...lesson, completed: true }
+                  : lesson
+              ),
+            }));
+            console.log("Updated sections with completed lesson:", updated);
+            return updated;
+          });
+        } else {
+          console.error("Failed to update lesson progress:", result.error);
+        }
+      } catch (err) {
+        console.error("Error updating progress", err);
+      }
+    }
+
+    console.log("Navigating to next lesson:", nextLesson.id);
+    setCurrentLesson(nextLesson);
+    setIsPaidLesson(nextLesson.locked);
+    router.push(`/courses/${courseId}/lessons/${nextLesson.id}`);
+
+    const section = sections.find((s) =>
+      s.lessons.some((l) => l.id === nextLesson.id)
     );
-
-    return {
-      hasPrevious: currentIndex > 0,
-      hasNext: currentIndex >= 0 && currentIndex < allLessons.length - 1,
-    };
+    if (section) {
+      console.log("Expanding section:", section.id);
+      setExpandedSections([section.id]);
+    }
   };
 
   const handleJoinCourse = () => {
@@ -206,9 +224,8 @@ export default function LessonPage({ params }: LessonPageProps) {
   };
 
   const totalLessons = getAllLessons().length;
-  const completedLessons = getAllLessons().filter(
-    (lesson) => lesson.completed
-  ).length;
+  const completedLessons = getAllLessons().filter((l) => l.completed).length;
+  const { hasPrevious, hasNext } = getNavigationState();
 
   if (loading) {
     return (
@@ -223,8 +240,6 @@ export default function LessonPage({ params }: LessonPageProps) {
       </div>
     );
   }
-
-  const { hasPrevious, hasNext } = getNavigationState();
 
   return (
     <div className="min-h-screen bg-white">
@@ -256,26 +271,10 @@ export default function LessonPage({ params }: LessonPageProps) {
               <div className="order-1">
                 <PaywallContent
                   courseId={courseId}
-                  lessonTitle={getCurrentLessonTitle()}
+                  lessonTitle={currentLesson.title}
                   onPrevious={() => navigateToLesson("previous")}
                   onNext={() => navigateToLesson("next")}
                 />
-                <div className="md:hidden">
-                  <CourseSidebar
-                    isPaid={isPaid}
-                    activeTab={sidebarActiveTab}
-                    onTabChange={setSidebarActiveTab}
-                    sections={sections}
-                    expandedSections={expandedSections}
-                    currentLesson={currentLesson.id}
-                    onToggleSection={toggleSection}
-                    onLessonClick={handleLessonClick}
-                    handleJoinCourse={handleJoinCourse}
-                    courseId={courseId}
-                    totalLessons={totalLessons}
-                    completedLessons={completedLessons}
-                  />
-                </div>
               </div>
             ) : (
               <>
@@ -287,7 +286,7 @@ export default function LessonPage({ params }: LessonPageProps) {
                   </div>
                 )}
                 <LessonNavigation
-                  lessonTitle={getCurrentLessonTitle()}
+                  lessonTitle={currentLesson.title}
                   onPrevious={() => navigateToLesson("previous")}
                   onNext={() => navigateToLesson("next")}
                   hasPrevious={hasPrevious}
@@ -295,22 +294,6 @@ export default function LessonPage({ params }: LessonPageProps) {
                   isPaid={isPaid}
                   isPaidLesson={isPaidLesson}
                 />
-                <div className="md:hidden">
-                  <CourseSidebar
-                    isPaid={isPaid}
-                    activeTab={sidebarActiveTab}
-                    onTabChange={setSidebarActiveTab}
-                    sections={sections}
-                    expandedSections={expandedSections}
-                    currentLesson={currentLesson.id}
-                    onToggleSection={toggleSection}
-                    onLessonClick={handleLessonClick}
-                    handleJoinCourse={handleJoinCourse}
-                    courseId={courseId}
-                    totalLessons={totalLessons}
-                    completedLessons={completedLessons}
-                  />
-                </div>
                 {currentLesson.content ? (
                   <LessonContent content={currentLesson.content} />
                 ) : (
@@ -322,7 +305,13 @@ export default function LessonPage({ params }: LessonPageProps) {
             )}
           </div>
 
-          <div className="max-md:hidden">
+          <div className="space-y-4">
+            <LearningProgress
+              isPaid={isPaid}
+              handleJoinCourse={handleJoinCourse}
+              totalLessons={totalLessons}
+              completedLessons={completedLessons}
+            />
             <CourseSidebar
               isPaid={isPaid}
               activeTab={sidebarActiveTab}
