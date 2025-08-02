@@ -1,32 +1,41 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 interface LessonNavigationProps {
-  lessonTitle: string
-  onPrevious: () => void
-  onNext: () => void
-  hasPrevious: boolean
-  hasNext: boolean
+  lessonTitle: string;
+  onPrevious: () => void;
+  onNext: () => void;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  isPaid: boolean;
+  isPaidLesson: boolean;
 }
 
-export function LessonNavigation({ lessonTitle, onPrevious, onNext, hasPrevious, hasNext }: LessonNavigationProps) {
+export function LessonNavigation({
+  lessonTitle,
+  onPrevious,
+  onNext,
+  hasPrevious,
+  hasNext,
+}: // isPaid,
+// isPaidLesson,
+LessonNavigationProps) {
   return (
-    <div className="flex items-center justify-between mb-6">
-      <h1 className="text-2xl font-bold text-gray-800">{lessonTitle}</h1>
+    <div className="flex justify-between items-center py-4">
+      <div className="text-gray-800 font-medium">{lessonTitle}</div>
       <div className="flex space-x-3 max-md:hidden">
-        <Button
-          variant="outline"
-          className="px-6 bg-transparent border-gray-300"
-          onClick={onPrevious}
-          disabled={!hasPrevious}
-        >
+        <Button variant="outline" onClick={onPrevious} disabled={!hasPrevious}>
           Previous
         </Button>
-        <Button className="bg-aqua-mist hover:bg-aqua-depth px-6" onClick={onNext} disabled={!hasNext}>
+        <Button
+          className="bg-aqua-mist hover:bg-aqua-depth"
+          onClick={onNext}
+          disabled={!hasNext}
+        >
           Next Chapter
         </Button>
       </div>
     </div>
-  )
+  );
 }

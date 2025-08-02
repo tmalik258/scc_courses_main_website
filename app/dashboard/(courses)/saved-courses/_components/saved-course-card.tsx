@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bookmark, Users, Star } from "lucide-react";
 import Image from "next/image";
-// import { useRouter } from "nextjs-toploader/app";
+import { createClient } from "@/utils/supabase/client";
 
 interface SavedCourseCardProps {
   id: string;
@@ -17,88 +17,103 @@ interface SavedCourseCardProps {
   originalPrice: string;
   discountedPrice: string;
   image: string;
+  isSaved?: boolean;
 }
 
-export function SavedCourseCard({
-  id,
-  category,
-  categoryBgColor,
-  categoryTextColor,
-  title,
-  mentor,
-  students,
-  rating,
-  originalPrice,
-  discountedPrice,
-  image,
-}: SavedCourseCardProps) {
-  const [isSaved, setIsSaved] = useState(true);
-  // const router = useRouter();
+export function SavedCourseCard(props: SavedCourseCardProps) {
+  const [isSaved, setIsSaved] = useState<boolean>(props.isSaved ?? false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const supabase = createClient();
 
-  const handleBookmarkToggle = () => {
-    setIsSaved(!isSaved);
+  useEffect(() => {
+    const fetchUserAndStatus = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data.user) {
+        const uid = data.user.id;
+        setUserId(uid);
+
+        const res = await fetch("/api/saved-courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: uid }),
+        });
+
+        const savedData = await res.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const savedCourseIds = savedData?.courses?.map((c: any) => c.id) || [];
+
+        setIsSaved(savedCourseIds.includes(props.id));
+      }
+    };
+
+    fetchUserAndStatus();
+  }, [props.id, supabase]);
+
+  const handleBookmarkToggle = async () => {
+    if (!userId) return;
+
+    const res = await fetch("/api/toggle-save-course", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ courseId: props.id, userId }),
+    });
+
+    const data = await res.json();
+    if (data?.success) {
+      setIsSaved(data.saved);
+    }
   };
-
-  console.log("id", id);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-6 relative">
       <div className="flex max-md:flex-wrap md:items-start max-md:gap-3 md:space-x-6">
-        {/* Course Image */}
         <div className="flex-shrink-0">
           <Image
-            src={image || "/placeholder.svg"}
-            alt={title}
+            src={props.image || "/placeholder.svg"}
+            alt={props.title}
             width={200}
             height={120}
             className="w-24 md:w-48 h-28 object-cover rounded-lg"
           />
         </div>
 
-        {/* Course Content */}
         <div className="flex-1">
-          {/* Category Badge */}
           <div className="mb-3">
             <span
-              className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-full font-medium`}
+              className={`${props.categoryBgColor} ${props.categoryTextColor} text-xs px-3 py-1 rounded-full font-medium`}
             >
-              {category}
+              {props.category}
             </span>
           </div>
 
-          {/* Course Stats */}
           <div className="max-md:hidden flex items-center gap-4 mb-3 text-sm text-gray-600">
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4 text-orange-500" />
-              <span>{students}</span>
+              <span>{props.students}</span>
             </div>
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-500 fill-current" />
-              <span>{rating}</span>
+              <span>{props.rating}</span>
             </div>
           </div>
 
-          {/* Course Title */}
           <h3 className="md:text-lg font-semibold text-gray-800 mb-2">
-            {title}
+            {props.title}
           </h3>
+          <p className="text-gray-500 text-sm mb-4">{props.mentor}</p>
 
-          {/* Mentor */}
-          <p className="text-gray-500 text-sm mb-4">{mentor}</p>
-
-          {/* Price */}
           <div className="flex items-center space-x-2">
             <span className="text-gray-400 line-through text-sm">
-              {originalPrice}
+              {props.originalPrice}
             </span>
             <span className="text-aqua-depth font-bold text-lg">
-              {discountedPrice}
+              {props.discountedPrice}
             </span>
           </div>
         </div>
 
-        {/* Bookmark Button */}
-        <div className="flex-shrink-0 max-md:absolute max-md:top-4 max-md:left-4">
+        {/* Bookmark button + label */}
+        <div className="flex-shrink-0 max-md:absolute max-md:top-4 max-md:left-4 flex flex-col items-center gap-1">
           <button
             onClick={handleBookmarkToggle}
             className={`p-1 md:p-2 rounded md:rounded-lg transition-colors ${
@@ -113,16 +128,19 @@ export function SavedCourseCard({
               }`}
             />
           </button>
+          <span className="text-xs text-gray-600">
+            {isSaved ? "Remove from favourites" : "Add to favourites"}
+          </span>
         </div>
 
         <div className="md:hidden flex justify-between flex-1 items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
             <Users className="w-4 h-4 text-orange-500" />
-            <span>{students}</span>
+            <span>{props.students}</span>
           </div>
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 text-yellow-500 fill-current" />
-            <span>{rating}</span>
+            <span>{props.rating}</span>
           </div>
         </div>
       </div>

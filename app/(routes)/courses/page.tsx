@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CourseCard } from "@/components/course/course-card";
-import { CourseFilters } from "./_components/course-filters";
+import CourseFilters from "./_components/course-filters";
 import { CoursePagination } from "./_components/course-pagination";
 import { ContactForm } from "../_components/contact-form";
 import { CourseFilterTabs } from "../_components/course-filter-tabs";
@@ -19,13 +20,17 @@ import { CourseData } from "@/types/course";
 import { getPopularCourses } from "@/actions/get-courses";
 
 export default function BrowseCourses() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || "All";
+
   const [coursesData, setCoursesData] = useState<CourseData[]>([]);
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Most Popular");
   const [filterOpen, setFilterOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({
-    categories: [] as string[],
+    categories: initialCategory !== "All" ? [initialCategory] : [],
     priceRange: "All",
     rating: "All",
   });
@@ -49,6 +54,17 @@ export default function BrowseCourses() {
     }
     fetchCourses();
   }, []);
+
+  useEffect(() => {
+    // Update activeFilter and advancedFilters when the category query changes
+    const category = searchParams.get("category") || "All";
+    setActiveFilter(category);
+    setAdvancedFilters((prev) => ({
+      ...prev,
+      categories: category !== "All" ? [category] : [],
+    }));
+    setCurrentPage(1);
+  }, [searchParams]);
 
   const filteredAndSortedCourses = useMemo(() => {
     let filtered = coursesData;
@@ -143,7 +159,14 @@ export default function BrowseCourses() {
     rating: string;
   }) => {
     setAdvancedFilters(newAdvancedFilters);
+    setActiveFilter(newAdvancedFilters.categories[0] || "All");
     setCurrentPage(1);
+    // Update URL with the selected category
+    const query = new URLSearchParams();
+    if (newAdvancedFilters.categories.length > 0) {
+      query.set("category", newAdvancedFilters.categories[0]);
+    }
+    router.push(`/courses?${query.toString()}`, { scroll: false });
   };
 
   const handleFilterToggle = () => {
@@ -151,134 +174,156 @@ export default function BrowseCourses() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="bg-white border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 md:py-8">
+    <div className="min-h-screen bg-white">
+      <section id="browse-courses">
+        <div className="max-w-7xl mx-auto px-6 py-6 md:py-16">
           <div className="md:text-center mb-2 md:mb-8">
-            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-2 font-manrope">
               Browse All Courses
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 font-manrope">
               Find the perfect course for your learning journey and start
               building real-world skills today
             </p>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto flex">
-        <div
-          className={`${
-            filterOpen
-              ? "max-md:translate-x-0 visible opacity-100"
-              : "max-md:translate-x-full max-md:invisible max-md:opacity-0"
-          } transition-all duration-300 ease-in-out max-md:fixed max-md:top-0 max-md:right-0 max-md:inset-y-0 max-md:z-50 max-md:overflow-auto`}
-        >
-          <div className="absolute top-7 right-6">
-            <X
-              onClick={handleFilterToggle}
-              className="w-5 h-5 cursor-pointer"
-            />
-          </div>
-          <CourseFilters onFilterChange={handleFilterChange} />
-        </div>
-
-        <div className="flex-1 flex flex-col px-2">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 md:px-6">
-            <div className="relative flex-1 flex items-center gap-2">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Search for courses"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-6 py-5 text-base md:text-lg placeholder:text-sm border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-              <div
-                className="md:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 h-full text-sm text-gray-600 cursor-pointer"
-                onClick={handleFilterToggle}
-              >
-                <SlidersHorizontal className="w-4 h-4" /> Filter By
-              </div>
-            </div>
-
-            <div className="max-w-[calc(100dvw-3em)] md:hidden">
-              <CourseFilterTabs
-                activeFilter={activeFilter}
-                onFilterChange={setActiveFilter}
-                browseCourses={true}
-              />
-            </div>
-
-            <div className="max-md:hidden flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort by:</span>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Most Popular">Most Popular</SelectItem>
-                  <SelectItem value="Price: Low to High">
-                    Price: Low to High
-                  </SelectItem>
-                  <SelectItem value="Price: High to Low">
-                    Price: High to Low
-                  </SelectItem>
-                  <SelectItem value="Rating">Rating</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="p-2 md:p-6">
-            {loading ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">Loading courses...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <p className="text-red-500 text-lg">{error}</p>
-              </div>
-            ) : currentCourses.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {currentCourses.map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      id={course.id}
-                      category={course.category}
-                      categoryTextColor={course.categoryTextColor}
-                      categoryBgColor={course.categoryBgColor}
-                      title={course.title}
-                      mentor={course.mentor}
-                      students={course.students}
-                      rating={course.rating}
-                      originalPrice={course.originalPrice}
-                      discountedPrice={course.discountedPrice}
-                      discount={course.discount}
-                      image={course.image}
-                      price={""}
-                    />
-                  ))}
-                </div>
-                <CoursePagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+          <div className="flex flex-col md:flex-row md:gap-6">
+            <div
+              className={`${
+                filterOpen
+                  ? "max-md:translate-x-0 visible opacity-100"
+                  : "max-md:translate-x-full max-md:invisible max-md:opacity-0"
+              } transition-all duration-300 ease-in-out max-md:fixed max-md:top-0 max-md:right-0 max-md:inset-y-0 max-md:z-50 max-md:overflow-auto max-md:bg-white max-md:w-3/4 max-md:shadow-lg md:w-64 md:flex-shrink-0`}
+            >
+              <div className="absolute top-7 right-6 md:hidden">
+                <X
+                  onClick={handleFilterToggle}
+                  className="w-5 h-5 cursor-pointer text-gray-600"
                 />
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">
-                  No courses found matching your criteria.
-                </p>
               </div>
-            )}
+              <CourseFilters onFilterChange={handleFilterChange} />
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2 md:px-0 py-4">
+                <div className="relative flex-1 flex items-center gap-2 w-full md:w-auto">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Input
+                    type="text"
+                    placeholder="Search for courses"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-6 py-5 text-base md:text-lg placeholder:text-sm border-2 border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-manrope"
+                  />
+                  <div
+                    className="md:hidden flex items-center gap-2 border border-gray-200 rounded-md px-2 py-2 text-sm text-gray-600 cursor-pointer font-manrope"
+                    onClick={handleFilterToggle}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" /> Filter By
+                  </div>
+                </div>
+
+                <div className="max-w-[calc(100dvw-3em)] md:hidden w-full">
+                  <CourseFilterTabs
+                    activeFilter={activeFilter}
+                    onFilterChange={(filter) => {
+                      setActiveFilter(filter);
+                      setAdvancedFilters((prev) => ({
+                        ...prev,
+                        categories: filter !== "All" ? [filter] : [],
+                      }));
+                      setCurrentPage(1);
+                      const query = new URLSearchParams();
+                      if (filter !== "All") {
+                        query.set("category", filter);
+                      }
+                      router.push(`/courses?${query.toString()}`, {
+                        scroll: false,
+                      });
+                    }}
+                    browseCourses={true}
+                  />
+                </div>
+
+                <div className="max-md:hidden flex items-center gap-2">
+                  <span className="text-sm text-gray-600 font-manrope">
+                    Sort by:
+                  </span>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-40 border-gray-200 rounded-md font-manrope">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Most Popular">Most Popular</SelectItem>
+                      <SelectItem value="Price: Low to High">
+                        Price: Low to High
+                      </SelectItem>
+                      <SelectItem value="Price: High to Low">
+                        Price: High to Low
+                      </SelectItem>
+                      <SelectItem value="Rating">Rating</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="px-2 md:px-0">
+                {loading ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg font-manrope">
+                      Loading courses...
+                    </p>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-12">
+                    <p className="text-red-500 text-lg font-manrope">{error}</p>
+                  </div>
+                ) : currentCourses.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {currentCourses.map((course) => (
+                        <CourseCard
+                          key={course.id}
+                          id={course.id}
+                          category={course.category}
+                          categoryTextColor={course.categoryTextColor}
+                          categoryBgColor={course.categoryBgColor}
+                          title={course.title}
+                          mentor={course.mentor}
+                          students={course.students}
+                          rating={course.rating}
+                          originalPrice={course.originalPrice}
+                          discountedPrice={course.discountedPrice}
+                          discount={course.discount}
+                          image={course.image}
+                          price={""}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-8">
+                      <CoursePagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg font-manrope">
+                      No courses found matching your criteria.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <ContactForm />
+      <section id="contact">
+        <ContactForm />
+      </section>
     </div>
   );
 }

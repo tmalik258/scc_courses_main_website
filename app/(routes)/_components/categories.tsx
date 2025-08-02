@@ -1,6 +1,11 @@
-import Link from "next/link";
-import Image from "next/image";
+"use client";
 
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { JSX } from "react";
+
+// WhatsAppIcon component from the first snippet
 const WhatsappIcon = () => (
   <svg
     width="60"
@@ -16,57 +21,85 @@ const WhatsappIcon = () => (
   </svg>
 );
 
-const Categories = () => {
-  const courseCategories = [
-    {
-      title: "AI Calling",
-      courses: "50+ course available",
-      price: "Start from ₹1,350",
-      image: "/images/icons/ai_calling.png",
-      bgColor: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-    {
-      title: "WhatsApp Chatbots",
-      courses: "20+ course available",
-      price: "Start from ₹1,000",
-      icon: <WhatsappIcon />,
-      bgColor: "bg-green-100",
-      iconColor: "text-green-600",
-    },
-    {
-      title: "Make Automations",
-      courses: "20+ course available",
-      price: "Start from ₹1,200",
-      image: "/images/icons/make_automations.png",
-      bgColor: "bg-yellow-100",
-      iconColor: "text-yellow-600",
-    },
-    {
-      title: "App Development",
-      courses: "100+ course available",
-      price: "Start from ₹800",
-      image: "/images/icons/app_development.png",
-      bgColor: "bg-pink-100",
-      iconColor: "text-pink-600",
-    },
-    {
-      title: "Web Development",
-      courses: "50+ course available",
-      price: "Start from ₹1,350",
-      image: "/images/icons/web_development.png",
-      bgColor: "bg-cyan-100",
-      iconColor: "text-aqua-depth",
-    },
-    {
-      title: "Data Science",
-      courses: "100+ course available",
-      price: "Start from ₹1,150",
-      image: "/images/icons/data_science.png",
-      bgColor: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-  ];
+// Define the type for categoryStyles
+type CategoryStyle = {
+  iconKey: string;
+  bgColor: string;
+  iconColor: string;
+  image?: string;
+  icon?: JSX.Element;
+};
+
+// Define the type for the categoryStyles object
+type CategoryStyles = {
+  [key in
+    | "AI Calling"
+    | "WhatsApp Chatbots"
+    | "Make Automations"
+    | "App Development"
+    | "Web Development"
+    | "Data Science"]: CategoryStyle;
+};
+
+// Category styles from the first snippet
+const categoryStyles: CategoryStyles = {
+  "AI Calling": {
+    iconKey: "ai_calling",
+    bgColor: "bg-purple-100",
+    iconColor: "text-purple-600",
+    image: "/images/icons/ai_calling.png",
+  },
+  "WhatsApp Chatbots": {
+    iconKey: "whatsapp",
+    bgColor: "bg-green-100",
+    iconColor: "text-green-600",
+    icon: <WhatsappIcon />,
+  },
+  "Make Automations": {
+    iconKey: "make_automations",
+    bgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600",
+    image: "/images/icons/make_automations.png",
+  },
+  "App Development": {
+    iconKey: "app_development",
+    bgColor: "bg-pink-100",
+    iconColor: "text-pink-600",
+    image: "/images/icons/app_development.png",
+  },
+  "Web Development": {
+    iconKey: "web_development",
+    bgColor: "bg-cyan-100",
+    iconColor: "text-aqua-depth",
+    image: "/images/icons/web_development.png",
+  },
+  "Data Science": {
+    iconKey: "data_science",
+    bgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+    image: "/images/icons/data_science.png",
+  },
+};
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  courseCount: number;
+  minPrice: number;
+};
+
+interface Props {
+  categories: Category[];
+}
+
+export default function Categories({ categories }: Props) {
+  const router = useRouter();
+
+  const handleClick = (categoryName: string) => {
+    const query = new URLSearchParams({ category: categoryName });
+    router.push(`/courses?${query.toString()}`);
+  };
 
   return (
     <section className="px-6 py-6 md:py-16">
@@ -102,47 +135,58 @@ const Categories = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courseCategories.map((category, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-md p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-            >
-              <div className="flex space-x-4 h-full">
-                <div
-                  className={`w-20 md:w-24 h-full ${category.bgColor} rounded-lg flex items-center justify-center`}
-                >
-                  {category.image ? (
-                    <span>
-                      <Image
-                        src={category.image}
-                        alt={category.title}
-                        width={100}
-                        height={100}
-                        className="w-full h-full object-cover p-4"
-                      />
-                    </span>
-                  ) : (
-                    category.icon && <span>{category.icon}</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
-                    {category.title}
-                  </h3>
-                  <p className="text-xs md:text-sm text-gray-500 mb-5 font-manrope">
-                    {category.courses}
-                  </p>
-                  <p className="text-sm md:text-base text-aqua-mist font-semibold">
-                    {category.price}
-                  </p>
+          {categories.map((category) => {
+            const style = categoryStyles[
+              category.name as keyof CategoryStyles
+            ] || {
+              bgColor: "bg-gray-100",
+              iconColor: "text-gray-600",
+              image: "/images/icons/default.png",
+            };
+
+            return (
+              <div
+                key={category.id}
+                onClick={() => handleClick(category.name)}
+                className="bg-white rounded-md p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <div className="flex space-x-4 h-full">
+                  <div
+                    className={`w-20 md:w-24 h-20 md:h-24 ${style.bgColor} rounded-lg flex items-center justify-center`}
+                  >
+                    {style.image ? (
+                      <span>
+                        <Image
+                          src={style.image}
+                          alt={`${category.name} icon`}
+                          width={60}
+                          height={60}
+                          className="w-[60px] h-[60px] object-contain"
+                        />
+                      </span>
+                    ) : (
+                      style.icon && <span>{style.icon}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs md:text-sm text-gray-500 mb-5 font-manrope">
+                      {category.courseCount}{" "}
+                      {category.courseCount === 1 ? "course" : "courses"}{" "}
+                      available
+                    </p>
+                    <p className="text-sm md:text-base text-aqua-mist font-semibold">
+                      From ₹{category.minPrice}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
   );
-};
-
-export default Categories;
+}

@@ -37,6 +37,7 @@ type CourseWithRelations = Prisma.CourseGetPayload<{
     };
     purchases: true;
     reviews: true;
+    resources: true;
   };
 }>;
 
@@ -73,9 +74,26 @@ function transformCourse(course: CourseWithRelations): CourseData {
   const discountPercentage = 20;
   const discountedPrice = originalPrice * (1 - discountPercentage / 100);
 
-  // Calculate approximate duration based on number of lessons (e.g., 1 hour per lesson)
-  const durationHours = totalLessons; // Assuming 1 hour per lesson; adjust as needed
-  const duration = `${durationHours} hours duration`;
+  // Calculate duration based on lessons (assuming 10 minutes per lesson as a fallback)
+  const durationHours = totalLessons * 10; // 10 minutes per lesson
+  const duration = `${Math.floor(durationHours / 60)}h ${durationHours % 60}m`;
+
+  // Derive video and article counts
+  const lessons = course.modules.flatMap((module) => module.lessons);
+  const videoCount = lessons.filter((lesson) => lesson.video_url).length;
+  const articleCount = lessons.filter((lesson) => !lesson.video_url).length;
+  const downloadableResources = course.resources.length;
+
+  // Parse learning points from description or use placeholder
+  const learningPoints = course.description
+    ? course.description
+        .split("\n")
+        .filter((line) => line.startsWith("- "))
+        .map((line) => line.replace("- ", ""))
+    : [
+        "Understand the fundamentals of the course topic",
+        "Apply practical skills in real-world scenarios",
+      ];
 
   return {
     id: course.id,
@@ -96,6 +114,35 @@ function transformCourse(course: CourseWithRelations): CourseData {
     purchaseCount: studentCount,
     duration,
     description: course.description ?? "No description available",
+    videoCount,
+    articleCount,
+    downloadableResources,
+    projectCount: 0, // Placeholder; update if projects are stored
+    practiceTestCount: 0, // Placeholder; update if tests are stored
+    learningPoints,
+    sections: course.modules.map((module) => ({
+      id: module.id,
+      title: module.title,
+      lessons: module.lessons.map((lesson) => ({
+        id: lesson.id,
+        title: lesson.title,
+        completed: false, // Fetch from Progress if needed
+        locked: !lesson.is_free,
+        duration: "0:00", // Placeholder; update if lesson duration is stored
+        content: lesson.content,
+        video_url: lesson.video_url,
+        is_free: lesson.is_free,
+        resources: [], // Resources are course-level, not lesson-specific
+      })),
+    })),
+    reviews: course.reviews.map((review) => ({
+      id: review.id,
+      name: "", // Fetch from Profile if needed
+      title: "Student", // Placeholder
+      rating: review.rating,
+      review: review.comment ?? "",
+      avatar: "/images/avatar_placeholder.jpg", // Placeholder
+    })),
   };
 }
 
@@ -123,6 +170,7 @@ export async function getPopularCourses(): Promise<CourseData[]> {
         },
         purchases: true,
         reviews: true,
+        resources: true,
       },
       orderBy: {
         purchases: {
@@ -164,6 +212,7 @@ export async function getCourseById(
         },
         purchases: true,
         reviews: true,
+        resources: true,
       },
     });
 
