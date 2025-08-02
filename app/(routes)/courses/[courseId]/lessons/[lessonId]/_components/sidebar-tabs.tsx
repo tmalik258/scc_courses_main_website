@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
@@ -7,6 +8,7 @@ interface SidebarTabsProps {
   onTabChange: (tab: string) => void;
   courseId: string;
   onFilesFetched: (files: { name: string; signedUrl: string }[]) => void;
+  hasResources: boolean;
 }
 
 export function SidebarTabs({
@@ -14,6 +16,7 @@ export function SidebarTabs({
   onTabChange,
   courseId,
   onFilesFetched,
+  hasResources,
 }: SidebarTabsProps) {
   const supabase = createClient();
 
@@ -25,29 +28,29 @@ export function SidebarTabs({
       courseId
     );
     const fetchFiles = async () => {
-      console.log("🔍 Fetching resources for courseId:", courseId);
+      console.log("Fetching resources for courseId:", courseId);
 
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
-      console.log("👤 Supabase user:", user);
-      if (userError) console.error("❌ Auth error:", userError);
+      console.log("Supabase user:", user);
+      if (userError) console.error("Auth error:", userError);
 
       const { data: resources, error } = await supabase
         .from("resources")
         .select("name, url")
         .eq("course_id", courseId);
-      console.log("📚 Resources fetched:", resources, "Error:", error);
+      console.log("Resources fetched:", resources, "Error:", error);
 
       if (error) {
-        console.error("❌ Error fetching resources:", error);
+        console.error("Error fetching resources:", error);
         onFilesFetched([]);
         return;
       }
 
       if (!resources || resources.length === 0) {
-        console.warn("⚠️ No resources found for course:", courseId);
+        console.warn("No resources found for course:", courseId);
         onFilesFetched([]);
         return;
       }
@@ -55,13 +58,13 @@ export function SidebarTabs({
       const signedFiles = await Promise.all(
         resources.map(async (resource) => {
           const path = resource.url;
-          console.log("🔄 Generating signed URL for path:", path);
+          console.log("Generating signed URL for path:", path);
           const { data: signed, error: urlError } = await supabase.storage
             .from("course-files")
             .createSignedUrl(path, 60 * 60);
 
           if (urlError || !signed?.signedUrl) {
-            console.error(`❌ Failed to sign ${path}:`, urlError);
+            console.error(`Failed to sign ${path}:`, urlError);
             return null;
           }
 
@@ -75,7 +78,7 @@ export function SidebarTabs({
       const validFiles = signedFiles.filter(
         (file): file is { name: string; signedUrl: string } => !!file?.signedUrl
       );
-      console.log("✅ Fetched signed files:", validFiles);
+      console.log("Fetched signed files:", validFiles);
       onFilesFetched(validFiles);
     };
 
@@ -97,16 +100,18 @@ export function SidebarTabs({
         >
           Course Lessons
         </button>
-        <button
-          onClick={() => onTabChange("files")}
-          className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-            activeTab === "files"
-              ? "border-blue-500 text-blue-500"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Files
-        </button>
+        {hasResources && (
+          <button
+            onClick={() => onTabChange("files")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === "files"
+                ? "border-blue-500 text-blue-500"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Files
+          </button>
+        )}
       </div>
     </div>
   );

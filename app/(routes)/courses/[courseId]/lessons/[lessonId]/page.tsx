@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-duplicate-props */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -318,6 +319,14 @@ export default function LessonPage() {
               courseId={courseId}
               totalLessons={totalLessons}
               completedLessons={completedLessons}
+              resources={sections
+                .flatMap((section) =>
+                  section.lessons.flatMap((lesson) => lesson.resources)
+                )
+                .map((resource) => ({
+                  name: resource.name,
+                  signedUrl: resource.url,
+                }))}
             />
           </div>
         </div>
