@@ -11,7 +11,6 @@ import { CourseSidebar } from "./_components/course-sidebar";
 import { getLessonById, getCourseLessons } from "@/actions/get-lessons";
 import { SectionData, LessonData } from "../../../../../../types/lesson";
 import Link from "next/link";
-import { LearningProgress } from "./_components/learning-progress";
 
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
@@ -306,12 +305,6 @@ export default function LessonPage() {
           </div>
 
           <div className="space-y-4">
-            <LearningProgress
-              isPaid={isPaid}
-              handleJoinCourse={handleJoinCourse}
-              totalLessons={totalLessons}
-              completedLessons={completedLessons}
-            />
             <CourseSidebar
               isPaid={isPaid}
               activeTab={sidebarActiveTab}

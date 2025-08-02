@@ -2,13 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers"; // ✅ Required
 import { createClient } from "@/utils/supabase/server";
 
-export async function login(formData: FormData) {
-  const supabase = await createClient();
+// Reusable client setup with cookies passed in
+const getClient = async () => {
+  const cookieStore = cookies();
+  return createClient(cookieStore); // ✅ Pass cookie store
+};
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
+export async function login(formData: FormData) {
+  const supabase = await getClient();
+
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -25,7 +30,7 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
+  const supabase = await getClient();
 
   const data = {
     email: formData.get("email") as string,
@@ -44,7 +49,6 @@ export async function signup(formData: FormData) {
   }
 
   if (signUpData.user) {
-    // Insert user data into the profiles table
     const { error: profileError } = await supabase.from("profiles").insert({
       user_id: signUpData.user.id,
       email: data.email,
@@ -66,7 +70,7 @@ export async function signup(formData: FormData) {
 }
 
 export async function signout() {
-  const supabase = await createClient();
+  const supabase = await getClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
     return { error: error.message };
@@ -77,7 +81,8 @@ export async function signout() {
 }
 
 export async function signInWithGoogle() {
-  const supabase = await createClient();
+  const supabase = await getClient();
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
