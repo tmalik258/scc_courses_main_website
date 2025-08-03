@@ -1,21 +1,17 @@
-"use server";
-
+// app/api/my-courses/route.ts
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import type { MyCourseCardProps } from "@/types/course";
 
-export async function getMyCourses(): Promise<MyCourseCardProps[]> {
+export async function GET() {
   const supabase = createClient();
   const {
     data: { user },
-    error: authError,
+    error,
   } = await (await supabase).auth.getUser();
 
-  console.log("USER FROM SUPABASE:", user?.id || "No user");
-  if (authError || !user?.id) {
-    console.error("Authentication error:", authError?.message || "No user");
-    redirect("/login");
+  if (error || !user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const profile = await prisma.profile.findUnique({
@@ -23,22 +19,21 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
     select: { id: true },
   });
 
-  console.log("PROFILE FROM PRISMA:", profile || "No profile");
   if (!profile) {
-    console.error("Profile not found for user:", user.id);
-    redirect("/login");
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
+
+  const studentId = profile.id;
 
   const purchases = await prisma.purchase.findMany({
     where: {
-      studentId: profile.id,
+      studentId,
       course: { isPublished: true },
     },
     select: {
       courseId: true,
       course: {
         select: {
-          id: true,
           title: true,
           category: { select: { name: true } },
         },
@@ -46,19 +41,16 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
     },
   });
 
-  console.log("PURCHASES:", purchases.length, purchases);
+  const courseData = await Promise.all(
+    purchases.map(async (purchase) => {
+      const courseId = purchase.courseId;
+      const title = purchase.course?.title || "Untitled";
+      const category = purchase.course?.category?.name || "Other";
 
-  if (!purchases.length) {
-    console.log("No purchases found for student:", profile.id);
-    return [];
-  }
-
-  const courseData: MyCourseCardProps[] = await Promise.all(
-    purchases.map(async ({ courseId, course }) => {
       const [completedLessons, totalLessons] = await Promise.all([
         prisma.progress.count({
           where: {
-            studentId: profile.id,
+            studentId,
             lessons: { modules: { courseId } },
             isCompleted: true,
           },
@@ -71,9 +63,9 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
       const progress = totalLessons
         ? Math.round((completedLessons / totalLessons) * 100)
         : 0;
+
       const isCompleted = completedLessons === totalLessons;
 
-      const category = course?.category?.name || "Other";
       const categoryStyles: Record<
         string,
         { bgColor: string; textColor: string }
@@ -90,27 +82,29 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
           bgColor: "bg-green-500/25",
           textColor: "text-green-500",
         },
-        Other: { bgColor: "bg-gray-500/25", textColor: "text-gray-500" },
+        Other: {
+          bgColor: "bg-gray-500/25",
+          textColor: "text-gray-500",
+        },
       };
 
       const styles = categoryStyles[category] || categoryStyles.Other;
 
       return {
-        id: String(courseId),
+        id: courseId,
         category,
         categoryBgColor: styles.bgColor,
         categoryTextColor: styles.textColor,
-        title: course?.title || "Untitled",
+        title,
         mentor: "Mentor's Name",
         currentLesson: completedLessons,
         totalLessons,
         progress,
-        image: "/images/course_placeholder_2.jpg",
+        image: "/images/course_placeholder_2.jpg?height=120&width=200",
         status: isCompleted ? "finished" : "active",
       };
     })
   );
 
-  console.log("FINAL COURSE DATA:", courseData);
-  return courseData;
+  return NextResponse.json(courseData);
 }

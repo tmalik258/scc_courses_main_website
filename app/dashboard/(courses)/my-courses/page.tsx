@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MyCourseCard } from "./_components/my-course-card";
 import type { MyCourseCardProps } from "./_components/my-course-card";
 import { getMyCourses } from "@/actions/get-my-courses";
+import { LumaSpin } from "@/components/luma-spin";
 
 export default function MyCoursesPage() {
   const [activeTab, setActiveTab] = useState("All");
@@ -14,12 +15,8 @@ export default function MyCoursesPage() {
     async function fetchCourses() {
       try {
         const result = await getMyCourses();
-        const typedCourses: MyCourseCardProps[] = result.map((course) => ({
-          ...course,
-          id: Number(course.id),
-          status: course.status as "active" | "finished",
-        }));
-        setCourses(typedCourses);
+        console.log("FETCHED COURSES:", result);
+        setCourses(result);
       } catch (err) {
         console.error("Failed to load courses:", err);
       } finally {
@@ -38,7 +35,6 @@ export default function MyCoursesPage() {
 
   return (
     <div>
-      {/* Tab Navigation */}
       <div className="mb-8">
         <div className="flex space-x-8 border-b border-gray-200">
           {["All", "Active", "Finished"].map((tab) => (
@@ -57,19 +53,18 @@ export default function MyCoursesPage() {
         </div>
       </div>
 
-      {/* Loading State */}
       {loading ? (
-        <div className="text-center text-gray-500">Loading courses...</div>
+        <div className="flex items-center justify-center h-full w-full mt-[100px]">
+          <LumaSpin />
+        </div>
       ) : (
         <>
-          {/* Course List */}
           <div className="space-y-6">
             {filteredCourses.map((course) => (
               <MyCourseCard key={course.id} {...course} />
             ))}
           </div>
 
-          {/* Empty State */}
           {filteredCourses.length === 0 && (
             <div className="text-center py-12">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

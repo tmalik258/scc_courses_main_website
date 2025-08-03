@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SavedCourseCard } from "./_components/saved-course-card";
 import { createClient } from "@/utils/supabase/client";
+import { LumaSpin } from "@/components/luma-spin";
 
 export default function SavedCoursesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,7 +38,11 @@ export default function SavedCoursesPage() {
   }, []);
 
   if (loading) {
-    return <div className="p-6 text-center">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full w-full mt-[100px]">
+        <LumaSpin />
+      </div>
+    );
   }
 
   return (

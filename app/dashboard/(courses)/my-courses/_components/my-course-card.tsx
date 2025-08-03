@@ -1,18 +1,20 @@
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
+"use client";
+
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export interface MyCourseCardProps {
-  id: number
-  category: string
-  categoryBgColor: string
-  categoryTextColor: string
-  title: string
-  mentor: string
-  currentLesson: number
-  totalLessons: number
-  progress: number
-  image: string
-  status: "active" | "finished"
+  id: string; // Changed to string to match Prisma schema and get-my-courses.ts
+  category: string;
+  categoryBgColor: string;
+  categoryTextColor: string;
+  title: string;
+  mentor: string;
+  currentLesson: number;
+  totalLessons: number;
+  progress: number;
+  image: string;
+  status: "active" | "finished";
 }
 
 export function MyCourseCard({
@@ -27,6 +29,8 @@ export function MyCourseCard({
   image,
   status,
 }: MyCourseCardProps) {
+  console.log("MyCourseCard props:", { category, title, status, progress }); // Debug log
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex max-md:gap-3 max-md:flex-col md:items-start md:space-x-6">
@@ -45,7 +49,11 @@ export function MyCourseCard({
         <div className="flex-1">
           {/* Category Badge */}
           <div className="mb-3">
-            <span className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-md font-medium`}>{category}</span>
+            <span
+              className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-md font-medium`}
+            >
+              {category}
+            </span>
           </div>
 
           {/* Course Title */}
@@ -60,7 +68,9 @@ export function MyCourseCard({
               <span className="text-sm text-gray-600">
                 {currentLesson}/{totalLessons} Lessons
               </span>
-              <span className="text-sm font-medium text-gray-800">{progress}%</span>
+              <span className="text-sm font-medium text-gray-800">
+                {progress}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
@@ -75,9 +85,11 @@ export function MyCourseCard({
 
         {/* Action Button */}
         <div className="flex-shrink-0">
-          <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">View Course</Button>
+          <Button className="bg-aqua-mist hover:bg-aqua-depth text-white px-6">
+            View Course
+          </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

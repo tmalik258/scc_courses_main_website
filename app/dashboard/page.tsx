@@ -8,6 +8,7 @@ import { MyCourses } from "./_components/my-courses";
 import { SpendHoursChart } from "./_components/spend-hours-chart";
 import { getDashboardData } from "@/actions/dashboard";
 import { createClient } from "@/utils/supabase/client";
+import { LumaSpin } from "@/components/luma-spin";
 
 export default function Dashboard() {
   const supabase = createClient();
@@ -47,7 +48,11 @@ export default function Dashboard() {
   }, [supabase.auth]);
 
   if (loading || !data) {
-    return <div className="p-6 text-center">Loading dashboard...</div>;
+    return (
+      <div className="flex items-center justify-center h-full w-full mt-[350px]">
+        <LumaSpin />
+      </div>
+    );
   }
 
   return (

@@ -1,3 +1,5 @@
+// types/course.ts
+
 export interface CourseData {
   id: string;
   title: string;
@@ -48,13 +50,8 @@ export interface CourseData {
   }[];
 }
 
-export interface PaginatedCourses {
-  courses: CourseData[];
-  total: number;
-}
-
 export interface MyCourseCardProps {
-  id: string | number;
+  id: string;
   category: string;
   categoryBgColor: string;
   categoryTextColor: string;
@@ -65,29 +62,4 @@ export interface MyCourseCardProps {
   progress: number;
   image: string;
   status: "active" | "finished";
-}
-
-export interface CourseFilters {
-  category?: string;
-  priceRange?: {
-    min: number;
-    max: number;
-  };
-  rating?: number;
-  search?: string;
-}
-
-export interface SavedCourseCardProps {
-  id: string;
-  category: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
-  title: string;
-  mentor: string;
-  students: string;
-  rating: string;
-  originalPrice: string;
-  discountedPrice: string;
-  image: string;
-  isSaved?: boolean;
 }

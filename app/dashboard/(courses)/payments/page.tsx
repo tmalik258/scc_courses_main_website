@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PaymentCard } from "./_components/payment-card";
 import { getUserPayments } from "@/actions/get-payments";
 import { createClient } from "@/utils/supabase/client";
+import { LumaSpin } from "@/components/luma-spin";
 
 export default function PaymentPage() {
   const [activeTab, setActiveTab] = useState("All");
@@ -89,7 +90,9 @@ export default function PaymentPage() {
       {/* Content */}
       <div className="space-y-6">
         {loading ? (
-          <p>Loading payments...</p>
+          <div className="flex items-center justify-center h-full w-full mt-[200px]">
+            <LumaSpin />
+          </div>
         ) : (
           filteredPayments.map((payment) => (
             <PaymentCard key={payment.id} {...payment} />
