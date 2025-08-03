@@ -1,15 +1,23 @@
-import Image from "next/image"
+import Image from "next/image";
 
-export function CourseImage() {
+interface CourseImageProps {
+  imageUrl: string;
+  alt?: string;
+}
+
+export function CourseImage({
+  imageUrl,
+  alt = "Course image",
+}: CourseImageProps) {
   return (
     <div className="relative">
       <Image
-        src="/images/course_placeholder_2.jpg?height=200&width=280"
-        alt="Machine Learning with Python course"
+        src={imageUrl}
+        alt={alt}
         width={280}
         height={200}
         className="w-full h-48 object-cover rounded-lg"
       />
     </div>
-  )
+  );
 }

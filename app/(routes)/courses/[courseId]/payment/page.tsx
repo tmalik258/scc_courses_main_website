@@ -33,7 +33,7 @@ export default function PaymentPage() {
             {/* Course Image and Info */}
             <div className="md:bg-white md:p-6 rounded-lg md:border md:border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <CourseImage />
+                <CourseImage imageUrl={""} />
                 <CourseInfo courseId={""} />
               </div>
             </div>

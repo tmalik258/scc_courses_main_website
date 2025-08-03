@@ -1,84 +1,80 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { FaPaypal } from "react-icons/fa"; // PayPal icon from react-icons
+import { SiRazorpay } from "react-icons/si"; // Razorpay icon from react-icons
 
 interface PaymentMethodModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onNext: (selectedMethod: string) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onNext: (selectedMethod: string) => void;
 }
 
-export function PaymentMethodModal({ isOpen, onClose, onNext }: PaymentMethodModalProps) {
-  const [selectedMethod, setSelectedMethod] = useState("")
+export function PaymentMethodModal({
+  isOpen,
+  onClose,
+  onNext,
+}: PaymentMethodModalProps) {
+  const [selectedMethod, setSelectedMethod] = useState("");
 
   const paymentMethods = [
     {
-      category: "Kode QR",
+      category: "Payment Gateways",
       options: [
         {
-          id: "qris",
-          name: "QRIS",
-          icon: "🏦", // You can replace with actual QRIS logo
+          id: "PAYPAL",
+          name: "PayPal",
+          icon: <FaPaypal className="w-6 h-6 text-blue-600" />, // PayPal icon
+        },
+        {
+          id: "RAZORPAY",
+          name: "Razorpay",
+          icon: <SiRazorpay className="w-6 h-6 text-blue-500" />, // Razorpay icon
         },
       ],
     },
-    {
-      category: "Dompet Digital / E-wallet",
-      options: [
-        {
-          id: "dana",
-          name: "Dana",
-          icon: "💙", // You can replace with actual Dana logo
-        },
-        {
-          id: "gopay",
-          name: "Gopay",
-          icon: "🟢", // You can replace with actual Gopay logo
-        },
-        {
-          id: "linkaja",
-          name: "LinkAja",
-          icon: "🔴", // You can replace with actual LinkAja logo
-        },
-        {
-          id: "shopeepay",
-          name: "Shopeepay",
-          icon: "🟠", // You can replace with actual Shopeepay logo
-        },
-        {
-          id: "ovo",
-          name: "OVO",
-          icon: "🟣", // You can replace with actual OVO logo
-        },
-      ],
-    },
-  ]
+  ];
 
   const handleNext = () => {
-    if (selectedMethod) {
-      onNext(selectedMethod)
-      onClose()
+    if (selectedMethod && ["PAYPAL", "RAZORPAY"].includes(selectedMethod)) {
+      onNext(selectedMethod);
+      onClose();
+    } else {
+      alert("Please select a valid payment method");
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="md:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-800">Choose Payment Method</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-gray-800">
+            Choose Payment Method
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {paymentMethods.map((category) => (
             <div key={category.category} className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-600">{category.category}</h3>
+              <h3 className="text-sm font-medium text-gray-600">
+                {category.category}
+              </h3>
               <div className="space-y-3">
                 {category.options.map((option) => (
                   <label
                     key={option.id}
-                    className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50"
+                    className={`flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50 ${
+                      selectedMethod === option.id
+                        ? "bg-aqua-mist/10 border border-aqua-mist"
+                        : ""
+                    }`}
                   >
                     <input
                       type="radio"
@@ -87,9 +83,10 @@ export function PaymentMethodModal({ isOpen, onClose, onNext }: PaymentMethodMod
                       checked={selectedMethod === option.id}
                       onChange={(e) => setSelectedMethod(e.target.value)}
                       className="w-4 h-4 text-aqua-mist border-gray-300 focus:ring-aqua-mist"
+                      aria-label={`Select ${option.name} payment method`}
                     />
                     <div className="flex items-center space-x-3">
-                      <span className="text-lg">{option.icon}</span>
+                      {option.icon}
                       <span className="text-gray-800">{option.name}</span>
                     </div>
                   </label>
@@ -110,5 +107,5 @@ export function PaymentMethodModal({ isOpen, onClose, onNext }: PaymentMethodMod
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

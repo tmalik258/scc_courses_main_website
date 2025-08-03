@@ -1,75 +1,117 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { PaymentMethodModal } from "./payment-method-modal"
+import { useState } from "react";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { PaymentMethodModal } from "./payment-method-modal";
+import { usePaymentSummary } from "@/hooks/use-payment-summary";
+import { purchaseCourse } from "@/actions/purchase-course";
+import toast from "react-hot-toast";
 
 export function PaymentSummary() {
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("")
+  const params = useParams();
+  const courseId = params.courseId as string;
+  const { data, loading, error, refetch } = usePaymentSummary(courseId);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [method, setMethod] = useState("");
+  const [isPaying, setIsPaying] = useState(false);
 
-  const handlePaymentMethodSelect = (method: string) => {
-    setSelectedPaymentMethod(method)
-    // You can add logic here to handle the selected payment method
-    console.log("Selected payment method:", method)
-  }
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(value);
+
+  const handlePurchase = async () => {
+    if (!data?.courseId || !method) {
+      toast.error("Please select a payment method");
+      return;
+    }
+    console.log("Initiating purchase:", {
+      courseId: data.courseId,
+      paymentMethod: method,
+    });
+    try {
+      setIsPaying(true);
+      await purchaseCourse(data.courseId, method);
+      toast.success("Course purchased successfully!");
+      await refetch();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Purchase failed:", err.message, err.stack);
+      toast.error(err.message || "Something went wrong!");
+    } finally {
+      setIsPaying(false);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+  if (!data) return <div>No data available</div>;
 
   return (
     <>
       <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
-        <h2 className="md:text-xl font-semibold text-gray-800">Payment Summary</h2>
+        <h2 className="md:text-xl font-semibold text-gray-800">
+          Payment Summary
+        </h2>
 
-        {/* Pricing Details */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Course Price (Normal)</span>
-            <span className="text-gray-800">₹ 1350</span>
+            <span className="text-gray-600">Course</span>
+            <span className="text-gray-800">{data.title}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Course Price (Discount)</span>
-            <span className="text-gray-800">₹ 1336</span>
+            <span className="text-gray-600">Original Price</span>
+            <span className="text-gray-800">{formatPrice(data.price)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">Discounted</span>
+            <span className="text-gray-800">
+              {formatPrice(data.discounted)}
+            </span>
           </div>
         </div>
 
-        {/* Choose Payment Method Button */}
         <Button
-          onClick={() => setIsPaymentModalOpen(true)}
+          onClick={() => setIsModalOpen(true)}
           className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 max-md:text-sm"
         >
-          {selectedPaymentMethod ? `Selected: ${selectedPaymentMethod}` : "Choose Payment Method"}
+          {method ? `Selected: ${method}` : "Choose Payment Method"}
         </Button>
 
-        {/* Summary Calculations */}
         <div className="space-y-3 pt-4 border-t border-gray-200">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Subtotal</span>
-            <span className="text-gray-800">₹ 1336</span>
+            <span className="text-gray-800">
+              {formatPrice(data.discounted)}
+            </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">VAT (11%)</span>
-            <span className="text-gray-800">₹ 5.34</span>
+            <span className="text-gray-800">{formatPrice(data.vat)}</span>
           </div>
           <div className="flex justify-between items-center font-semibold text-lg border-t border-gray-200 pt-3">
             <span className="text-gray-800">Total</span>
-            <span className="text-gray-800">₹ 1,341</span>
+            <span className="text-gray-800">{formatPrice(data.total)}</span>
           </div>
         </div>
 
-        {/* Pay Now Button */}
         <Button
           className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-sm md:text-lg"
-          disabled={!selectedPaymentMethod}
+          disabled={!method || isPaying}
+          onClick={handlePurchase}
+          title={!method ? "Please select a payment method" : undefined}
         >
-          Pay Now
+          {isPaying ? "Processing..." : "Pay Now"}
         </Button>
       </div>
 
-      {/* Payment Method Modal */}
       <PaymentMethodModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        onNext={handlePaymentMethodSelect}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onNext={setMethod}
       />
     </>
-  )
+  );
 }
