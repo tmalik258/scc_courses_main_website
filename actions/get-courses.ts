@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { CourseData } from "@/types/course";
 
-// Color mapping for categories
+// Category color mappings
 const categoryColors: Record<string, { bgColor: string; textColor: string }> = {
   "AI Calling": { bgColor: "bg-purple-100", textColor: "text-purple-600" },
   "WhatsApp Chatbots": { bgColor: "bg-green-100", textColor: "text-green-600" },
@@ -17,24 +17,11 @@ const categoryColors: Record<string, { bgColor: string; textColor: string }> = {
   "Data Science": { bgColor: "bg-blue-100", textColor: "text-blue-600" },
 };
 
-// Define the type for course with relations
 type CourseWithRelations = Prisma.CourseGetPayload<{
   include: {
-    category: {
-      select: {
-        name: true;
-      };
-    };
-    instructor: {
-      select: {
-        fullName: true;
-      };
-    };
-    modules: {
-      include: {
-        lessons: true;
-      };
-    };
+    category: { select: { name: true } };
+    instructor: { select: { fullName: true } };
+    modules: { include: { lessons: true } };
     purchases: true;
     reviews: true;
     resources: true;
@@ -46,7 +33,6 @@ function transformCourse(course: CourseWithRelations): CourseData {
     (sum, module) => sum + module.lessons.length,
     0
   );
-
   const studentCount = course.purchases.length;
 
   const averageRating =
@@ -73,18 +59,13 @@ function transformCourse(course: CourseWithRelations): CourseData {
 
   const discountPercentage = 20;
   const discountedPrice = originalPrice * (1 - discountPercentage / 100);
-
-  // Calculate duration based on lessons (assuming 10 minutes per lesson as a fallback)
-  const durationHours = totalLessons * 10; // 10 minutes per lesson
+  const durationHours = totalLessons * 10;
   const duration = `${Math.floor(durationHours / 60)}h ${durationHours % 60}m`;
 
-  // Derive video and article counts
   const lessons = course.modules.flatMap((module) => module.lessons);
-  const videoCount = lessons.filter((lesson) => lesson.video_url).length;
-  const articleCount = lessons.filter((lesson) => !lesson.video_url).length;
-  const downloadableResources = course.resources.length;
+  const videoCount = lessons.filter((l) => l.video_url).length;
+  const articleCount = lessons.filter((l) => !l.video_url).length;
 
-  // Parse learning points from description or use placeholder
   const learningPoints = course.description
     ? course.description
         .split("\n")
@@ -116,9 +97,9 @@ function transformCourse(course: CourseWithRelations): CourseData {
     description: course.description ?? "No description available",
     videoCount,
     articleCount,
-    downloadableResources,
-    projectCount: 0, // Placeholder; update if projects are stored
-    practiceTestCount: 0, // Placeholder; update if tests are stored
+    downloadableResources: course.resources.length,
+    projectCount: 0,
+    practiceTestCount: 0,
     learningPoints,
     sections: course.modules.map((module) => ({
       id: module.id,
@@ -126,103 +107,109 @@ function transformCourse(course: CourseWithRelations): CourseData {
       lessons: module.lessons.map((lesson) => ({
         id: lesson.id,
         title: lesson.title,
-        completed: false, // Fetch from Progress if needed
+        completed: false,
         locked: !lesson.is_free,
-        duration: "0:00", // Placeholder; update if lesson duration is stored
+        duration: "0:00",
         content: lesson.content,
         video_url: lesson.video_url,
         is_free: lesson.is_free,
-        resources: [], // Resources are course-level, not lesson-specific
+        resources: [],
       })),
     })),
     reviews: course.reviews.map((review) => ({
       id: review.id,
-      name: "", // Fetch from Profile if needed
-      title: "Student", // Placeholder
+      name: "",
+      title: "Student",
       rating: review.rating,
       review: review.comment ?? "",
-      avatar: "/images/avatar_placeholder.jpg", // Placeholder
+      avatar: "/images/avatar_placeholder.jpg",
     })),
   };
 }
 
 export async function getPopularCourses(): Promise<CourseData[]> {
-  try {
-    const rawCourses = await prisma.course.findMany({
-      where: {
-        isPublished: true,
+  const rawCourses = await prisma.course.findMany({
+    where: { isPublished: true },
+    include: {
+      category: { select: { name: true } },
+      instructor: { select: { fullName: true } },
+      modules: { include: { lessons: true } },
+      purchases: true,
+      reviews: true,
+      resources: true,
+    },
+    orderBy: {
+      purchases: {
+        _count: "desc",
       },
+    },
+  });
+
+  return rawCourses.map(transformCourse);
+}
+
+export async function getBrowseCourses(
+  page = 1,
+  limit = 12,
+  filters: Record<string, string> = {}
+): Promise<{ courses: CourseData[]; total: number }> {
+  const where: Prisma.CourseWhereInput = {
+    isPublished: true,
+    category:
+      filters.category && filters.category !== "All"
+        ? { name: filters.category }
+        : undefined,
+    title: filters.q
+      ? { contains: filters.q, mode: "insensitive" as const }
+      : undefined,
+    price:
+      filters.price === "Free"
+        ? 0
+        : filters.price === "Paid"
+        ? { gt: 0 }
+        : undefined,
+  };
+
+  const [courses, total] = await Promise.all([
+    prisma.course.findMany({
+      where,
       include: {
-        category: {
-          select: {
-            name: true,
-          },
-        },
-        instructor: {
-          select: {
-            fullName: true,
-          },
-        },
-        modules: {
-          include: {
-            lessons: true,
-          },
-        },
+        category: { select: { name: true } },
+        instructor: { select: { fullName: true } },
+        modules: { include: { lessons: true } },
         purchases: true,
         reviews: true,
         resources: true,
       },
-      orderBy: {
-        purchases: {
-          _count: "desc",
-        },
-      },
-    });
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.course.count({ where }),
+  ]);
 
-    return rawCourses.map(transformCourse);
-  } catch (error) {
-    console.error("Error fetching courses:", error);
-    throw new Error("Failed to fetch popular courses");
-  }
+  return {
+    courses: courses.map(transformCourse),
+    total,
+  };
 }
 
 export async function getCourseById(
   courseId: string
 ): Promise<CourseData | null> {
-  try {
-    const course = await prisma.course.findUnique({
-      where: {
-        id: courseId,
-      },
-      include: {
-        category: {
-          select: {
-            name: true,
-          },
-        },
-        instructor: {
-          select: {
-            fullName: true,
-          },
-        },
-        modules: {
-          include: {
-            lessons: true,
-          },
-        },
-        purchases: true,
-        reviews: true,
-        resources: true,
-      },
-    });
+  const course = await prisma.course.findUnique({
+    where: { id: courseId, isPublished: true },
+    include: {
+      category: { select: { name: true } },
+      instructor: { select: { fullName: true } },
+      modules: { include: { lessons: true } },
+      purchases: true,
+      reviews: true,
+      resources: true,
+    },
+  });
 
-    if (!course) {
-      return null;
-    }
+  if (!course) return null;
 
-    return transformCourse(course);
-  } catch (error) {
-    console.error("Error fetching course by ID:", error);
-    throw new Error("Failed to fetch course");
-  }
+  return transformCourse(course);
 }

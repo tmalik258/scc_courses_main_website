@@ -1,40 +1,44 @@
-"use client"
+"use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CoursePaginationProps {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-export function CoursePagination({ currentPage, totalPages, onPageChange }: CoursePaginationProps) {
+export function CoursePagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: CoursePaginationProps) {
   const getVisiblePages = () => {
-    const pages = []
-    const maxVisible = 5
+    const pages = [];
+    const maxVisible = 5;
 
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
+        pages.push(i);
       }
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= 5; i++) {
-          pages.push(i)
+          pages.push(i);
         }
       } else if (currentPage >= totalPages - 2) {
         for (let i = totalPages - 4; i <= totalPages; i++) {
-          pages.push(i)
+          pages.push(i);
         }
       } else {
         for (let i = currentPage - 2; i <= currentPage + 2; i++) {
-          pages.push(i)
+          pages.push(i);
         }
       }
     }
 
-    return pages
-  }
+    return pages;
+  };
 
   return (
     <div className="flex items-center justify-center md:justify-end space-x-2 mt-8">
@@ -53,7 +57,9 @@ export function CoursePagination({ currentPage, totalPages, onPageChange }: Cour
           key={page}
           onClick={() => onPageChange(page)}
           className={`px-3 py-2 rounded-lg border ${
-            currentPage === page ? "bg-aqua-mist text-white border-aqua-mist" : "border-gray-300 hover:bg-gray-50"
+            currentPage === page
+              ? "bg-aqua-mist text-white border-aqua-mist"
+              : "border-gray-300 hover:bg-gray-50"
           }`}
         >
           {page}
@@ -69,5 +75,5 @@ export function CoursePagination({ currentPage, totalPages, onPageChange }: Cour
         <ChevronRight className="w-4 h-4" />
       </button>
     </div>
-  )
+  );
 }

@@ -48,6 +48,11 @@ export interface CourseData {
   }[];
 }
 
+export interface PaginatedCourses {
+  courses: CourseData[];
+  total: number;
+}
+
 export interface MyCourseCardProps {
   id: string | number;
   category: string;

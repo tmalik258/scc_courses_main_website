@@ -36,6 +36,7 @@ export default function CourseFilters({ onFilterChange }: CourseFiltersProps) {
     "App Development",
     "Web Development",
     "Data Science",
+    "Mobile Development",
   ];
 
   const priceRanges = [
@@ -49,7 +50,6 @@ export default function CourseFilters({ onFilterChange }: CourseFiltersProps) {
   const ratings = ["All", "5.0", "4.0+", "3.0+", "2.0+", "1.0+"];
 
   useEffect(() => {
-    // Sync categories with URL query parameter
     const category = searchParams.get("category") || "";
     setSelectedFilters((prev) => ({
       ...prev,
