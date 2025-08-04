@@ -23,8 +23,7 @@ import { getCourseById } from "@/actions/get-courses";
 import { getTestimonials } from "@/actions/get-testimonials";
 import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
-import { createClient } from "@/utils/supabase/client"; // ✅ NEW
-
+import { createClient } from "@/utils/supabase/client";
 const CourseDetail = ({
   params,
 }: {
