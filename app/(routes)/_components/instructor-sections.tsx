@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function InstructorSection() {
   return (
-    <section className="relative right-10 px-6 py-16 bg-[#F3FBFF]">
+    <section className="relative px-6 py-16 bg-[#F3FBFF] ">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-12">Hello World</h2>
 

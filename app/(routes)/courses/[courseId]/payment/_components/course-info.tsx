@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Users, Star, Clock } from "lucide-react";
 import { CourseData } from "@/types/course";
 import { getCourseById } from "@/actions/get-courses";
+import { DashedSpinner } from "@/components/dashed-spinner";
 
 interface CourseInfoProps {
   courseId: string;
@@ -35,7 +36,12 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
   }, [courseId]);
 
   if (loading) {
-    return <div className="text-gray-500">Loading course...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center w-full text-gray-500">
+        <DashedSpinner />
+        Loading course...
+      </div>
+    );
   }
 
   if (error || !course) {

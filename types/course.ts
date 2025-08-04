@@ -1,6 +1,8 @@
 // types/course.ts
 
 export interface CourseData {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  instructor: any;
   id: string;
   title: string;
   category: string;

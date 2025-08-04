@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function ConsultancySection() {
   return (
-    <section className="relative right-8 px-6 py-8 max-md:py-16 bg-gray-50">
+    <section className="relative px-6 py-8 max-md:py-16 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 md:mb-12">
           Our Consultancy Firm

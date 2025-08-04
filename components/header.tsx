@@ -91,7 +91,7 @@ const Header = () => {
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
-      window.location.href = "/signup"; // Guaranteed redirect
+      window.location.href = "/signup";
     } catch (error) {
       console.error("Logout failed:", error);
     }
