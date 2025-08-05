@@ -24,12 +24,15 @@ export function TestimonialSlider({
       } else {
         setItemsPerView(3);
       }
+      console.log(
+        `[TestimonialSlider] Resize - itemsPerView: ${itemsPerView}, windowWidth: ${window.innerWidth}`
+      );
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [itemsPerView]);
 
   const maxIndex = Math.max(0, testimonialsData.length - itemsPerView);
 
@@ -79,7 +82,7 @@ export function TestimonialSlider({
             <div
               key={testimonial.id}
               className="flex-shrink-0 px-3"
-              style={{ width: `${100 / itemsPerView}%` }}
+              style={{ width: `${100 / itemsPerView}%`, minWidth: "300px" }} // Enforce minimum width
             >
               <TestimonialCard testimonial={testimonial} />
             </div>
