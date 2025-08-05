@@ -8,8 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FaPaypal } from "react-icons/fa"; // PayPal icon from react-icons
-import { SiRazorpay } from "react-icons/si"; // Razorpay icon from react-icons
+import { FaPaypal } from "react-icons/fa";
+import { SiRazorpay } from "react-icons/si";
 
 interface PaymentMethodModalProps {
   isOpen: boolean;

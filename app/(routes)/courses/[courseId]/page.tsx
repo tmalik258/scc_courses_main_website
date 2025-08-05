@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Check,
   Play,
@@ -25,6 +25,8 @@ import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
 import { createClient } from "@/utils/supabase/client";
 import { LumaSpin } from "@/components/luma-spin";
+import { DashedSpinner } from "@/components/dashed-spinner";
+import { fetchImage } from "@/utils/supabase/fetchImage";
 
 const CourseDetail = ({
   params,
@@ -41,8 +43,10 @@ const CourseDetail = ({
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<TestimonialType[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
   const router = useRouter();
-  const { courseId } = use(params);
+  const { courseId } = React.use(params);
 
   useEffect(() => {
     const getUser = async () => {
@@ -70,7 +74,6 @@ const CourseDetail = ({
 
         if (courseData) {
           setCourse(courseData);
-          // Set the first section as expanded by default
           if (courseData.sections.length > 0) {
             setExpandedSections([courseData.sections[0].id]);
           }
@@ -91,16 +94,61 @@ const CourseDetail = ({
   }, [courseId]);
 
   useEffect(() => {
+    const loadImage = async () => {
+      console.log(`[CourseDetail ${courseId}] Loading image:`, {
+        thumbnail_url: course?.thumbnail_url,
+        image: course?.image,
+        isEmpty: !course?.thumbnail_url && !course?.image,
+      });
+      setImageLoading(true);
+      try {
+        const imageSource = course?.thumbnail_url || course?.image;
+        if (imageSource && imageSource.trim() !== "") {
+          const url = await fetchImage(imageSource);
+          if (!url || typeof url !== "string") {
+            throw new Error("fetchImage returned invalid or no URL");
+          }
+          console.log(
+            `[CourseDetail ${courseId}] Image fetched successfully:`,
+            url
+          );
+          setImageUrl(url);
+        } else {
+          console.warn(
+            `[CourseDetail ${courseId}] No valid image provided, using placeholder`
+          );
+          setImageUrl("/images/course_placeholder.jpg");
+        }
+      } catch (err) {
+        console.error(`[CourseDetail ${courseId}] Error fetching image:`, err);
+        setImageUrl("/images/course_placeholder.jpg");
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    if (course) {
+      loadImage();
+    }
+  }, [course, courseId]);
+
+  useEffect(() => {
     if (!loading && onLoadingComplete) {
       onLoadingComplete();
     }
   }, [loading, onLoadingComplete]);
 
   const handleGetStarted = () => {
+    console.log(
+      `[CourseDetail ${courseId}] Navigating to: /courses/${courseId}/lessons/1`
+    );
     router.push(`/courses/${courseId}/lessons/1`);
   };
 
   const handleLessonClick = (lessonId: string) => {
+    console.log(
+      `[CourseDetail ${courseId}] Navigating to lesson: /courses/${courseId}/lessons/${lessonId}`
+    );
     router.push(`/courses/${courseId}/lessons/${lessonId}`);
   };
 
@@ -239,13 +287,27 @@ const CourseDetail = ({
           <div className="lg:col-span-1 max-md:order-1">
             <div className="flex md:flex-col gap-3 md:gap-6 relative">
               <div>
-                <Image
-                  width={350}
-                  height={200}
-                  src={course.thumbnail_url || course.image}
-                  alt={course.title}
-                  className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
-                />
+                {imageLoading ? (
+                  <div className="w-32 md:w-full h-40 md:h-48 flex items-center justify-center">
+                    <DashedSpinner size={24} />
+                  </div>
+                ) : (
+                  <Image
+                    width={256}
+                    height={192}
+                    src={imageUrl || "/images/course_placeholder.jpg"}
+                    alt={course.title}
+                    className="w-32 md:w-full h-40 md:h-48 object-cover rounded-lg"
+                    onError={(e) => {
+                      console.error(
+                        `[CourseDetail ${courseId}] Image failed to load:`,
+                        imageUrl
+                      );
+                      setImageUrl("/images/course_placeholder.jpg");
+                      e.currentTarget.src = "/images/course_placeholder.jpg";
+                    }}
+                  />
+                )}
               </div>
 
               <div className="max-md:flex max-md:flex-col max-md:justify-between text-right">

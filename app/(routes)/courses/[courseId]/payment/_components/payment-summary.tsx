@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PaymentMethodModal } from "./payment-method-modal";
 import { usePaymentSummary } from "@/hooks/use-payment-summary";
 import { purchaseCourse } from "@/actions/purchase-course";
 import toast from "react-hot-toast";
+import { DashedSpinner } from "@/components/dashed-spinner";
 
 export function PaymentSummary() {
   const params = useParams();
+  const router = useRouter();
   const courseId = params.courseId as string;
   const { data, loading, error, refetch } = usePaymentSummary(courseId);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +29,7 @@ export function PaymentSummary() {
       toast.error("Please select a payment method");
       return;
     }
-    console.log("Initiating purchase:", {
+    console.log(`[PaymentSummary ${courseId}] Initiating purchase:`, {
       courseId: data.courseId,
       paymentMethod: method,
     });
@@ -36,16 +38,33 @@ export function PaymentSummary() {
       await purchaseCourse(data.courseId, method);
       toast.success("Course purchased successfully!");
       await refetch();
+      console.log(
+        `[PaymentSummary ${courseId}] Navigating to success page: /courses/${courseId}/payment/success`
+      );
+      router.push(`/courses/${courseId}/payment/success`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error("Purchase failed:", err.message, err.stack);
+      console.error(
+        `[PaymentSummary ${courseId}] Purchase failed:`,
+        err.message,
+        err.stack
+      );
       toast.error(err.message || "Something went wrong!");
+      console.log(
+        `[PaymentSummary ${courseId}] Navigating to fail page: /courses/${courseId}/payment/fail`
+      );
+      router.push(`/courses/${courseId}/payment/fail`);
     } finally {
       setIsPaying(false);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex flex-col items-center justify-center h-48 text-gray-500">
+        <DashedSpinner size={24} /> Loading...
+      </div>
+    );
   if (error) return <div className="text-red-600">{error}</div>;
   if (!data) return <div>No data available</div>;
 

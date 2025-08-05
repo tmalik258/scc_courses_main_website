@@ -7,7 +7,7 @@ import { getCourseById } from "@/actions/get-courses";
 import { DashedSpinner } from "@/components/dashed-spinner";
 
 interface CourseInfoProps {
-  courseId: string;
+  courseId: string | undefined;
 }
 
 export function CourseInfo({ courseId }: CourseInfoProps) {
@@ -16,18 +16,38 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log(`[CourseInfo] Received courseId:`, courseId, {
+      isValid: typeof courseId === "string" && courseId.trim() !== "",
+    });
     async function fetchCourse() {
       try {
         setLoading(true);
+        if (
+          !courseId ||
+          typeof courseId !== "string" ||
+          courseId.trim() === ""
+        ) {
+          throw new Error(`Invalid or missing courseId: ${courseId}`);
+        }
         const courseData = await getCourseById(courseId);
+        console.log(
+          `[CourseInfo ${courseId}] Course data fetched:`,
+          courseData
+        );
         if (courseData) {
           setCourse(courseData);
         } else {
           setError("Course not found");
+          console.warn(`[CourseInfo ${courseId}] No course data returned`);
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        setError("Failed to load course data");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        const errorMessage = err.message || "Failed to load course data";
+        setError(errorMessage);
+        console.error(
+          `[CourseInfo ${courseId || "unknown"}] Error fetching course:`,
+          err
+        );
       } finally {
         setLoading(false);
       }
@@ -35,17 +55,52 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
     fetchCourse();
   }, [courseId]);
 
+  if (!courseId || typeof courseId !== "string" || courseId.trim() === "") {
+    console.error(`[CourseInfo] Invalid courseId at render:`, courseId);
+    return (
+      <div className="text-red-500">
+        Invalid course ID
+        <button
+          className="ml-4 text-blue-500 underline"
+          onClick={() => {
+            console.log(`[CourseInfo] Retrying fetch with courseId:`, courseId);
+            setLoading(true);
+            setError(null);
+            setCourse(null);
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center w-full text-gray-500">
-        <DashedSpinner />
+      <div className="flex flex-col items-center justify-center w-full h-48 text-gray-500">
+        <DashedSpinner size={24} />
         Loading course...
       </div>
     );
   }
 
   if (error || !course) {
-    return <div className="text-red-500">{error || "Course not found"}</div>;
+    return (
+      <div className="text-red-500">
+        {error || "Course not found"}
+        <button
+          className="ml-4 text-blue-500 underline"
+          onClick={() => {
+            console.log(`[CourseInfo ${courseId}] Retrying fetch`);
+            setLoading(true);
+            setError(null);
+            setCourse(null);
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -85,7 +140,7 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
         {course.description || "No description available"}
       </p>
 
-      {/* Pricing for Sidebar (optional, can be used in CourseDetail) */}
+      {/* Pricing */}
       <div className="flex items-center gap-3">
         <span className="text-gray-400 line-through md:text-lg">
           ₹{course.originalPrice}

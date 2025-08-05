@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { Bookmark, Users, Star } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
+import { DashedSpinner } from "@/components/dashed-spinner";
+import { fetchImage } from "@/utils/supabase/fetchImage";
 
 interface SavedCourseCardProps {
   id: string;
@@ -22,9 +24,11 @@ interface SavedCourseCardProps {
 }
 
 export function SavedCourseCard(props: SavedCourseCardProps) {
-  const [isSaved, setIsSaved] = useState<boolean>(false); // Always start as false
+  const [isSaved, setIsSaved] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Track API loading
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
   const supabase = createClient();
 
   useEffect(() => {
@@ -48,7 +52,6 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
           }
 
           const savedData = await res.json();
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const savedCourseIds =
             savedData?.courses?.map((c: any) => c.id) || [];
           setIsSaved(savedCourseIds.includes(props.id));
@@ -62,6 +65,28 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
 
     fetchUserAndStatus();
   }, [props.id, supabase]);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      if (props.image && !imageUrl) {
+        setImageLoading(true);
+        try {
+          const url = await fetchImage(props.image);
+          setImageUrl(url);
+        } catch (err) {
+          console.error("Error fetching image:", err);
+          setImageUrl("/placeholder.svg");
+        } finally {
+          setImageLoading(false);
+        }
+      } else if (!props.image) {
+        setImageUrl("/placeholder.svg");
+        setImageLoading(false);
+      }
+    };
+
+    loadImage();
+  }, [props.image, imageUrl]);
 
   const handleBookmarkToggle = async () => {
     if (!userId) return;
@@ -88,13 +113,20 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
     <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-6 relative">
       <div className="flex max-md:flex-wrap md:items-start max-md:gap-3 md:space-x-6">
         <div className="flex-shrink-0">
-          <Image
-            src={props.image || "/placeholder.svg"}
-            alt={props.title}
-            width={200}
-            height={120}
-            className="w-24 md:w-48 h-28 object-cover rounded-lg"
-          />
+          {imageLoading ? (
+            <div className="w-32 md:w-64 h-40 md:h-48 flex items-center justify-center">
+              <DashedSpinner size={24} />
+            </div>
+          ) : (
+            <Image
+              src={imageUrl || "/placeholder.svg"}
+              alt={props.title}
+              width={256}
+              height={192}
+              decoding="async"
+              className="w-32 md:w-64 h-40 md:h-48 object-cover rounded-lg"
+            />
+          )}
         </div>
 
         <div className="flex-1">
@@ -132,11 +164,10 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
           </div>
         </div>
 
-        {/* Bookmark button + label */}
         <div className="flex-shrink-0 max-md:absolute max-md:top-4 max-md:left-4 flex flex-col items-center gap-1">
           <button
             onClick={handleBookmarkToggle}
-            disabled={isLoading || !userId} // Disable during loading or if no user
+            disabled={isLoading || !userId}
             className={`p-1 md:p-2 rounded md:rounded-lg transition-colors ${
               isSaved
                 ? "text-aqua-depth bg-sky-50"
