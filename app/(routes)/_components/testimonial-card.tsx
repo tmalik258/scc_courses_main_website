@@ -104,10 +104,7 @@ export default function TestimonialCard({ testimonial }: TestimonialCardProps) {
                 </div>
               ) : (
                 <Image
-                  src={
-                    imageUrl ||
-                    "/images/landing_page/testimonial_placeholder.jpg"
-                  }
+                  src={imageUrl || "/images/default-profile-pic.png"}
                   alt={testimonial.name || "User avatar"}
                   width={48}
                   height={48}
