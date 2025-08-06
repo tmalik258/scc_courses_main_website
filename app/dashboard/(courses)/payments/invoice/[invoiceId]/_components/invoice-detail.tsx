@@ -21,8 +21,8 @@ export function InvoiceDetail({
   product,
 }: InvoiceDetailProps) {
   const handleDownloadInvoice = () => {
+    // Handle invoice download
     console.log("Downloading invoice for:", id);
-    // Add logic to generate/download a PDF (e.g., using pdfkit or jsPDF)
   };
 
   return (

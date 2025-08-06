@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { fetchInvoice } from "@/actions/fetch-invoice";
+import { useEffect, useState } from "react";
 
 interface InvoiceDetail {
   id: string;
@@ -16,34 +15,21 @@ export function useInvoiceDetail(invoiceId: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadInvoice = async () => {
-      if (!invoiceId) {
-        setError("No invoice ID provided");
-        setLoading(false);
-        return;
-      }
-
+    const fetchInvoice = async () => {
       try {
-        console.log("Fetching invoice data:", {
-          invoiceId,
-          timestamp: new Date().toISOString(),
-        });
-        const data = await fetchInvoice(invoiceId);
+        const res = await fetch(`/api/invoice/${invoiceId}`);
+        if (!res.ok) throw new Error("Failed to fetch invoice");
+        const data = await res.json();
         setInvoice(data);
-        setError(null);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error("Failed to fetch invoice:", {
-          message: err.message,
-          timestamp: new Date().toISOString(),
-        });
-        setError(err.message || "Failed to load invoice. Please try again.");
+        setError(err.message || "Unknown error");
       } finally {
         setLoading(false);
       }
     };
 
-    loadInvoice();
+    if (invoiceId) fetchInvoice();
   }, [invoiceId]);
 
   return { invoice, loading, error };
