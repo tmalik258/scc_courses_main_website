@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { CourseData } from "@/types/course";
 
+// Color mapping for categories
 const categoryColors: Record<string, { bgColor: string; textColor: string }> = {
   "AI Calling": { bgColor: "bg-purple-100", textColor: "text-purple-600" },
   "WhatsApp Chatbots": { bgColor: "bg-green-100", textColor: "text-green-600" },
@@ -16,11 +17,24 @@ const categoryColors: Record<string, { bgColor: string; textColor: string }> = {
   "Data Science": { bgColor: "bg-blue-100", textColor: "text-blue-600" },
 };
 
+// Define the type for course with relations
 type CourseWithRelations = Prisma.CourseGetPayload<{
   include: {
-    category: { select: { name: true } };
-    instructor: { select: { fullName: true } };
-    modules: { include: { lessons: true } };
+    category: {
+      select: {
+        name: true;
+      };
+    };
+    instructor: {
+      select: {
+        fullName: true;
+      };
+    };
+    modules: {
+      include: {
+        lessons: true;
+      };
+    };
     purchases: true;
     reviews: true;
     resources: true;
@@ -32,7 +46,9 @@ function transformCourse(course: CourseWithRelations): CourseData {
     (sum, module) => sum + module.lessons.length,
     0
   );
+
   const studentCount = course.purchases.length;
+
   const averageRating =
     course.reviews.length > 0
       ? (
@@ -40,25 +56,35 @@ function transformCourse(course: CourseWithRelations): CourseData {
           course.reviews.length
         ).toFixed(1)
       : "0.0";
+
   const categoryName = course.category?.name ?? "Unknown";
   const { bgColor: categoryBgColor, textColor: categoryTextColor } =
     categoryColors[categoryName] || {
       bgColor: "bg-gray-100",
       textColor: "text-gray-600",
     };
+
   const originalPrice =
     course.price instanceof Prisma.Decimal
       ? parseFloat(course.price.toFixed(2))
       : typeof course.price === "number"
       ? course.price
       : 0;
+
   const discountPercentage = 20;
   const discountedPrice = originalPrice * (1 - discountPercentage / 100);
-  const durationHours = totalLessons * 10;
+
+  // Calculate duration based on lessons (assuming 10 minutes per lesson as a fallback)
+  const durationHours = totalLessons * 10; // 10 minutes per lesson
   const duration = `${Math.floor(durationHours / 60)}h ${durationHours % 60}m`;
+
+  // Derive video and article counts
   const lessons = course.modules.flatMap((module) => module.lessons);
-  const videoCount = lessons.filter((l) => l.video_url).length;
-  const articleCount = lessons.filter((l) => !l.video_url).length;
+  const videoCount = lessons.filter((lesson) => lesson.video_url).length;
+  const articleCount = lessons.filter((lesson) => !lesson.video_url).length;
+  const downloadableResources = course.resources.length;
+
+  // Parse learning points from description or use placeholder
   const learningPoints = course.description
     ? course.description
         .split("\n")
@@ -90,7 +116,7 @@ function transformCourse(course: CourseWithRelations): CourseData {
     description: course.description ?? "No description available",
     videoCount,
     articleCount,
-    downloadableResources: course.resources.length,
+    downloadableResources,
     projectCount: 0,
     practiceTestCount: 0,
     learningPoints,
@@ -117,94 +143,88 @@ function transformCourse(course: CourseWithRelations): CourseData {
       review: review.comment ?? "",
       avatar: "/images/avatar_placeholder.jpg",
     })),
-    progress: 0,
-    currentLesson: null,
+    progress: undefined,
+    currentLesson: undefined,
   };
 }
 
 export async function getPopularCourses(): Promise<CourseData[]> {
-  const rawCourses = await prisma.course.findMany({
-    where: { isPublished: true },
-    include: {
-      category: { select: { name: true } },
-      instructor: { select: { fullName: true } },
-      modules: { include: { lessons: true } },
-      purchases: true,
-      reviews: true,
-      resources: true,
-    },
-    orderBy: {
-      purchases: {
-        _count: "desc",
+  try {
+    const rawCourses = await prisma.course.findMany({
+      where: {
+        isPublished: true,
       },
-    },
-  });
-
-  return rawCourses.map(transformCourse);
-}
-
-export async function getBrowseCourses(
-  page = 1,
-  limit = 12,
-  filters: Record<string, string> = {}
-): Promise<{ courses: CourseData[]; total: number }> {
-  const where: Prisma.CourseWhereInput = {
-    isPublished: true,
-    category:
-      filters.category && filters.category !== "All"
-        ? { name: filters.category }
-        : undefined,
-    title: filters.q
-      ? { contains: filters.q, mode: "insensitive" as const }
-      : undefined,
-    price:
-      filters.price === "Free"
-        ? 0
-        : filters.price === "Paid"
-        ? { gt: 0 }
-        : undefined,
-  };
-
-  const [courses, total] = await Promise.all([
-    prisma.course.findMany({
-      where,
       include: {
-        category: { select: { name: true } },
-        instructor: { select: { fullName: true } },
-        modules: { include: { lessons: true } },
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        instructor: {
+          select: {
+            fullName: true,
+          },
+        },
+        modules: {
+          include: {
+            lessons: true,
+          },
+        },
         purchases: true,
         reviews: true,
         resources: true,
       },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.course.count({ where }),
-  ]);
+      orderBy: {
+        purchases: {
+          _count: "desc",
+        },
+      },
+    });
 
-  return {
-    courses: courses.map(transformCourse),
-    total,
-  };
+    return rawCourses.map(transformCourse);
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    throw new Error("Failed to fetch popular courses");
+  }
 }
 
 export async function getCourseById(
   courseId: string
 ): Promise<CourseData | null> {
-  const course = await prisma.course.findUnique({
-    where: { id: courseId, isPublished: true },
-    include: {
-      category: { select: { name: true } },
-      instructor: { select: { fullName: true } },
-      modules: { include: { lessons: true } },
-      purchases: true,
-      reviews: true,
-      resources: true,
-    },
-  });
+  try {
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        instructor: {
+          select: {
+            fullName: true,
+          },
+        },
+        modules: {
+          include: {
+            lessons: true,
+          },
+        },
+        purchases: true,
+        reviews: true,
+        resources: true,
+      },
+    });
 
-  if (!course) return null;
+    if (!course) {
+      return null;
+    }
 
-  return transformCourse(course);
+    return transformCourse(course);
+  } catch (error) {
+    console.error("Error fetching course by ID:", error);
+    throw new Error("Failed to fetch course");
+  }
 }

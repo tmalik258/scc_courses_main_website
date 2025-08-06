@@ -1,27 +1,16 @@
+// app/api/courses/route.ts
+
 import { NextResponse } from "next/server";
-import { getBrowseCourses } from "@/actions/get-courses";
+import { getPopularCourses } from "@/actions/get-courses";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-
-    const page = Number(searchParams.get("page") || 1);
-    const limit = Number(searchParams.get("limit") || 12);
-
-    const filters: Record<string, string> = {};
-    ["category", "q", "sort", "price", "rating"].forEach((key) => {
-      const value = searchParams.get(key);
-      if (value && value !== "All") {
-        filters[key] = value;
-      }
-    });
-
-    const { courses, total } = await getBrowseCourses(page, limit, filters);
-    return NextResponse.json({ courses, total });
+    const courses = await getPopularCourses();
+    return NextResponse.json(courses);
   } catch (error) {
-    console.error("Browse API error:", error);
+    console.error("[GET /api/courses] Error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch courses" },
+      { message: "Failed to fetch courses" },
       { status: 500 }
     );
   }

@@ -10,10 +10,6 @@ interface UseCourses {
   refetch: () => Promise<void>;
 }
 
-interface UseBrowseCourses extends UseCourses {
-  total: number;
-}
-
 export function usePopularCourses(): UseCourses {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +80,7 @@ export function useAllCourses(): UseCourses {
   };
 }
 
+// Hook for filtering courses
 export function useFilteredCourses(
   courses: CourseData[],
   activeFilter: string
@@ -93,6 +90,7 @@ export function useFilteredCourses(
     : courses.filter((course) => course.category === activeFilter);
 }
 
+// Hook for course categories
 export function useCourseCategories(courses: CourseData[]) {
   const categories = courses.reduce((acc: string[], course) => {
     if (!acc.includes(course.category)) {
@@ -102,55 +100,4 @@ export function useCourseCategories(courses: CourseData[]) {
   }, []);
 
   return ["All", ...categories];
-}
-
-export function useBrowseCourses(
-  page: number,
-  limit: number = 12,
-  filters: Record<string, string> = {}
-): UseBrowseCourses {
-  const [courses, setCourses] = useState<CourseData[]>([]);
-  const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const buildQueryString = () => {
-    const query = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-    });
-
-    for (const [key, value] of Object.entries(filters)) {
-      if (value && value !== "All") {
-        query.set(key, value);
-      }
-    }
-
-    return query.toString();
-  };
-
-  const fetchCourses = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const query = buildQueryString();
-      const res = await fetch(`/api/courses/browse?${query}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setCourses(data.courses || []);
-      setTotal(data.total || 0);
-    } catch (err) {
-      console.error("Browse courses error:", err);
-      setError("Could not load browse courses");
-      setCourses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCourses();
-  }, [page, limit, JSON.stringify(filters)]);
-
-  return { courses, total, loading, error, refetch: fetchCourses };
 }
