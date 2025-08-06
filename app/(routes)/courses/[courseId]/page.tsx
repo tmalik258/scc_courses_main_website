@@ -30,10 +30,8 @@ import { fetchImage } from "@/utils/supabase/fetchImage";
 
 const CourseDetail = ({
   params,
-  onLoadingComplete,
 }: {
   params: Promise<{ courseId: string }>;
-  onLoadingComplete?: () => void;
 }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
@@ -132,12 +130,6 @@ const CourseDetail = ({
     }
   }, [course, courseId]);
 
-  useEffect(() => {
-    if (!loading && onLoadingComplete) {
-      onLoadingComplete();
-    }
-  }, [loading, onLoadingComplete]);
-
   const handleGetStarted = () => {
     console.log(
       `[CourseDetail ${courseId}] Navigating to: /courses/${courseId}/lessons/1`
@@ -226,14 +218,35 @@ const CourseDetail = ({
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
                     Course Lessons
                   </h3>
-                  <LessonList
-                    isPaid={false}
-                    sections={course.sections}
-                    expandedSections={expandedSections}
-                    currentLesson={course.sections[0]?.lessons[0]?.id || ""}
-                    onToggleSection={toggleSection}
-                    onLessonClick={handleLessonClick}
-                  />
+
+                  {course.sections && (
+                    <LessonList
+                      isPaid={false}
+                      sections={course.sections.map((section) => ({
+                        id: section.id,
+                        title: section.title,
+                        lessons: section.lessons.map((lesson) => ({
+                          id: lesson.id,
+                          title: lesson.title,
+                          completed: lesson.completed ?? false,
+                          locked: lesson.locked ?? true,
+                          duration: lesson.duration,
+                          content: lesson.content,
+                          video_url: lesson.video_url,
+                          is_free: lesson.is_free ?? false,
+                          resources: lesson.resources ?? [],
+                        })),
+                      }))}
+                      expandedSections={expandedSections}
+                      currentLesson={
+                        course.sections[0]?.lessons[0]?.id
+                          ? course.sections[0].lessons[0].id
+                          : ""
+                      }
+                      onToggleSection={toggleSection}
+                      onLessonClick={handleLessonClick}
+                    />
+                  )}
                 </div>
               )}
 

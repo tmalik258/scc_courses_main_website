@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useRouter } from "nextjs-toploader/app";
+import { useRouter } from "next/navigation";
 
-interface CourseCardProps {
+export interface CourseCardProps {
   id: string;
   category: string;
   categoryBgColor: string;
@@ -18,6 +18,12 @@ interface CourseCardProps {
   originalPrice?: string;
   discountedPrice?: string;
   discount?: string;
+
+  // Optional for ongoing course view
+  currentLesson?: number;
+  totalLessons?: number;
+  progress?: number;
+  status?: "active" | "finished";
 }
 
 export function CourseCard({
@@ -31,19 +37,31 @@ export function CourseCard({
   rating,
   price,
   image,
+  currentLesson,
+  totalLessons,
+  progress,
+  status,
 }: CourseCardProps) {
   const router = useRouter();
+
+  const validImage =
+    image?.startsWith("http") && !image.includes("example.com")
+      ? image
+      : "/placeholder.svg";
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 mb-6">
       <div className="flex max-md:flex-col max-md:gap-3 md:items-start md:space-x-6">
         <div className="md:flex-shrink-0 max-md:flex-1">
           <Image
-            src={image || "/placeholder.svg"}
+            src={validImage}
             alt={title}
             width={200}
             height={120}
             className="w-full md:w-48 h-28 object-cover rounded-md md:rounded-lg"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
           />
         </div>
 
@@ -61,6 +79,17 @@ export function CourseCard({
           </h3>
 
           <p className="text-gray-500 text-sm mb-2">{mentor}</p>
+
+          {/* Progress display */}
+          {progress !== undefined && totalLessons !== undefined && (
+            <p className="text-gray-600 text-sm mb-2">
+              {progress}% complete ({currentLesson || 0}/{totalLessons} lessons)
+            </p>
+          )}
+
+          {status && (
+            <p className="text-gray-600 text-sm mb-2 capitalize">{status}</p>
+          )}
 
           <div className="flex justify-between items-center mb-4">
             <span className="text-sm text-gray-600">{students}</span>

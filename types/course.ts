@@ -1,8 +1,8 @@
-// types/course.ts
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CourseData {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  instructor: any;
+  progress: any;
+  currentLesson: any;
+  instructor?: any;
   id: string;
   title: string;
   category: string;
@@ -65,3 +65,10 @@ export interface MyCourseCardProps {
   image: string;
   status: "active" | "finished";
 }
+
+export type CategoryColors = {
+  bg: string;
+  text: string;
+};
+
+export type CategoryColorMap = Record<string, CategoryColors>;

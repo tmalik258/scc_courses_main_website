@@ -6,6 +6,7 @@ import TestimonialsSection from "./_components/testimonials-section";
 import { InstructorSection } from "./_components/instructor-sections";
 import ConsultancyContact from "./_components/consultancy-contact";
 import { DashedSpinner } from "@/components/dashed-spinner";
+import { Suspense } from "react";
 
 export default async function HomePage() {
   const categories = await getCategoriesWithMeta();

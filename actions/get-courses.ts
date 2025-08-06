@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 import { CourseData } from "@/types/course";
 
-// Category color mappings
 const categoryColors: Record<string, { bgColor: string; textColor: string }> = {
   "AI Calling": { bgColor: "bg-purple-100", textColor: "text-purple-600" },
   "WhatsApp Chatbots": { bgColor: "bg-green-100", textColor: "text-green-600" },
@@ -34,7 +33,6 @@ function transformCourse(course: CourseWithRelations): CourseData {
     0
   );
   const studentCount = course.purchases.length;
-
   const averageRating =
     course.reviews.length > 0
       ? (
@@ -42,30 +40,25 @@ function transformCourse(course: CourseWithRelations): CourseData {
           course.reviews.length
         ).toFixed(1)
       : "0.0";
-
   const categoryName = course.category?.name ?? "Unknown";
   const { bgColor: categoryBgColor, textColor: categoryTextColor } =
     categoryColors[categoryName] || {
       bgColor: "bg-gray-100",
       textColor: "text-gray-600",
     };
-
   const originalPrice =
     course.price instanceof Prisma.Decimal
       ? parseFloat(course.price.toFixed(2))
       : typeof course.price === "number"
       ? course.price
       : 0;
-
   const discountPercentage = 20;
   const discountedPrice = originalPrice * (1 - discountPercentage / 100);
   const durationHours = totalLessons * 10;
   const duration = `${Math.floor(durationHours / 60)}h ${durationHours % 60}m`;
-
   const lessons = course.modules.flatMap((module) => module.lessons);
   const videoCount = lessons.filter((l) => l.video_url).length;
   const articleCount = lessons.filter((l) => !l.video_url).length;
-
   const learningPoints = course.description
     ? course.description
         .split("\n")
@@ -124,6 +117,8 @@ function transformCourse(course: CourseWithRelations): CourseData {
       review: review.comment ?? "",
       avatar: "/images/avatar_placeholder.jpg",
     })),
+    progress: 0,
+    currentLesson: null,
   };
 }
 

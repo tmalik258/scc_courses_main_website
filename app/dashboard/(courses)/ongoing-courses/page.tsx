@@ -1,11 +1,12 @@
 import { CourseCard } from "../_components/course-card";
 import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+import Link from "next/link";
+import { CourseCardProps } from "../_components/course-card";
+import { getCategoryColors } from "@/lib/course-utils";
 
 export default async function OngoingCourses() {
-  const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -50,44 +51,57 @@ export default async function OngoingCourses() {
     },
   });
 
-  const uniqueCourses = new Map();
-
+  const courseProgress = new Map();
   for (const progress of progresses) {
     const course = progress.lessons.modules.course;
+    if (!courseProgress.has(course.id)) {
+      courseProgress.set(course.id, []);
+    }
+    courseProgress.get(course.id).push(progress);
+  }
 
-    if (!uniqueCourses.has(course.id)) {
-      const allLessons = course.modules.flatMap((mod) => mod.lessons);
-      const totalLessons = allLessons.length;
+  const uniqueCourses = new Map<string, CourseCardProps>();
+  for (const [, courseProgresses] of courseProgress) {
+    const course = courseProgresses[0].lessons.modules.course;
+    const allLessons = course.modules.flatMap(
+      (mod: {
+        lessons: {
+          id: string;
+          title: string;
+          completed: boolean;
+          locked: boolean;
+          duration: string;
+          content: string | null;
+          video_url: string | null;
+          is_free: boolean;
+        }[];
+      }) => mod.lessons
+    );
+    const totalLessons = allLessons.length;
+    const completedLessons = courseProgresses.length;
+    const progressPercent = Math.floor((completedLessons / totalLessons) * 100);
 
-      const completedLessons = await prisma.progress.count({
-        where: {
-          studentId: profile.id,
-          lesson_id: {
-            in: allLessons.map((l) => l.id),
-          },
-          isCompleted: true,
-        },
+    if (progressPercent < 100) {
+      const categoryName = course.category?.name || "Uncategorized";
+      const { bg: categoryBgColor, text: categoryTextColor } =
+        getCategoryColors(categoryName);
+
+      uniqueCourses.set(course.id, {
+        id: course.id,
+        category: categoryName,
+        categoryBgColor,
+        categoryTextColor,
+        title: course.title,
+        mentor: course.instructor?.fullName || "Mentor",
+        currentLesson: completedLessons,
+        totalLessons,
+        progress: progressPercent,
+        image: course.thumbnailUrl || "/images/course_placeholder_2.jpg",
+        status: "active",
+        students: "",
+        rating: "",
+        price: "",
       });
-
-      const progressPercent = Math.floor(
-        (completedLessons / totalLessons) * 100
-      );
-
-      if (progressPercent < 100) {
-        uniqueCourses.set(course.id, {
-          id: course.id,
-          category: course.category.name,
-          categoryBgColor: "bg-blue-600/25", // Optional: Map by category name
-          categoryTextColor: "text-blue-600",
-          title: course.title,
-          mentor: course.instructor.fullName || "Mentor",
-          currentLesson: completedLessons,
-          totalLessons,
-          progress: progressPercent,
-          image: course.thumbnailUrl || "/images/course_placeholder_2.jpg",
-          isCompleted: false,
-        });
-      }
     }
   }
 
@@ -97,16 +111,29 @@ export default async function OngoingCourses() {
     <div>
       {ongoingCourses.length === 0 ? (
         <div className="text-muted-foreground text-sm text-center py-10">
-          You haven’t started any courses yet.
+          You haven’t started any courses yet.{" "}
+          <Link href="/courses" className="text-blue-600 hover:underline">
+            Browse courses
+          </Link>
         </div>
       ) : (
         ongoingCourses.map((course) => (
           <CourseCard
             key={course.id}
-            students=""
-            rating=""
-            price=""
-            {...course}
+            id={course.id}
+            category={course.category}
+            categoryBgColor={course.categoryBgColor}
+            categoryTextColor={course.categoryTextColor}
+            title={course.title}
+            mentor={course.mentor}
+            currentLesson={course.currentLesson}
+            totalLessons={course.totalLessons}
+            progress={course.progress}
+            image={course.image}
+            status={course.status}
+            students={course.students}
+            rating={course.rating}
+            price={course.price}
           />
         ))
       )}
