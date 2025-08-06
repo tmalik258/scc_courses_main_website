@@ -19,6 +19,8 @@ import Link from "next/link";
 import { login } from "@/actions/auth";
 import { toast } from "sonner";
 import { DashedSpinner } from "@/components/dashed-spinner";
+import Divider from "@/components/divider";
+import GoogleSigninButton from "../../_components/google-signin-button";
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -123,15 +125,25 @@ export function LoginForm() {
             )}
           />
 
+          {/* Divider */}
+          <Divider text="atau" />
+
+          {/* Google Sign up */}
+          <GoogleSigninButton />
+
           {/* Login Button */}
           <Button
             type="submit"
             className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 max-md:text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? <>
-              <DashedSpinner invert={true} /> Logging in...
-            </> : "Log in"}
+            {form.formState.isSubmitting ? (
+              <>
+                <DashedSpinner invert={true} /> Logging in...
+              </>
+            ) : (
+              "Log in"
+            )}
           </Button>
         </form>
       </Form>

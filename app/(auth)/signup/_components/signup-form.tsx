@@ -20,8 +20,9 @@ import { signup } from "@/actions/auth";
 import { toast } from "sonner";
 import { DashedSpinner } from "@/components/dashed-spinner";
 import { redirect } from "next/navigation";
-import GoogleSigninButton from "../../_components/google-signin-button";
 import Divider from "@/components/divider";
+import GoogleSigninButton from "../../_components/google-signin-button";
+
 // Define the form schema using Zod
 const formSchema = z
   .object({

@@ -48,7 +48,7 @@ export async function login(formData: FormData) {
               signInData.user.email?.split("@")[0] ??
               "Unknown User",
             avatarUrl: signInData.user.user_metadata?.picture ?? null,
-            role: "STUDENT",
+            role: "ADMIN",
             isActive: true,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -118,7 +118,7 @@ export async function signup(formData: FormData) {
               signUpData.user.email?.split("@")[0] ??
               "Unknown User",
             avatarUrl: signUpData.user.user_metadata?.picture ?? null,
-            role: "STUDENT",
+            role: "ADMIN",
             isActive: true,
           },
         });

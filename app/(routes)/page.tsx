@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { getCategoriesWithMeta } from "@/actions/get-categories";
 import Hero from "./_components/hero";
 import Categories from "./_components/categories";
