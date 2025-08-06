@@ -6,7 +6,7 @@ import {
   isValidUUID,
   generateRandomDuration,
   mapResources,
-} from "@/lib/lessonUtils";
+} from "@/utils/lessonUtils";
 
 export async function getLessonById(
   lessonId: string,

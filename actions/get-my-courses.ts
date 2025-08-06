@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import type { MyCourseCardProps } from "@/types/course";
+import { categoryStyles } from "@/utils/categoryStyles";
+import { getCourseProgress } from "@/utils/courseProgress";
 
 export async function getMyCourses(): Promise<MyCourseCardProps[]> {
   const supabase = createClient();
@@ -12,9 +14,7 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
     error: authError,
   } = await (await supabase).auth.getUser();
 
-  console.log("USER FROM SUPABASE:", user?.id || "No user");
   if (authError || !user?.id) {
-    console.error("Authentication error:", authError?.message || "No user");
     redirect("/login");
   }
 
@@ -23,9 +23,7 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
     select: { id: true },
   });
 
-  console.log("PROFILE FROM PRISMA:", profile || "No profile");
   if (!profile) {
-    console.error("Profile not found for user:", user.id);
     redirect("/login");
   }
 
@@ -46,53 +44,16 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
     },
   });
 
-  console.log("PURCHASES:", purchases.length, purchases);
-
   if (!purchases.length) {
-    console.log("No purchases found for student:", profile.id);
     return [];
   }
 
   const courseData: MyCourseCardProps[] = await Promise.all(
     purchases.map(async ({ courseId, course }) => {
-      const [completedLessons, totalLessons] = await Promise.all([
-        prisma.progress.count({
-          where: {
-            studentId: profile.id,
-            lessons: { modules: { courseId } },
-            isCompleted: true,
-          },
-        }),
-        prisma.lessons.count({
-          where: { modules: { courseId } },
-        }),
-      ]);
-
-      const progress = totalLessons
-        ? Math.round((completedLessons / totalLessons) * 100)
-        : 0;
-      const isCompleted = completedLessons === totalLessons;
+      const { completedLessons, totalLessons, progress, isCompleted } =
+        await getCourseProgress(courseId, profile.id);
 
       const category = course?.category?.name || "Other";
-      const categoryStyles: Record<
-        string,
-        { bgColor: string; textColor: string }
-      > = {
-        "Data Science": {
-          bgColor: "bg-blue-600/25",
-          textColor: "text-blue-600",
-        },
-        "WhatsApp Chatbots": {
-          bgColor: "bg-purple-500/25",
-          textColor: "text-purple-500",
-        },
-        "AI Calling": {
-          bgColor: "bg-green-500/25",
-          textColor: "text-green-500",
-        },
-        Other: { bgColor: "bg-gray-500/25", textColor: "text-gray-500" },
-      };
-
       const styles = categoryStyles[category] || categoryStyles.Other;
 
       return {
@@ -111,6 +72,5 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
     })
   );
 
-  console.log("FINAL COURSE DATA:", courseData);
   return courseData;
 }
