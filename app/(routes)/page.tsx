@@ -1,5 +1,3 @@
-// app/page.tsx or wherever your homepage is
-
 import { getCategoriesWithMeta } from "@/actions/get-categories";
 import Hero from "./_components/hero";
 import Categories from "./_components/categories";
