@@ -4,8 +4,8 @@ import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import type { MyCourseCardProps } from "@/types/course";
-import { categoryStyles } from "@/utils/categoryStyles";
-import { getCourseProgress } from "@/utils/courseProgress";
+import { categoryStyles } from "@/utils/category-styles";
+import { getCourseProgress } from "@/utils/course-progress";
 
 export async function getMyCourses(): Promise<MyCourseCardProps[]> {
   const supabase = createClient();
