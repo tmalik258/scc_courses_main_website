@@ -4,18 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { getDashboardData } from "@/actions/dashboard";
+import { DashboardData } from "@/types/dashboard";
 
 export function useDashboardData() {
   const supabase = createClient();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<{
-    ongoingCount: number;
-    completedCount: number;
-    certificateCount: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    courses: any[];
-  } | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
