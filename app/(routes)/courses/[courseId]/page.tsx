@@ -68,7 +68,11 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
           setError("Course not found");
         }
 
-        setReviews(testimonialsData);
+        const filteredTestimonials = testimonialsData.filter(
+          (t) => t.courseId === courseId
+        );
+        setReviews(filteredTestimonials);
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("Failed to load course data");

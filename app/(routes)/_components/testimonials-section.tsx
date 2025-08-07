@@ -9,19 +9,13 @@ export default function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState<TestimonialType[]>([]);
 
   useEffect(() => {
-    async function fetchTestimonials() {
+    async function fetchData() {
       const data = await getTestimonials();
-
-      // Add courseId default manually here
-      const dataWithCourseId: TestimonialType[] = data.map((t) => ({
-        ...t,
-        courseId: "", // or get courseId from context/props if possible
-      }));
-
-      setTestimonials(dataWithCourseId);
+      const limited = data.slice(0, 6); // ✅ get only 6 testimonials
+      setTestimonials(limited);
     }
 
-    fetchTestimonials();
+    fetchData();
   }, []);
 
   return (
@@ -32,7 +26,7 @@ export default function TestimonialsSection() {
             What Our Students Say
           </h2>
           <p className="text-gray-600 max-w-2xl">
-            See how our courses have changed careers and yours could be next
+            See how our courses have changed careers — and yours could be next.
           </p>
         </div>
 
