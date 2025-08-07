@@ -3,23 +3,22 @@
 import { useEffect, useState } from "react";
 import { TestimonialSlider } from "./testimonials-slider";
 import { getTestimonials } from "@/actions/get-testimonials";
-
-type Testimonial = {
-  id: string;
-  name: string;
-  title: string;
-  rating: number;
-  review: string;
-  avatar: string;
-};
+import { TestimonialType } from "@/types/testimonial";
 
 export default function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonials, setTestimonials] = useState<TestimonialType[]>([]);
 
   useEffect(() => {
     async function fetchTestimonials() {
       const data = await getTestimonials();
-      setTestimonials(data);
+
+      // Add courseId default manually here
+      const dataWithCourseId: TestimonialType[] = data.map((t) => ({
+        ...t,
+        courseId: "", // or get courseId from context/props if possible
+      }));
+
+      setTestimonials(dataWithCourseId);
     }
 
     fetchTestimonials();

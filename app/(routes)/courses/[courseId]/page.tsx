@@ -24,27 +24,19 @@ import { getTestimonials } from "@/actions/get-testimonials";
 import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
 import { createClient } from "@/utils/supabase/client";
-import { LumaSpin } from "@/components/luma-spin";
-import { DashedSpinner } from "@/components/dashed-spinner";
-import { fetchImage } from "@/utils/supabase/fetchImage";
 
-const CourseDetail = ({
-  params,
-}: {
-  params: Promise<{ courseId: string }>;
-}) => {
+const CourseDetail = ({ params }: { params: { courseId: string } }) => {
+  const courseId = params.courseId;
+
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [expandedSections, setExpandedSections] = useState<string[]>(["1"]);
   const [course, setCourse] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<TestimonialType[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [imageLoading, setImageLoading] = useState<boolean>(true);
   const router = useRouter();
-  const { courseId } = React.use(params);
 
   useEffect(() => {
     const getUser = async () => {
@@ -72,9 +64,6 @@ const CourseDetail = ({
 
         if (courseData) {
           setCourse(courseData);
-          if (courseData.sections.length > 0) {
-            setExpandedSections([courseData.sections[0].id]);
-          }
         } else {
           setError("Course not found");
         }
@@ -91,56 +80,75 @@ const CourseDetail = ({
     fetchCourseAndTestimonials();
   }, [courseId]);
 
-  useEffect(() => {
-    const loadImage = async () => {
-      console.log(`[CourseDetail ${courseId}] Loading image:`, {
-        thumbnail_url: course?.thumbnail_url,
-        image: course?.image,
-        isEmpty: !course?.thumbnail_url && !course?.image,
-      });
-      setImageLoading(true);
-      try {
-        const imageSource = course?.thumbnail_url || course?.image;
-        if (imageSource && imageSource.trim() !== "") {
-          const url = await fetchImage(imageSource);
-          if (!url || typeof url !== "string") {
-            throw new Error("fetchImage returned invalid or no URL");
-          }
-          console.log(
-            `[CourseDetail ${courseId}] Image fetched successfully:`,
-            url
-          );
-          setImageUrl(url);
-        } else {
-          console.warn(
-            `[CourseDetail ${courseId}] No valid image provided, using placeholder`
-          );
-          setImageUrl("/images/course_placeholder.jpg");
-        }
-      } catch (err) {
-        console.error(`[CourseDetail ${courseId}] Error fetching image:`, err);
-        setImageUrl("/images/course_placeholder.jpg");
-      } finally {
-        setImageLoading(false);
-      }
-    };
+  const learningPoints = [
+    "Understand the fundamentals of automation and APIs",
+    "Work with HTTP requests, JSON data, and third-party APIs",
+  ];
 
-    if (course) {
-      loadImage();
-    }
-  }, [course, courseId]);
+  const courseFeatures = [
+    { icon: Play, label: "32 Videos" },
+    { icon: Download, label: "40 Downloadable Materials" },
+    { icon: Clock, label: course?.duration || "20 Hours Duration" },
+    { icon: FileText, label: "8 Articles" },
+    { icon: FolderOpen, label: "20 Projects" },
+    { icon: TestTube, label: "10 Practice Test" },
+  ];
+
+  const courseSections = [
+    {
+      id: "1",
+      title: "Introduction to Automation",
+      lessons: [
+        {
+          id: "what-is-automation",
+          title: "What is Automation and Why It Matters",
+          completed: false,
+          locked: false,
+          duration: "10:03",
+          content: "Introduction to automation concepts.",
+          video_url: "https://example.com/video1.mp4",
+          is_free: true,
+          resources: [],
+        },
+        {
+          id: "real-world-cases",
+          title: "Real-World Use Cases of Automation",
+          completed: false,
+          locked: false,
+          duration: "12:03",
+          content: "Explore practical automation use cases.",
+          video_url: "https://example.com/video2.mp4",
+          is_free: true,
+          resources: [],
+        },
+        {
+          id: "intro-apis",
+          title: "Introduction to APIs and How They Work",
+          completed: false,
+          locked: true,
+          duration: "20:03",
+          content: "Deep dive into APIs.",
+          video_url: "https://example.com/video3.mp4",
+          is_free: false,
+          resources: [],
+        },
+      ],
+    },
+  ];
+
+  const instructors = [
+    {
+      name: course?.mentor || "Amit Sharma",
+      title: "Software Engineer & Automation Expert",
+      image: "/images/instructor_placeholder_2.jpg",
+    },
+  ];
 
   const handleGetStarted = () => {
-    console.log(
-      `[CourseDetail ${courseId}] Navigating to: /courses/${courseId}/lessons/1`
-    );
     router.push(`/courses/${courseId}/lessons/1`);
   };
 
   const handleLessonClick = (lessonId: string) => {
-    console.log(
-      `[CourseDetail ${courseId}] Navigating to lesson: /courses/${courseId}/lessons/${lessonId}`
-    );
     router.push(`/courses/${courseId}/lessons/${lessonId}`);
   };
 
@@ -148,15 +156,15 @@ const CourseDetail = ({
     setExpandedSections((prev) =>
       prev.includes(sectionId)
         ? prev.filter((id) => id !== sectionId)
-        : [...prev, sectionId]
+        : [sectionId]
     );
   };
 
+  const currentLesson = "what-is-automation";
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <LumaSpin />
-      </div>
+      <div className="text-gray-500 text-center py-12">Loading course...</div>
     );
   }
 
@@ -169,12 +177,11 @@ const CourseDetail = ({
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white">
       <CourseBreadcrumb courseId={courseId} />
 
-      <div className="max-w-7xl mx-auto p-4 md:p-6 flex-1">
+      <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT SIDE */}
           <div className="lg:col-span-2 max-md:order-2">
             <CourseInfo courseId={courseId} />
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -200,7 +207,7 @@ const CourseDetail = ({
                           What You&apos;ll Learn
                         </h4>
                         <ul className="space-y-2">
-                          {course.learningPoints.map((point, i) => (
+                          {learningPoints.map((point, i) => (
                             <li key={i} className="flex items-start space-x-3">
                               <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                               <span className="text-gray-600">{point}</span>
@@ -218,35 +225,14 @@ const CourseDetail = ({
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
                     Course Lessons
                   </h3>
-
-                  {course.sections && (
-                    <LessonList
-                      isPaid={false}
-                      sections={course.sections.map((section) => ({
-                        id: section.id,
-                        title: section.title,
-                        lessons: section.lessons.map((lesson) => ({
-                          id: lesson.id,
-                          title: lesson.title,
-                          completed: lesson.completed ?? false,
-                          locked: lesson.locked ?? true,
-                          duration: lesson.duration,
-                          content: lesson.content,
-                          video_url: lesson.video_url,
-                          is_free: lesson.is_free ?? false,
-                          resources: lesson.resources ?? [],
-                        })),
-                      }))}
-                      expandedSections={expandedSections}
-                      currentLesson={
-                        course.sections[0]?.lessons[0]?.id
-                          ? course.sections[0].lessons[0].id
-                          : ""
-                      }
-                      onToggleSection={toggleSection}
-                      onLessonClick={handleLessonClick}
-                    />
-                  )}
+                  <LessonList
+                    isPaid={false}
+                    sections={courseSections}
+                    expandedSections={expandedSections}
+                    currentLesson={currentLesson}
+                    onToggleSection={toggleSection}
+                    onLessonClick={handleLessonClick}
+                  />
                 </div>
               )}
 
@@ -255,27 +241,28 @@ const CourseDetail = ({
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
                     Instructors
                   </h3>
-                  <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                    <Image
-                      width={64}
-                      height={64}
-                      src={
-                        course.instructor?.avatarUrl ||
-                        "/images/instructor_placeholder_2.jpg"
-                      }
-                      alt={course.mentor}
-                      className="w-16 h-16 rounded-sm object-cover"
-                    />
-                    <div>
-                      <h4 className="font-medium text-gray-800">
-                        {course.mentor}
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        {course.instructor?.bio ||
-                          "Software Engineer & Automation Expert"}
-                      </p>
+                  {instructors.map((instructor) => (
+                    <div
+                      key={instructor.name}
+                      className="flex items-center space-x-4 p-4 border rounded-lg"
+                    >
+                      <Image
+                        width={64}
+                        height={64}
+                        src={instructor.image}
+                        alt={instructor.name}
+                        className="w-16 h-16 rounded-sm object-cover"
+                      />
+                      <div>
+                        <h4 className="font-medium text-gray-800">
+                          {instructor.name}
+                        </h4>
+                        <p className="text-gray-600 text-sm">
+                          {instructor.title}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               )}
 
@@ -296,31 +283,16 @@ const CourseDetail = ({
             </div>
           </div>
 
-          {/* RIGHT SIDE */}
           <div className="lg:col-span-1 max-md:order-1">
             <div className="flex md:flex-col gap-3 md:gap-6 relative">
               <div>
-                {imageLoading ? (
-                  <div className="w-32 md:w-full h-40 md:h-48 flex items-center justify-center">
-                    <DashedSpinner size={24} />
-                  </div>
-                ) : (
-                  <Image
-                    width={256}
-                    height={192}
-                    src={imageUrl || "/images/course_placeholder.jpg"}
-                    alt={course.title}
-                    className="w-32 md:w-full h-40 md:h-48 object-cover rounded-lg"
-                    onError={(e) => {
-                      console.error(
-                        `[CourseDetail ${courseId}] Image failed to load:`,
-                        imageUrl
-                      );
-                      setImageUrl("/images/course_placeholder.jpg");
-                      e.currentTarget.src = "/images/course_placeholder.jpg";
-                    }}
-                  />
-                )}
+                <Image
+                  width={350}
+                  height={200}
+                  src={course.image}
+                  alt={course.title}
+                  className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
+                />
               </div>
 
               <div className="max-md:flex max-md:flex-col max-md:justify-between text-right">
@@ -382,23 +354,7 @@ const CourseDetail = ({
                 What You&apos;ll Get
               </h3>
               <div className="space-y-3">
-                {[
-                  { icon: Play, label: `${course.videoCount} Videos` },
-                  {
-                    icon: Download,
-                    label: `${course.downloadableResources} Downloadable Materials`,
-                  },
-                  { icon: Clock, label: course.duration || "Unknown Duration" },
-                  { icon: FileText, label: `${course.articleCount} Articles` },
-                  {
-                    icon: FolderOpen,
-                    label: `${course.projectCount} Projects`,
-                  },
-                  {
-                    icon: TestTube,
-                    label: `${course.practiceTestCount} Practice Tests`,
-                  },
-                ].map((feature, index) => (
+                {courseFeatures.map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <feature.icon className="w-5 h-5 text-gray-500" />
                     <span className="text-gray-600">{feature.label}</span>

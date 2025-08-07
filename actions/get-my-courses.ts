@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import type { MyCourseCardProps } from "@/types/course";
-import { categoryStyles } from "@/utils/category-styles";
+import { randomColorGenerator } from "@/utils/category";
 import { getCourseProgress } from "@/utils/course-progress";
 
 export async function getMyCourses(): Promise<MyCourseCardProps[]> {
@@ -54,13 +54,16 @@ export async function getMyCourses(): Promise<MyCourseCardProps[]> {
         await getCourseProgress(courseId, profile.id);
 
       const category = course?.category?.name || "Other";
-      const styles = categoryStyles[category] || categoryStyles.Other;
+
+      // Get combined bg+text class from randomColorGenerator
+      const color = randomColorGenerator();
+      const [categoryBgColor, categoryTextColor] = color.split(" ");
 
       return {
         id: String(courseId),
         category,
-        categoryBgColor: styles.bgColor,
-        categoryTextColor: styles.textColor,
+        categoryBgColor,
+        categoryTextColor,
         title: course?.title || "Untitled",
         mentor: "Mentor's Name",
         currentLesson: completedLessons,

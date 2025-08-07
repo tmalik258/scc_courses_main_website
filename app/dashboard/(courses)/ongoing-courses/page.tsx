@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { CourseCardProps } from "../_components/course-card";
-import { getCategoryColors } from "@/lib/course-utils";
+import { randomColorGenerator } from "@/utils/category";
 
 export default async function OngoingCourses() {
   const supabase = await createClient();
@@ -83,8 +83,10 @@ export default async function OngoingCourses() {
 
     if (progressPercent < 100) {
       const categoryName = course.category?.name || "Uncategorized";
-      const { bg: categoryBgColor, text: categoryTextColor } =
-        getCategoryColors(categoryName);
+
+      // Use original randomColorGenerator which returns combined classes
+      const color = randomColorGenerator();
+      const [categoryBgColor, categoryTextColor] = color.split(" ");
 
       uniqueCourses.set(course.id, {
         id: course.id,

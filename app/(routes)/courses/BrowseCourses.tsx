@@ -18,6 +18,7 @@ import { ContactForm } from "../_components/contact-form";
 import { CourseFilterTabs } from "../_components/course-filter-tabs";
 import { CourseData } from "@/types/course";
 import { getPopularCourses } from "@/actions/get-courses";
+import { DashedSpinner } from "@/components/dashed-spinner";
 
 export default function BrowseCourses() {
   const router = useRouter();
@@ -269,10 +270,10 @@ export default function BrowseCourses() {
 
               <div className="px-2 md:px-0">
                 {loading ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 text-lg font-manrope">
-                      Loading courses...
-                    </p>
+                  <div className="max-w-7xl mx-auto">
+                    <div className="flex justify-center items-center min-h-[400px]">
+                      <DashedSpinner />
+                    </div>
                   </div>
                 ) : error ? (
                   <div className="text-center py-12">
