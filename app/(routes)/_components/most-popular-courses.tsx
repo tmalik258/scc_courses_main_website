@@ -1,15 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CourseCard } from "@/components/course/course-card";
 import { CourseFilterTabs } from "./course-filter-tabs";
 import { usePopularCourses, useFilteredCourses } from "@/hooks/use-courses";
 import { DashedSpinner } from "@/components/dashed-spinner";
+import { randomColorGenerator } from "@/utils/category";
 
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");
   const { courses, loading, error, refetch } = usePopularCourses();
   const filteredCourses = useFilteredCourses(courses, activeFilter);
+
+  // Store color map: course ID => { bg, text }
+  const [courseColors, setCourseColors] = useState<
+    Record<string, { bg: string; text: string }>
+  >({});
+
+  useEffect(() => {
+    if (filteredCourses.length === 0) return;
+
+    // Generate colors only once per course
+    const newColors: Record<string, { bg: string; text: string }> = {};
+    filteredCourses.forEach((course) => {
+      if (!courseColors[course.id]) {
+        const color = randomColorGenerator();
+        const [bg, text] = color.split(" ");
+        newColors[course.id] = { bg, text };
+      }
+    });
+
+    if (Object.keys(newColors).length > 0) {
+      setCourseColors((prev) => ({ ...prev, ...newColors }));
+    }
+  }, [filteredCourses, courseColors]);
 
   if (loading) {
     return (
@@ -93,24 +117,30 @@ export default function MostPopularCourses() {
 
         {/* Grid layout for 8 courses - 2 rows of 4 on large screens */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              id={course.id}
-              category={course.category}
-              categoryTextColor={course.categoryTextColor}
-              categoryBgColor={course.categoryBgColor}
-              title={course.title}
-              mentor={course.mentor}
-              students={course.students}
-              rating={course.rating}
-              price={course.price}
-              image={course.thumbnail_url}
-              originalPrice={course.originalPrice}
-              discountedPrice={course.discountedPrice}
-              discount={course.discount}
-            />
-          ))}
+          {filteredCourses.map((course) => {
+            const colors = courseColors[course.id] || {
+              bg: "bg-gray-100/50",
+              text: "text-gray-700",
+            };
+            return (
+              <CourseCard
+                key={course.id}
+                id={course.id}
+                category={course.category}
+                categoryBgColor={colors.bg}
+                categoryTextColor={colors.text}
+                title={course.title}
+                mentor={course.mentor}
+                students={course.students}
+                rating={course.rating}
+                price={course.price}
+                image={course.thumbnail_url}
+                originalPrice={course.originalPrice}
+                discountedPrice={course.discountedPrice}
+                discount={course.discount}
+              />
+            );
+          })}
         </div>
 
         {filteredCourses.length === 0 && activeFilter !== "All" && (

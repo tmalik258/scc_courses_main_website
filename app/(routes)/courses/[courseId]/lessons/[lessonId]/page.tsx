@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-duplicate-props */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -11,7 +12,7 @@ import { CourseSidebar } from "./_components/course-sidebar";
 import { getLessonById, getCourseLessons } from "@/actions/get-lessons";
 import { SectionData, LessonData } from "../../../../../../types/lesson";
 import Link from "next/link";
-import { LearningProgress } from "./_components/learning-progress";
+import { LumaSpin } from "@/components/luma-spin";
 
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
@@ -229,20 +230,22 @@ export default function LessonPage() {
 
   if (loading) {
     return (
-      <div className="text-gray-600 text-center py-8">Loading lesson...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center w-full">
+        <LumaSpin />
+      </div>
     );
   }
 
   if (error || !currentLesson) {
     return (
-      <div className="text-red-600 text-center py-8">
+      <div className="min-h-screen flex flex-col items-center justify-center w-full text-red-600">
         Error: {error ?? "Lesson data not found"}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center text-sm text-gray-600">
@@ -264,7 +267,7 @@ export default function LessonPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-2 md:p-6">
+      <div className="max-w-7xl mx-auto p-2 md:p-6 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
             {isPaidLesson ? (
@@ -306,12 +309,6 @@ export default function LessonPage() {
           </div>
 
           <div className="space-y-4">
-            <LearningProgress
-              isPaid={isPaid}
-              handleJoinCourse={handleJoinCourse}
-              totalLessons={totalLessons}
-              completedLessons={completedLessons}
-            />
             <CourseSidebar
               isPaid={isPaid}
               activeTab={sidebarActiveTab}
@@ -325,6 +322,14 @@ export default function LessonPage() {
               courseId={courseId}
               totalLessons={totalLessons}
               completedLessons={completedLessons}
+              resources={sections
+                .flatMap((section) =>
+                  section.lessons.flatMap((lesson) => lesson.resources)
+                )
+                .map((resource) => ({
+                  name: resource.name,
+                  signedUrl: resource.url,
+                }))}
             />
           </div>
         </div>

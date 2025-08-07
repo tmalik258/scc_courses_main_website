@@ -1,15 +1,8 @@
-import prisma from "@/lib/prisma";
+// actions/categories.ts
+import { fetchCategoriesWithCourses } from "@/app/api/categories/route";
 
 export const getCategoriesWithMeta = async () => {
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    include: {
-      courses: {
-        where: { isPublished: true },
-        select: { price: true },
-      },
-    },
-  });
+  const categories = await fetchCategoriesWithCourses();
 
   return categories.map((category) => {
     const courseCount = category.courses.length;

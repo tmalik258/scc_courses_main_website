@@ -1,4 +1,3 @@
-// types/testimonial.ts
 export interface TestimonialType {
   id: string;
   name: string;
@@ -6,4 +5,5 @@ export interface TestimonialType {
   rating: number;
   review: string;
   avatar: string;
+  courseId: string;
 }

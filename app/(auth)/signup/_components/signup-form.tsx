@@ -71,7 +71,7 @@ export function SignupForm() {
     }
     if (result?.success) {
       toast.success(result.success);
-      redirect("/login")
+      redirect("/login");
     }
   };
 
@@ -219,7 +219,13 @@ export function SignupForm() {
             className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 max-md:text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? <><DashedSpinner invert={true} /> Signing up</> : "Sign up"}
+            {form.formState.isSubmitting ? (
+              <>
+                <DashedSpinner invert={true} /> Signing up
+              </>
+            ) : (
+              "Sign up"
+            )}
           </Button>
 
           {/* Divider */}

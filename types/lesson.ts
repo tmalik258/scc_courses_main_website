@@ -1,3 +1,4 @@
+// lesson.ts
 export interface LessonData {
   id: string;
   title: string;
@@ -7,7 +8,7 @@ export interface LessonData {
   completed: boolean;
   locked: boolean;
   duration: string;
-  resources: { id: string; name: string; url: string }[];
+  resources: { id?: string; name: string; url: string }[];
 }
 
 export interface SectionData {

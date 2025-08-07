@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
 import { Bookmark, Users, Star } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
+import { DashedSpinner } from "@/components/dashed-spinner";
+import { fetchImage } from "@/utils/supabase/fetchImage";
 
 interface SavedCourseCardProps {
   id: string;
@@ -21,46 +24,88 @@ interface SavedCourseCardProps {
 }
 
 export function SavedCourseCard(props: SavedCourseCardProps) {
-  const [isSaved, setIsSaved] = useState<boolean>(props.isSaved ?? false);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
   const supabase = createClient();
 
   useEffect(() => {
     const fetchUserAndStatus = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (!error && data.user) {
-        const uid = data.user.id;
-        setUserId(uid);
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase.auth.getUser();
+        if (!error && data.user) {
+          const uid = data.user.id;
+          setUserId(uid);
 
-        const res = await fetch("/api/saved-courses", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: uid }),
-        });
+          const res = await fetch("/api/saved-courses", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: uid }),
+          });
 
-        const savedData = await res.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const savedCourseIds = savedData?.courses?.map((c: any) => c.id) || [];
+          if (!res.ok) {
+            console.error("Error fetching saved courses:", res.statusText);
+            return;
+          }
 
-        setIsSaved(savedCourseIds.includes(props.id));
+          const savedData = await res.json();
+          const savedCourseIds =
+            savedData?.courses?.map((c: any) => c.id) || [];
+          setIsSaved(savedCourseIds.includes(props.id));
+        }
+      } catch (err) {
+        console.error("Error in fetchUserAndStatus:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUserAndStatus();
   }, [props.id, supabase]);
 
+  useEffect(() => {
+    const loadImage = async () => {
+      if (props.image && !imageUrl) {
+        setImageLoading(true);
+        try {
+          const url = await fetchImage(props.image);
+          setImageUrl(url);
+        } catch (err) {
+          console.error("Error fetching image:", err);
+          setImageUrl("/placeholder.svg");
+        } finally {
+          setImageLoading(false);
+        }
+      } else if (!props.image) {
+        setImageUrl("/placeholder.svg");
+        setImageLoading(false);
+      }
+    };
+
+    loadImage();
+  }, [props.image, imageUrl]);
+
   const handleBookmarkToggle = async () => {
     if (!userId) return;
 
-    const res = await fetch("/api/toggle-save-course", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ courseId: props.id, userId }),
-    });
+    try {
+      const res = await fetch("/api/toggle-save-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId: props.id, userId }),
+      });
 
-    const data = await res.json();
-    if (data?.success) {
-      setIsSaved(data.saved);
+      const data = await res.json();
+      if (data?.success) {
+        setIsSaved(data.saved);
+      } else {
+        console.error("Error toggling bookmark:", data.error);
+      }
+    } catch (err) {
+      console.error("Error in handleBookmarkToggle:", err);
     }
   };
 
@@ -68,13 +113,20 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
     <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-6 relative">
       <div className="flex max-md:flex-wrap md:items-start max-md:gap-3 md:space-x-6">
         <div className="flex-shrink-0">
-          <Image
-            src={props.image || "/placeholder.svg"}
-            alt={props.title}
-            width={200}
-            height={120}
-            className="w-24 md:w-48 h-28 object-cover rounded-lg"
-          />
+          {imageLoading ? (
+            <div className="w-32 md:w-64 h-40 md:h-48 flex items-center justify-center">
+              <DashedSpinner size={24} />
+            </div>
+          ) : (
+            <Image
+              src={imageUrl || "/placeholder.svg"}
+              alt={props.title}
+              width={256}
+              height={192}
+              decoding="async"
+              className="w-32 md:w-64 h-40 md:h-48 object-cover rounded-lg"
+            />
+          )}
         </div>
 
         <div className="flex-1">
@@ -112,24 +164,51 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
           </div>
         </div>
 
-        {/* Bookmark button + label */}
         <div className="flex-shrink-0 max-md:absolute max-md:top-4 max-md:left-4 flex flex-col items-center gap-1">
           <button
             onClick={handleBookmarkToggle}
+            disabled={isLoading || !userId}
             className={`p-1 md:p-2 rounded md:rounded-lg transition-colors ${
               isSaved
                 ? "text-aqua-depth bg-sky-50"
                 : "text-gray-400 hover:text-aqua-depth hover:bg-sky-50"
-            }`}
+            } ${isLoading || !userId ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            <Bookmark
-              className={`w-4 h-4 md:w-6 md:h-6 ${
-                isSaved ? "fill-current" : ""
-              }`}
-            />
+            {isLoading ? (
+              <svg
+                className="animate-spin h-4 w-4 md:h-6 md:w-6 text-aqua-depth"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : (
+              <Bookmark
+                className={`w-4 h-4 md:w-6 md:h-6 ${
+                  isSaved ? "fill-current" : ""
+                }`}
+              />
+            )}
           </button>
           <span className="text-xs text-gray-600">
-            {isSaved ? "Remove from favourites" : "Add to favourites"}
+            {isLoading
+              ? "Loading..."
+              : isSaved
+              ? "Remove from favourites"
+              : "Add to favourites"}
           </span>
         </div>
 

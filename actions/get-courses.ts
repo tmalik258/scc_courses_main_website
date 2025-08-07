@@ -117,8 +117,8 @@ function transformCourse(course: CourseWithRelations): CourseData {
     videoCount,
     articleCount,
     downloadableResources,
-    projectCount: 0, // Placeholder; update if projects are stored
-    practiceTestCount: 0, // Placeholder; update if tests are stored
+    projectCount: 0,
+    practiceTestCount: 0,
     learningPoints,
     sections: course.modules.map((module) => ({
       id: module.id,
@@ -126,23 +126,25 @@ function transformCourse(course: CourseWithRelations): CourseData {
       lessons: module.lessons.map((lesson) => ({
         id: lesson.id,
         title: lesson.title,
-        completed: false, // Fetch from Progress if needed
+        completed: false,
         locked: !lesson.is_free,
-        duration: "0:00", // Placeholder; update if lesson duration is stored
+        duration: "0:00",
         content: lesson.content,
         video_url: lesson.video_url,
         is_free: lesson.is_free,
-        resources: [], // Resources are course-level, not lesson-specific
+        resources: [],
       })),
     })),
     reviews: course.reviews.map((review) => ({
       id: review.id,
-      name: "", // Fetch from Profile if needed
-      title: "Student", // Placeholder
+      name: "",
+      title: "Student",
       rating: review.rating,
       review: review.comment ?? "",
-      avatar: "/images/avatar_placeholder.jpg", // Placeholder
+      avatar: "/images/avatar_placeholder.jpg",
     })),
+    progress: undefined,
+    currentLesson: undefined,
   };
 }
 

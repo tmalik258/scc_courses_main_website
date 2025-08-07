@@ -1,4 +1,3 @@
-// lib/get-user-profile.ts
 import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 

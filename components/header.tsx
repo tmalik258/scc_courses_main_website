@@ -23,7 +23,7 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { signout } from "@/actions/auth";
+// import { signout } from "@/actions/auth";
 
 const Header = () => {
   const router = useRouter();
@@ -86,6 +86,16 @@ const Header = () => {
       href: "/dashboard/payments",
     },
   ];
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      window.location.href = "/signup";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <>
@@ -182,7 +192,10 @@ const Header = () => {
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600" onClick={signout}>
+                <DropdownMenuItem
+                  className="text-red-600"
+                  onClick={handleLogout}
+                >
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>

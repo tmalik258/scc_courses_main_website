@@ -1,76 +1,19 @@
+// components/payment-page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePayments } from "@/hooks/use-payments";
 import { PaymentCard } from "./_components/payment-card";
-import { getUserPayments } from "@/actions/get-payments";
-import { createClient } from "@/utils/supabase/client";
+import { LumaSpin } from "@/components/luma-spin";
 
 export default function PaymentPage() {
-  const [activeTab, setActiveTab] = useState("All");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [allPayments, setAllPayments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPayments() {
-      setLoading(true);
-
-      const supabase = createClient(); // ✅ Use browser-safe Supabase client
-
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      console.log("Fetched user:", user);
-
-      if (error) {
-        console.error("Error fetching user:", error);
-        setLoading(false);
-        return;
-      }
-
-      if (!user || !user.id) {
-        console.warn("No user logged in or missing ID");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const payments = await getUserPayments(user.id);
-        console.log("Fetched payments:", payments);
-        setAllPayments(payments);
-      } catch (fetchErr) {
-        console.error("Error fetching user payments:", fetchErr);
-      }
-
-      setLoading(false);
-    }
-
-    fetchPayments();
-  }, []);
-
-  const getFilteredPayments = () => {
-    switch (activeTab) {
-      case "Pending":
-        return allPayments.filter((payment) => payment.status === "pending");
-      case "Success":
-        return allPayments.filter((payment) => payment.status === "success");
-      case "Failed":
-        return allPayments.filter((payment) => payment.status === "failed");
-      default:
-        return allPayments;
-    }
-  };
-
-  const filteredPayments = getFilteredPayments();
+  const { activeTab, setActiveTab, filteredPayments, loading } = usePayments();
 
   return (
     <div>
       {/* Tabs */}
       <div className="mb-8">
         <div className="flex space-x-8 border-b border-gray-200">
-          {["All", "Pending", "Success", "Failed"].map((tab) => (
+          {(["All", "Pending", "Success", "Failed"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -89,7 +32,9 @@ export default function PaymentPage() {
       {/* Content */}
       <div className="space-y-6">
         {loading ? (
-          <p>Loading payments...</p>
+          <div className="flex items-center justify-center h-full w-full mt-[200px]">
+            <LumaSpin />
+          </div>
         ) : (
           filteredPayments.map((payment) => (
             <PaymentCard key={payment.id} {...payment} />

@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CourseData {
+  progress: any;
+  currentLesson: any;
+  instructor?: any;
   id: string;
   title: string;
   category: string;
@@ -49,7 +53,7 @@ export interface CourseData {
 }
 
 export interface MyCourseCardProps {
-  id: string | number;
+  id: string;
   category: string;
   categoryBgColor: string;
   categoryTextColor: string;
@@ -62,27 +66,9 @@ export interface MyCourseCardProps {
   status: "active" | "finished";
 }
 
-export interface CourseFilters {
-  category?: string;
-  priceRange?: {
-    min: number;
-    max: number;
-  };
-  rating?: number;
-  search?: string;
-}
+export type CategoryColors = {
+  bg: string;
+  text: string;
+};
 
-export interface SavedCourseCardProps {
-  id: string;
-  category: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
-  title: string;
-  mentor: string;
-  students: string;
-  rating: string;
-  originalPrice: string;
-  discountedPrice: string;
-  image: string;
-  isSaved?: boolean;
-}
+export type CategoryColorMap = Record<string, CategoryColors>;

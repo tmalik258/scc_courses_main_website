@@ -5,6 +5,8 @@ import MostPopularCourses from "./_components/most-popular-courses";
 import TestimonialsSection from "./_components/testimonials-section";
 import { InstructorSection } from "./_components/instructor-sections";
 import ConsultancyContact from "./_components/consultancy-contact";
+import { DashedSpinner } from "@/components/dashed-spinner";
+import { Suspense } from "react";
 
 export default async function HomePage() {
   const categories = await getCategoriesWithMeta();
@@ -20,7 +22,19 @@ export default async function HomePage() {
       </section>
 
       <section id="most-popular-courses">
-        <MostPopularCourses />
+        <Suspense
+          fallback={
+            <div className="bg-aqua-mist px-2 md:px-6 py-12">
+              <div className="max-w-7xl mx-auto">
+                <div className="flex justify-center items-center min-h-[400px]">
+                  <DashedSpinner />
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <MostPopularCourses />
+        </Suspense>
       </section>
 
       <section id="testimonials">

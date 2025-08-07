@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Check,
   Play,
@@ -23,13 +23,11 @@ import { getCourseById } from "@/actions/get-courses";
 import { getTestimonials } from "@/actions/get-testimonials";
 import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
-import { createClient } from "@/utils/supabase/client"; // ✅ NEW
+import { createClient } from "@/utils/supabase/client";
 
-const CourseDetail = ({
-  params,
-}: {
-  params: Promise<{ courseId: string }>;
-}) => {
+const CourseDetail = ({ params }: { params: { courseId: string } }) => {
+  const courseId = params.courseId;
+
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>(["1"]);
@@ -37,9 +35,8 @@ const CourseDetail = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<TestimonialType[]>([]);
-  const [userId, setUserId] = useState<string | null>(null); // ✅ NEW
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
-  const { courseId } = use(params);
 
   useEffect(() => {
     const getUser = async () => {
@@ -71,7 +68,11 @@ const CourseDetail = ({
           setError("Course not found");
         }
 
-        setReviews(testimonialsData);
+        const filteredTestimonials = testimonialsData.filter(
+          (t) => t.courseId === courseId
+        );
+        setReviews(filteredTestimonials);
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("Failed to load course data");

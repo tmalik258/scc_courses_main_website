@@ -1,22 +1,29 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Download, CheckCircle } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Download, CheckCircle } from "lucide-react";
 
 interface InvoiceDetailProps {
-  id: string
-  paymentDate: string
-  paymentMethod: string
-  totalPayment: string
-  category: string
-  product: string
+  id: string;
+  paymentDate: string;
+  paymentMethod: string;
+  totalPayment: string;
+  category: string;
+  product: string;
 }
 
-export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, category, product }: InvoiceDetailProps) {
+export function InvoiceDetail({
+  id,
+  paymentDate,
+  paymentMethod,
+  totalPayment,
+  category,
+  product,
+}: InvoiceDetailProps) {
   const handleDownloadInvoice = () => {
     // Handle invoice download
-    console.log("Downloading invoice for:", id)
-  }
+    console.log("Downloading invoice for:", id);
+  };
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-8 max-w-2xl mx-auto">
@@ -37,16 +44,24 @@ export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, ca
         {/* Left Column */}
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Payment Date</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Payment Date
+            </h3>
             <p className="text-gray-800">{paymentDate}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Payment Method</h3>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Payment Method
+            </h3>
             <p className="text-gray-800">{paymentMethod}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">Total Payment</h3>
-            <p className="text-lg font-semibold text-gray-800">{totalPayment}</p>
+            <h3 className="text-sm font-medium text-gray-600 mb-1">
+              Total Payment
+            </h3>
+            <p className="text-lg font-semibold text-gray-800">
+              {totalPayment}
+            </p>
           </div>
         </div>
 
@@ -74,5 +89,5 @@ export function InvoiceDetail({ id, paymentDate, paymentMethod, totalPayment, ca
         </Button>
       </div>
     </div>
-  )
+  );
 }
