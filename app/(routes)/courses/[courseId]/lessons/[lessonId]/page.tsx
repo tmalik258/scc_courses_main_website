@@ -9,7 +9,7 @@ import { LessonVideo } from "./_components/lesson-video";
 import { LessonNavigation } from "./_components/lesson-navigation";
 import { LessonContent } from "./_components/lesson-content";
 import { CourseSidebar } from "./_components/course-sidebar";
-import { getLessonById, getCourseLessons } from "@/actions/get-lessons";
+import { getLessonById, getCourseLessons } from "@/actions/lessons";
 import { SectionData, LessonData } from "../../../../../../types/lesson";
 import Link from "next/link";
 import { LumaSpin } from "@/components/luma-spin";
@@ -313,7 +313,7 @@ export default function LessonPage() {
               isPaid={isPaid}
               activeTab={sidebarActiveTab}
               onTabChange={setSidebarActiveTab}
-              sections={sections}
+              modules={sections}
               expandedSections={expandedSections}
               currentLesson={currentLesson.id}
               onToggleSection={toggleSection}

@@ -79,25 +79,3 @@ export function useAllCourses(): UseCourses {
     refetch: fetchCourses,
   };
 }
-
-// Hook for filtering courses
-export function useFilteredCourses(
-  courses: CourseData[],
-  activeFilter: string
-) {
-  return activeFilter === "All"
-    ? courses
-    : courses.filter((course) => course.category === activeFilter);
-}
-
-// Hook for course categories
-export function useCourseCategories(courses: CourseData[]) {
-  const categories = courses.reduce((acc: string[], course) => {
-    if (!acc.includes(course.category)) {
-      acc.push(course.category);
-    }
-    return acc;
-  }, []);
-
-  return ["All", ...categories];
-}

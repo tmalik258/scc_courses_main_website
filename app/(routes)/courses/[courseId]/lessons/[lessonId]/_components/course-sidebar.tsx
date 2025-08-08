@@ -7,7 +7,7 @@ interface CourseSidebarProps {
   isPaid: boolean;
   activeTab: string;
   onTabChange: (tab: string) => void;
-  sections: SectionData[];
+  modules: SectionData[];
   expandedSections: string[];
   currentLesson: string;
   onToggleSection: (sectionId: string) => void;
@@ -23,7 +23,7 @@ export function CourseSidebar({
   isPaid,
   activeTab,
   onTabChange,
-  sections,
+  modules,
   expandedSections,
   onToggleSection,
   onLessonClick,
@@ -34,7 +34,7 @@ export function CourseSidebar({
 }: CourseSidebarProps) {
   const isSectionLocked = (index: number): boolean => {
     if (index === 0 || isPaid) return false;
-    const prevSection = sections[index - 1];
+    const prevSection = modules[index - 1];
     return prevSection.lessons.some((lesson) => !lesson.completed);
   };
 
@@ -81,7 +81,7 @@ export function CourseSidebar({
       {/* Lessons View */}
       {activeTab === "lessons" && (
         <div className="space-y-6">
-          {sections.map((section, index) => {
+          {modules.map((section, index) => {
             const sectionLocked = isSectionLocked(index);
             const isExpanded = expandedSections.includes(section.id);
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Users, Star, Clock } from "lucide-react";
 import { CourseData } from "@/types/course";
-import { getCourseById } from "@/actions/get-courses";
+import { getCourseById } from "@/actions/courses";
 import { DashedSpinner } from "@/components/dashed-spinner";
 
 interface CourseInfoProps {
@@ -108,9 +108,9 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
       {/* Category Badge */}
       <div>
         <span
-          className={`${course.categoryBgColor} ${course.categoryTextColor} text-sm px-3 py-1 rounded font-medium`}
+          className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded font-medium"
         >
-          {course.category}
+          {course.category.name}
         </span>
       </div>
 

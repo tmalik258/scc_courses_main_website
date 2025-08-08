@@ -4,7 +4,7 @@ import { SectionData } from "@/types/lesson";
 
 interface LessonListProps {
   isPaid: boolean;
-  sections: SectionData[];
+  modules: SectionData[];
   expandedSections: string[];
   currentLesson: string;
   onToggleSection: (sectionId: string) => void;
@@ -13,7 +13,7 @@ interface LessonListProps {
 
 export function LessonList({
   isPaid,
-  sections,
+  modules,
   expandedSections,
   currentLesson,
   onToggleSection,
@@ -21,7 +21,7 @@ export function LessonList({
 }: LessonListProps) {
   return (
     <div className="space-y-4">
-      {sections.map((section) => (
+      {modules.map((section) => (
         <div key={section.id} className="border rounded-lg">
           <button
             onClick={() => onToggleSection(section.id)}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TestimonialSlider } from "./testimonials-slider";
-import { getTestimonials } from "@/actions/get-testimonials";
+import { getTestimonials } from "@/actions/testimonials";
 import { TestimonialType } from "@/types/testimonial";
 
 export default function TestimonialsSection() {

@@ -1,85 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import CategoryCard from "@/components/course/category-card";
 import Link from "next/link";
-import { JSX } from "react";
-
-// WhatsAppIcon component from the first snippet
-const WhatsappIcon = () => (
-  <svg
-    width="60"
-    height="61"
-    viewBox="0 0 80 81"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M63.4997 16.8667C60.4432 13.7804 56.8031 11.3332 52.7914 9.66789C48.7797 8.00255 44.4766 7.15229 40.133 7.16668C21.933 7.16668 7.09968 22 7.09968 40.2C7.09968 46.0334 8.63301 51.7 11.4997 56.7L6.83301 73.8334L24.333 69.2334C29.1663 71.8667 34.5997 73.2667 40.133 73.2667C58.333 73.2667 73.1664 58.4334 73.1664 40.2334C73.1664 31.4 69.733 23.1 63.4997 16.8667ZM40.133 67.6667C35.1997 67.6667 30.3663 66.3334 26.133 63.8334L25.133 63.2333L14.733 65.9667L17.4997 55.8334L16.833 54.8C14.0915 50.4235 12.6361 45.3643 12.633 40.2C12.633 25.0667 24.9663 12.7334 40.0997 12.7334C47.433 12.7334 54.333 15.6 59.4997 20.8C62.0584 23.3462 64.0861 26.3752 65.4651 29.7111C66.8441 33.0471 67.547 36.6236 67.533 40.2334C67.5997 55.3667 55.2663 67.6667 40.133 67.6667ZM55.1997 47.1334C54.3663 46.7334 50.2997 44.7334 49.5663 44.4334C48.7997 44.1667 48.2663 44.0334 47.6997 44.8334C47.133 45.6667 45.5663 47.5334 45.0997 48.0667C44.633 48.6334 44.133 48.7 43.2997 48.2667C42.4663 47.8667 39.7997 46.9667 36.6663 44.1667C34.1997 41.9667 32.5663 39.2667 32.0663 38.4334C31.5997 37.6 31.9997 37.1667 32.433 36.7334C32.7997 36.3667 33.2663 35.7667 33.6663 35.3C34.0663 34.8334 34.233 34.4667 34.4997 33.9334C34.7663 33.3667 34.633 32.9 34.433 32.5C34.233 32.1 32.5663 28.0334 31.8997 26.3667C31.233 24.7667 30.533 24.9667 30.033 24.9334H28.433C27.8663 24.9334 26.9997 25.1334 26.233 25.9667C25.4997 26.8 23.3663 28.8 23.3663 32.8667C23.3663 36.9334 26.333 40.8667 26.733 41.4C27.133 41.9667 32.5663 50.3 40.833 53.8667C42.7997 54.7334 44.333 55.2334 45.533 55.6C47.4997 56.2334 49.2997 56.1334 50.733 55.9333C52.333 55.7 55.633 53.9334 56.2997 52C56.9997 50.0667 56.9997 48.4334 56.7663 48.0667C56.533 47.7 56.033 47.5334 55.1997 47.1334Z"
-      fill="#2CA00F"
-    />
-  </svg>
-);
-
-// Define the type for categoryStyles
-type CategoryStyle = {
-  iconKey: string;
-  bgColor: string;
-  iconColor: string;
-  image?: string;
-  icon?: JSX.Element;
-};
-
-// Define the type for the categoryStyles object
-type CategoryStyles = {
-  [key in
-    | "AI Calling"
-    | "WhatsApp Chatbots"
-    | "Make Automations"
-    | "App Development"
-    | "Web Development"
-    | "Data Science"]: CategoryStyle;
-};
-
-// Category styles from the first snippet
-const categoryStyles: CategoryStyles = {
-  "AI Calling": {
-    iconKey: "ai_calling",
-    bgColor: "bg-purple-100",
-    iconColor: "text-purple-600",
-    image: "/images/icons/ai_calling.png",
-  },
-  "WhatsApp Chatbots": {
-    iconKey: "whatsapp",
-    bgColor: "bg-green-100",
-    iconColor: "text-green-600",
-    icon: <WhatsappIcon />,
-  },
-  "Make Automations": {
-    iconKey: "make_automations",
-    bgColor: "bg-yellow-100",
-    iconColor: "text-yellow-600",
-    image: "/images/icons/make_automations.png",
-  },
-  "App Development": {
-    iconKey: "app_development",
-    bgColor: "bg-pink-100",
-    iconColor: "text-pink-600",
-    image: "/images/icons/app_development.png",
-  },
-  "Web Development": {
-    iconKey: "web_development",
-    bgColor: "bg-cyan-100",
-    iconColor: "text-aqua-depth",
-    image: "/images/icons/web_development.png",
-  },
-  "Data Science": {
-    iconKey: "data_science",
-    bgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
-    image: "/images/icons/data_science.png",
-  },
-};
 
 type Category = {
   id: string;
@@ -91,15 +13,9 @@ type Category = {
 
 interface Props {
   categories: Category[];
-}
+};
 
 export default function Categories({ categories }: Props) {
-  const router = useRouter();
-
-  const handleClick = (categoryName: string) => {
-    const query = new URLSearchParams({ category: categoryName });
-    router.push(`/courses?${query.toString()}`);
-  };
 
   return (
     <section className="px-6 py-6 md:py-16">
@@ -136,53 +52,11 @@ export default function Categories({ categories }: Props) {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((category) => {
-            const style = categoryStyles[
-              category.name as keyof CategoryStyles
-            ] || {
-              bgColor: "bg-gray-100",
-              iconColor: "text-gray-600",
-              image: "/images/icons/default.png",
-            };
-
             return (
-              <div
+              <CategoryCard
                 key={category.id}
-                onClick={() => handleClick(category.name)}
-                className="bg-white rounded-md p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="flex space-x-4 h-full">
-                  <div
-                    className={`w-20 md:w-24 h-20 md:h-24 ${style.bgColor} rounded-lg flex items-center justify-center`}
-                  >
-                    {style.image ? (
-                      <span>
-                        <Image
-                          src={style.image}
-                          alt={`${category.name} icon`}
-                          width={60}
-                          height={60}
-                          className="w-[60px] h-[60px] object-contain"
-                        />
-                      </span>
-                    ) : (
-                      style.icon && <span>{style.icon}</span>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
-                      {category.name}
-                    </h3>
-                    <p className="text-xs md:text-sm text-gray-500 mb-5 font-manrope">
-                      {category.courseCount}{" "}
-                      {category.courseCount === 1 ? "course" : "courses"}{" "}
-                      available
-                    </p>
-                    <p className="text-sm md:text-base text-aqua-mist font-semibold">
-                      From ₹{category.minPrice}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                category={category}
+              />
             );
           })}
         </div>

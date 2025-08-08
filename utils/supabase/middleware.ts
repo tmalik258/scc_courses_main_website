@@ -39,6 +39,21 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Define private API routes that require authentication
+  const privateApiRoutes = [
+    "/api/dashboard",
+    "/api/my-courses",
+    "/api/saved-courses",
+    "/api/user-profile",
+    "/api/toggle-save-course",
+    "/api/payments",
+    "/api/progress"
+  ];
+
+  const isPrivateApiRoute = privateApiRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  );
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
@@ -46,8 +61,8 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/error") &&
     !request.nextUrl.pathname.startsWith("/signup") &&
     request.nextUrl.pathname !== "/" &&
-    !request.nextUrl.pathname.startsWith("/api") &&
-    !request.nextUrl.pathname.startsWith("/courses")
+    !request.nextUrl.pathname.startsWith("/courses") &&
+    (isPrivateApiRoute || (!request.nextUrl.pathname.startsWith("/api")))
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();

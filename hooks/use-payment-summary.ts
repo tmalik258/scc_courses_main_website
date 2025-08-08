@@ -22,8 +22,8 @@ export function usePaymentSummary(courseId?: string) {
     try {
       setLoading(true);
       const url = courseId
-        ? `/api/payment/payment-summary?courseId=${courseId}`
-        : "/api/payment/payment-summary";
+        ? `/api/payments/payment-summary?courseId=${courseId}`
+        : "/api/payments/payment-summary";
       console.log("Fetching payment summary:", url); // Debug log
       const res = await axios.get(url);
       const parsed = PaymentSummarySchema.parse(res.data);

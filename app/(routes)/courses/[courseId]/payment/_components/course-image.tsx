@@ -26,7 +26,7 @@ export function CourseImage({
       setImageLoading(true);
       try {
         if (imageUrl && imageUrl.trim() !== "") {
-          const url = await fetchImage(imageUrl);
+          const url = await fetchImage(imageUrl, "courses-resources");
           if (!url || typeof url !== "string") {
             throw new Error("fetchImage returned invalid or no URL");
           }

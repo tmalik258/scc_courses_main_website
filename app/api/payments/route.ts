@@ -1,89 +1,60 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
+export async function GET() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-  console.log("Fetching payments:", {
-    userId,
-    timestamp: new Date().toISOString(),
-  });
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  if (!userId) {
-    console.error("Missing userId in GET request", {
-      timestamp: new Date().toISOString(),
+    const profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
     });
-    return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-  }
 
-  // Step 1: Look up the profile by Supabase userId
-  const profile = await prisma.profile.findUnique({
-    where: { userId },
-  });
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    }
 
-  if (!profile) {
-    console.error("Profile not found for userId:", userId, {
-      timestamp: new Date().toISOString(),
-    });
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-  }
-
-  // Step 2: Get all purchases for this profile with related invoice data
-  const purchases = await prisma.purchase.findMany({
-    where: {
-      studentId: profile.id,
-    },
-    include: {
-      course: {
-        select: {
-          title: true,
-          thumbnailUrl: true,
-          price: true,
-          category: { select: { name: true } },
+    const purchases = await prisma.purchase.findMany({
+      where: { studentId: profile.id },
+      include: {
+        invoice: true,
+        course: {
+          select: { title: true, thumbnailUrl: true },
         },
       },
-      invoice: {
-        select: {
-          id: true,
-          invoiceNumber: true,
-          paymentDate: true,
-          paymentMethod: true,
-          status: true,
-        },
+      orderBy: {
+        createdAt: "desc",
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    });
 
-  // Step 3: Return simplified list with invoice data
-  const payments = purchases.map((purchase) => ({
-    id: purchase.invoice?.id ?? purchase.id, // Use invoiceId for PaymentCard
-    invoiceId: purchase.invoice?.id ?? null,
-    invoiceNumber: purchase.invoice?.invoiceNumber ?? "N/A",
-    title: purchase.course.title,
-    image: purchase.course.thumbnailUrl ?? "",
-    paymentDate:
-      purchase.invoice?.paymentDate.toISOString() ??
-      purchase.createdAt.toISOString(),
-    method: purchase.invoice?.paymentMethod ?? "N/A",
-    amount: purchase.course.price?.toFixed(2) ?? "0.00",
-    status: (purchase.invoice?.status ?? "SUCCESS").toLowerCase() as
-      | "success"
-      | "failed"
-      | "pending", // Map to lowercase for frontend
-    category: purchase.course.category?.name ?? "N/A",
-  }));
+    const payments = purchases.map((purchase) => ({
+      id: purchase.id,
+      title: purchase.course.title,
+      paymentDate: purchase.invoice?.paymentDate.toISOString() ?? "",
+      method: purchase.invoice?.paymentMethod.toLowerCase() ?? "",
+      amount: purchase.invoice?.totalAmount.toString() ?? "0.00",
+      status: purchase.invoice?.status.toLowerCase() ?? "pending",
+      image: purchase.course.thumbnailUrl ?? "",
+      reason: purchase.invoice?.category ?? "",
+      timeLeft: undefined,
+    }));
 
-  console.log("Payments fetched:", {
-    userId,
-    count: payments.length,
-    timestamp: new Date().toISOString(),
-  });
-
-  return NextResponse.json(payments);
+    return NextResponse.json(payments);
+  } catch (error) {
+    console.error("Error fetching user payments:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch user payments" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: Request) {

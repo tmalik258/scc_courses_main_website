@@ -7,34 +7,21 @@ import { LearningOverview } from "./_components/learning-overview";
 import { MyCourses } from "./_components/my-courses";
 import { SpendHoursChart } from "./_components/spend-hours-chart";
 import { getDashboardData } from "@/actions/dashboard";
-import { createClient } from "@/utils/supabase/client";
 import { LumaSpin } from "@/components/luma-spin";
 
 export default function Dashboard() {
-  const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<{
     ongoingCount: number;
     completedCount: number;
     certificateCount: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    courses: any[];
+    courses: [];
   } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        redirect("/login"); // redirect on client
-        return;
-      }
-
       try {
-        const result = await getDashboardData(user.id);
+        const result = await getDashboardData();
         setData(result);
       } catch (err) {
         console.error("Dashboard data fetch error:", err);
@@ -45,7 +32,7 @@ export default function Dashboard() {
     };
 
     loadData();
-  }, [supabase.auth]);
+  }, []);
 
   if (loading || !data) {
     return (

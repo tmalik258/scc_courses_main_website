@@ -1,6 +1,6 @@
 // hooks/useCourseResources.ts
 import { useEffect, useState } from "react";
-import { getCourseResources } from "@/actions/get-course-resources";
+import { getCourseResources } from "@/actions/course-resources";
 
 type Resource = {
   id: string;

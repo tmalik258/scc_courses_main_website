@@ -1,12 +1,11 @@
-// actions/get-course-resources.ts
 "use server";
 
-import { fetchCourseResources } from "@/app/api/resources/route";
+import axios from "axios";
 
 export async function getCourseResources(courseId: string) {
   try {
-    const resources = await fetchCourseResources(courseId);
-    return resources;
+    const response = await axios.get(`/api/resources?courseId=${courseId}`);
+    return response.data;
   } catch (error) {
     console.error("Error loading course resources:", error);
     return [];

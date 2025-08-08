@@ -8,7 +8,7 @@ import { CourseInfo } from "./_components/course-info";
 import { CourseNotes } from "./_components/course-notes";
 import { PaymentSummary } from "./_components/payment-summary";
 import { PromoCode } from "./_components/promo-code";
-import { getCourseById } from "@/actions/get-courses";
+import { getCourseById } from "@/actions/courses";
 import { CourseData } from "@/types/course";
 import { DashedSpinner } from "@/components/dashed-spinner";
 import React from "react";
@@ -122,7 +122,7 @@ export default function PaymentPage({
             <div className="md:bg-white md:p-6 rounded-lg md:border md:border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <CourseImage
-                  imageUrl={course.thumbnail_url || course.image || ""}
+                  imageUrl={course.thumbnailUrl || ""}
                   alt={course.title}
                 />
                 <CourseInfo courseId={courseId} />

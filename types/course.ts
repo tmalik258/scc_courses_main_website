@@ -1,74 +1,56 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export interface CourseData {
-  progress: any;
-  currentLesson: any;
-  instructor?: any;
-  id: string;
-  title: string;
-  category: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
+import {
+  Course,
+  Category,
+  Lessons,
+  Profile,
+  Review,
+  Progress,
+  Module,
+  Resources,
+} from "@/lib/generated/prisma";
+import { Decimal } from "decimal.js";
+
+// Extended Course type with computed fields and relationships
+export interface CourseData extends Omit<Course, "price"> {
+  // Override price to handle both Decimal and string types
+  price: Decimal | string | null;
+
+  // Category information
+  category: Category;
+
+  // Instructor information
+  instructor: Pick<Profile, "id" | "fullName" | "email" | "avatarUrl">;
+
+  // Computed fields for display
   mentor: string;
   students: string;
   rating: string;
-  price: string;
-  image: string;
-  thumbnail_url: string;
   originalPrice: string;
   discountedPrice: string;
   discount: string;
   totalLessons: number;
   purchaseCount: number;
   duration?: string;
-  description?: string;
   videoCount: number;
   articleCount: number;
   downloadableResources: number;
   projectCount: number;
   practiceTestCount: number;
   learningPoints: string[];
-  sections: {
-    id: string;
-    title: string;
-    lessons: {
-      id: string;
-      title: string;
-      completed: boolean;
-      locked: boolean;
-      duration: string;
-      content: string | null;
-      video_url: string | null;
-      is_free: boolean;
-      resources: { name: string; url: string }[];
-    }[];
-  }[];
-  reviews?: {
-    id: string;
-    name: string;
-    title: string;
-    rating: number;
-    review: string;
-    avatar: string;
-  }[];
+
+  // Progress and current lesson for user-specific data
+  progress?: Progress[];
+  currentLesson?: Lessons;
+
+  // Course structure with modules and lessons
+  modules: (Module & {
+    lessons: (Lessons & {
+      resources: Pick<Resources, "name" | "url">[];
+    })[];
+  })[];
+
+  // Reviews with user information (extended from Prisma Review type)
+  reviews?: (Review & {
+    student: Pick<Profile, "fullName" | "avatarUrl">;
+  })[];
 }
-
-export interface MyCourseCardProps {
-  id: string;
-  category: string;
-  categoryBgColor: string;
-  categoryTextColor: string;
-  title: string;
-  mentor: string;
-  currentLesson: number;
-  totalLessons: number;
-  progress: number;
-  image: string;
-  status: "active" | "finished";
-}
-
-export type CategoryColors = {
-  bg: string;
-  text: string;
-};
-
-export type CategoryColorMap = Record<string, CategoryColors>;

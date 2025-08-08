@@ -41,7 +41,7 @@ export function usePayments() {
           return;
         }
 
-        const response = await axios.get(`/api/payment?userId=${user.id}`);
+        const response = await axios.get(`/api/payments`);
         console.log("Fetched payments:", response.data);
         setAllPayments(response.data);
       } catch (error) {

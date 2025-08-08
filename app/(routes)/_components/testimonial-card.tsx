@@ -25,7 +25,7 @@ export default function TestimonialCard({ testimonial }: TestimonialCardProps) {
       try {
         const imageSource = testimonial.avatar;
         if (imageSource && imageSource.trim() !== "") {
-          const url = await fetchImage(imageSource);
+          const url = await fetchImage(imageSource, "testimonials");
           if (!url || typeof url !== "string") {
             throw new Error("fetchImage returned invalid or no URL");
           }

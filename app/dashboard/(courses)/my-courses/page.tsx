@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { MyCourseCard } from "./_components/my-course-card";
 import type { MyCourseCardProps } from "./_components/my-course-card";
-import { getMyCourses } from "@/actions/get-my-courses";
+import { getMyCourses } from "@/actions/my-courses";
 import { LumaSpin } from "@/components/luma-spin";
+import { CourseData } from "@/types/course";
 
 export default function MyCoursesPage() {
   const [activeTab, setActiveTab] = useState("All");
@@ -16,7 +17,23 @@ export default function MyCoursesPage() {
       try {
         const result = await getMyCourses();
         console.log("FETCHED COURSES:", result);
-        setCourses(result);
+        
+        // Transform CourseData to MyCourseCardProps
+        const transformedCourses: MyCourseCardProps[] = result.map((course: CourseData) => ({
+          id: course.id,
+          category: course.category?.name || "General",
+          categoryBgColor: "bg-blue-100",
+          categoryTextColor: "text-blue-800",
+          title: course.title,
+          mentor: course.mentor || "Unknown Instructor",
+          currentLesson: 1, // Default values - should be calculated based on user progress
+          totalLessons: course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0,
+          progress: 0, // Default progress - should be calculated based on user progress
+          image: course.thumbnailUrl || "/images/course_placeholder.jpg",
+          status: "active" as const, // Default status - should be determined based on completion
+        }));
+        
+        setCourses(transformedCourses);
       } catch (err) {
         console.error("Failed to load courses:", err);
       } finally {

@@ -41,7 +41,7 @@ export function PaymentCard({
       setImageLoading(true);
       try {
         if (image && image.trim() !== "") {
-          const url = await fetchImage(image);
+          const url = await fetchImage(image, "courses-resources");
           console.log(`[PaymentCard ${id}] Image fetched successfully:`, url);
           setImageUrl(url);
         } else {

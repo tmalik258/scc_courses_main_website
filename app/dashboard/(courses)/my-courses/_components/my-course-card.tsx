@@ -47,7 +47,7 @@ export function MyCourseCard({
       setImageLoading(true);
       try {
         if (image && image.trim() !== "") {
-          const url = await fetchImage(image);
+          const url = await fetchImage(image, "courses-resources");
           if (!url || typeof url !== "string") {
             throw new Error("fetchImage returned invalid or no URL");
           }

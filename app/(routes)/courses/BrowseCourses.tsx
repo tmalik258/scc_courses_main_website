@@ -17,7 +17,7 @@ import { CoursePagination } from "./_components/course-pagination";
 import { ContactForm } from "../_components/contact-form";
 import { CourseFilterTabs } from "../_components/course-filter-tabs";
 import { CourseData } from "@/types/course";
-import { getPopularCourses } from "@/actions/get-courses";
+import { getPopularCourses } from "@/actions/courses";
 import { DashedSpinner } from "@/components/dashed-spinner";
 
 export default function BrowseCourses() {
@@ -75,14 +75,14 @@ export default function BrowseCourses() {
       filtered = filtered.filter(
         (course) =>
           course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.category.toLowerCase().includes(searchQuery.toLowerCase())
+          course.category.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Apply category filter
     if (advancedFilters.categories.length > 0) {
       filtered = filtered.filter((course) =>
-        advancedFilters.categories.includes(course.category)
+        advancedFilters.categories.includes(course.category.name)
       );
     }
 
@@ -150,7 +150,7 @@ export default function BrowseCourses() {
   );
   const currentCourses = filteredAndSortedCourses
     .filter(
-      (course) => activeFilter === "All" || course.category === activeFilter
+      (course) => activeFilter === "All" || course.category.name === activeFilter
     )
     .slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage);
 
@@ -286,9 +286,7 @@ export default function BrowseCourses() {
                         <CourseCard
                           key={course.id}
                           id={course.id}
-                          category={course.category}
-                          categoryTextColor={course.categoryTextColor}
-                          categoryBgColor={course.categoryBgColor}
+                          category={course.category.name}
                           title={course.title}
                           mentor={course.mentor}
                           students={course.students}
@@ -296,7 +294,7 @@ export default function BrowseCourses() {
                           originalPrice={course.originalPrice}
                           discountedPrice={course.discountedPrice}
                           discount={course.discount}
-                          image={course.image}
+                          thumbnailUrl={course.thumbnailUrl || '/images/course_placeholder.jpg'}
                           price={""}
                         />
                       ))}

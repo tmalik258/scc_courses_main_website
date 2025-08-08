@@ -1,7 +1,12 @@
-"use server";
+import axios from 'axios';
 
-import { fetchDashboardDataByUserId } from "@/app/api/dashboard/route";
+export async function getDashboardData() {
+  try {
+    const response = await axios.get('/api/dashboard');
 
-export async function getDashboardData(userId: string) {
-  return fetchDashboardDataByUserId(userId);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    throw error;
+  }
 }

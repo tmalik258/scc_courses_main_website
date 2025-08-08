@@ -19,8 +19,8 @@ import { CourseTabs } from "./_components/course-tabs";
 import { useRouter } from "nextjs-toploader/app";
 import { LessonList } from "./_components/lesson-list";
 import TestimonialCard from "../../_components/testimonial-card";
-import { getCourseById } from "@/actions/get-courses";
-import { getTestimonials } from "@/actions/get-testimonials";
+import { getCourseById } from "@/actions/courses";
+import { getTestimonials } from "@/actions/testimonials";
 import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
 import { createClient } from "@/utils/supabase/client";
@@ -69,7 +69,7 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
         }
 
         const filteredTestimonials = testimonialsData.filter(
-          (t) => t.courseId === courseId
+          (t: TestimonialType) => t.courseId === courseId
         );
         setReviews(filteredTestimonials);
 
@@ -231,7 +231,7 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
                   </h3>
                   <LessonList
                     isPaid={false}
-                    sections={courseSections}
+                    modules={courseSections}
                     expandedSections={expandedSections}
                     currentLesson={currentLesson}
                     onToggleSection={toggleSection}
@@ -293,7 +293,7 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
                 <Image
                   width={350}
                   height={200}
-                  src={course.image}
+                  src={course.thumbnailUrl || '/images/course_placeholder.jpg'}
                   alt={course.title}
                   className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
                 />

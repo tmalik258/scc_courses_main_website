@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getTestimonials } from "@/actions/get-testimonials";
+import { getTestimonials } from "@/actions/testimonials";
 
 interface Testimonial {
   id: string;

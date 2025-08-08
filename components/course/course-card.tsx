@@ -5,13 +5,12 @@ import { Star } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
+import { randomColorGenerator } from "@/utils/category";
 
 export interface CourseCardProps {
   price: string | number;
   id: string;
   category: string;
-  categoryTextColor: string;
-  categoryBgColor: string;
   title: string;
   mentor: string;
   students: string;
@@ -19,14 +18,12 @@ export interface CourseCardProps {
   originalPrice: string;
   discountedPrice: string;
   discount: string;
-  image: string;
+  thumbnailUrl: string;
 }
 
 export function CourseCard({
   id,
   category,
-  categoryTextColor,
-  categoryBgColor,
   title,
   mentor,
   students,
@@ -34,26 +31,36 @@ export function CourseCard({
   originalPrice,
   discountedPrice,
   discount,
-  image,
+  thumbnailUrl,
 }: CourseCardProps) {
   const router = useRouter();
-  const [thumbnailUrl, setThumbnailUrl] = useState(null as string | null);
+  const [displayImageUrl, setDisplayImageUrl] = useState(null as string | null);
+  
+  // Generate colors if not provided as props
+  const [colors] = useState<string[]>(() => {
+    // Use randomColorGenerator to get colors
+    return randomColorGenerator().split(' ');
+  });
+  
+  // Extract the background and text colors
+  const categoryBgColor = colors[0];
+  const categoryTextColor = colors[1];
 
   const handleClick = () => {
     router.push(`/courses/${id}`);
   };
 
   useEffect(() => {
-    console.log("Image URL:", image);
+    console.log("Image URL:", thumbnailUrl);
     (async () => {
-      if (image && !thumbnailUrl) {
+      if (thumbnailUrl && !displayImageUrl) {
         console.log("Fetching image for course:", id);
-        const fetchedUrl = await fetchImage(image);
-        setThumbnailUrl(fetchedUrl ?? "");
+        const fetchedUrl = await fetchImage(thumbnailUrl, "courses-resources");
+        setDisplayImageUrl(fetchedUrl ?? "");
         console.log("Fetched thumbnail URL:", fetchedUrl);
       }
     })();
-  }, [id, image, thumbnailUrl]);
+  }, [displayImageUrl, id, thumbnailUrl]);
 
   return (
     <div

@@ -71,7 +71,7 @@ export function SavedCourseCard(props: SavedCourseCardProps) {
       if (props.image && !imageUrl) {
         setImageLoading(true);
         try {
-          const url = await fetchImage(props.image);
+          const url = await fetchImage(props.image, "courses-resources");
           setImageUrl(url);
         } catch (err) {
           console.error("Error fetching image:", err);

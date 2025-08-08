@@ -1,4 +1,4 @@
-import { getCategoriesWithMeta } from "@/actions/get-categories";
+import { getCategoriesWithMeta } from "@/actions/categories";
 import Hero from "./_components/hero";
 import Categories from "./_components/categories";
 import MostPopularCourses from "./_components/most-popular-courses";

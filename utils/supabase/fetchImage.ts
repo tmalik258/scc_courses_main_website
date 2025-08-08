@@ -2,26 +2,22 @@ import { createClient } from "./client";
 
 const supabase = createClient();
 
-export const fetchImage = async (imageUrl: string): Promise<string | null> => {
+export const fetchImage = async (
+  fileName: string,
+  bucketName: string
+): Promise<string | null> => {
   try {
-    if (!imageUrl) {
-      console.error("No image URL provided");
+    if (!fileName || !bucketName) {
+      console.error("File name or bucket name not provided");
       return null;
     }
 
-    // Extract the file path from the public URL
-    const filePath = imageUrl.split('/storage/v1/object/public/courses-resources/')[1];
-    if (!filePath) {
-      console.error("Invalid image URL format:", imageUrl);
-      return null;
-    }
+    console.log("Fetching signed URL for file:", fileName, "from bucket:", bucketName);
 
-    console.log("Fetching signed URL for file path:", filePath);
-
-    // Generate signed URL for the uploaded image
+    // Generate signed URL for the image
     const { data, error } = await supabase.storage
-      .from('courses-resources')
-      .createSignedUrl(filePath, 60); // URL valid for 60 seconds
+      .from(bucketName)
+      .createSignedUrl(fileName, 60); // URL valid for 60 seconds
 
     if (error) {
       console.error("Error generating signed URL:", error);

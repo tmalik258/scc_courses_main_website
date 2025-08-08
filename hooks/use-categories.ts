@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCategoriesWithMeta } from "@/actions/get-categories";
+import { getCategoriesWithMeta } from "@/actions/categories";
 
 // Define the shape of the data
 type CategoryMeta = {
