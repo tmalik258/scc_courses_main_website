@@ -291,10 +291,10 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
             <div className="flex md:flex-col gap-3 md:gap-6 relative">
               <div>
                 <Image
-                  width={350}
+                  src="/images/course_placeholder.jpg"
+                  alt="Fallback"
+                  width={300}
                   height={200}
-                  src={course.thumbnailUrl || '/images/course_placeholder.jpg'}
-                  alt={course.title}
                   className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
                 />
               </div>
