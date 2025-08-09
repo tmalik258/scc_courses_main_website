@@ -1,21 +1,10 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@/lib/generated/prisma";
 import prisma from "@/lib/prisma";
-
-// Define the type for the Prisma query result
-type CourseWithRelations = Prisma.CourseGetPayload<{
-  include: {
-    category: { select: { name: true; color: true } };
-    instructor?: { select: { fullName: true, email: true } };
-    purchases: { select: { id: true } };
-    reviews: { select: { rating: true } };
-  };
-}>;
+import { transformCourse, CourseWithRelations } from "@/lib/course-transformer";
 
 export async function GET() {
   try {
-    const courses = (await prisma.course.findMany({
-      // 👉 Remove this condition temporarily if no courses are returned
+    const rawCourses = await prisma.course.findMany({
       where: {
         isPublished: true,
       },
@@ -24,72 +13,51 @@ export async function GET() {
       include: {
         category: {
           select: {
+            id: true,
             name: true,
+            description: true,
+            createdAt: true,
+            slug: true,
+            icon: true,
             color: true,
+            isActive: true,
           },
         },
         instructor: {
           select: {
+            id: true,
             fullName: true,
             email: true,
+            avatarUrl: true,
+            bio: true,
+            createdAt: true,
+            phone: true,
+          },
+        },
+        modules: {
+          include: {
+            lessons: true,
           },
         },
         purchases: {
-          select: {
-            id: true,
-          },
+          select: { id: true },
         },
         reviews: {
-          select: {
-            rating: true,
-          },
+          select: { rating: true },
+        },
+        resources: {
+          select: { id: true },
         },
       },
-    })) as CourseWithRelations[];
-
-    const formattedCourses = courses.map((course: CourseWithRelations) => {
-      const studentCount = course.purchases?.length || 0;
-      const averageRating =
-        course.reviews?.length > 0
-          ? (
-              course.reviews.reduce(
-                (sum: number, review: { rating: number }) =>
-                  sum + review.rating,
-                0
-              ) / course.reviews.length
-            ).toFixed(1)
-          : "0.0";
-
-      const categoryColor = course.category?.color || "#3b82f6";
-
-      const originalPrice = course.price
-        ? parseFloat(course.price.toString())
-        : 0;
-      const discountPercentage = 20;
-      const discountedPrice = originalPrice * (1 - discountPercentage / 100);
-
-      return {
-        id: course.id,
-        category: course.category?.name || "Uncategorized",
-        categoryColor: categoryColor,
-        categoryBgColor: `bg-[${categoryColor}]/15`, // Not production-safe
-        categoryTextColor: `text-[${categoryColor}]`,
-        title: course.title,
-        mentor: course?.instructor?.fullName || course?.instructor?.email?.split("@")[0] || "Unknown Instructor",
-        students: `${studentCount}+ students`,
-        rating: `${averageRating}/5`,
-        price: originalPrice.toFixed(2),
-        image: course.thumbnailUrl || "/images/course_placeholder.jpg",
-        thumbnail_url: course.thumbnailUrl || "/images/course_placeholder.jpg",
-        originalPrice: originalPrice.toFixed(2),
-        discountedPrice: discountedPrice.toFixed(2),
-        discount: `${discountPercentage}% OFF`,
-      };
     });
 
-    return NextResponse.json(formattedCourses);
+    const courses = rawCourses.map((course) =>
+      transformCourse(course as CourseWithRelations)
+    );
+
+    return NextResponse.json(courses);
   } catch (error) {
-    console.error("Error fetching popular courses:", error);
+    console.error("[GET /api/courses/popular] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch courses" },
       { status: 500 }

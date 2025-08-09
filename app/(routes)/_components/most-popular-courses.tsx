@@ -9,7 +9,10 @@ import { DashedSpinner } from "@/components/dashed-spinner";
 export default function MostPopularCourses() {
   const [activeFilter, setActiveFilter] = useState("All");
   const { courses, loading, error, refetch } = usePopularCourses();
-  const filteredCourses = activeFilter === "All" ? courses : courses.filter((course) => course.category?.name === activeFilter);
+  const filteredCourses =
+    activeFilter === "All"
+      ? courses
+      : courses.filter((course) => course.category?.name === activeFilter);
 
   if (loading) {
     return (
@@ -102,8 +105,10 @@ export default function MostPopularCourses() {
               mentor={course.mentor}
               students={course.students}
               rating={course.rating}
-              price={course.price?.toString() || '0'}
-              thumbnailUrl={course.thumbnailUrl || '/images/course_placeholder.jpg'}
+              price={course.price?.toString() || "0"}
+              thumbnailUrl={
+                course.thumbnailUrl || "/images/course_placeholder.jpg"
+              }
               originalPrice={course.originalPrice}
               discountedPrice={course.discountedPrice}
               discount={course.discount}

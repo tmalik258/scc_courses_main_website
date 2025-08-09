@@ -46,8 +46,7 @@ export default function BrowseCourses() {
         setLoading(true);
         const courses = await getPopularCourses();
         setCoursesData(courses);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
+      } catch {
         setError("Failed to load courses. Please try again later.");
       } finally {
         setLoading(false);
@@ -57,7 +56,6 @@ export default function BrowseCourses() {
   }, []);
 
   useEffect(() => {
-    // Update activeFilter and advancedFilters when the category query changes
     const category = searchParams.get("category") || "All";
     setActiveFilter(category);
     setAdvancedFilters((prev) => ({
@@ -70,7 +68,6 @@ export default function BrowseCourses() {
   const filteredAndSortedCourses = useMemo(() => {
     let filtered = coursesData;
 
-    // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(
         (course) =>
@@ -79,14 +76,12 @@ export default function BrowseCourses() {
       );
     }
 
-    // Apply category filter
     if (advancedFilters.categories.length > 0) {
       filtered = filtered.filter((course) =>
         advancedFilters.categories.includes(course.category.name)
       );
     }
 
-    // Apply price filter
     if (advancedFilters.priceRange !== "All") {
       filtered = filtered.filter((course) => {
         const price = parseFloat(course.discountedPrice);
@@ -105,7 +100,6 @@ export default function BrowseCourses() {
       });
     }
 
-    // Apply rating filter
     if (advancedFilters.rating !== "All") {
       filtered = filtered.filter((course) => {
         const minRating = Number.parseFloat(
@@ -115,7 +109,6 @@ export default function BrowseCourses() {
       });
     }
 
-    // Apply sorting
     switch (sortBy) {
       case "Price: Low to High":
         filtered.sort(
@@ -150,7 +143,8 @@ export default function BrowseCourses() {
   );
   const currentCourses = filteredAndSortedCourses
     .filter(
-      (course) => activeFilter === "All" || course.category.name === activeFilter
+      (course) =>
+        activeFilter === "All" || course.category.name === activeFilter
     )
     .slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage);
 
@@ -162,7 +156,6 @@ export default function BrowseCourses() {
     setAdvancedFilters(newAdvancedFilters);
     setActiveFilter(newAdvancedFilters.categories[0] || "All");
     setCurrentPage(1);
-    // Update URL with the selected category
     const query = new URLSearchParams();
     if (newAdvancedFilters.categories.length > 0) {
       query.set("category", newAdvancedFilters.categories[0]);
@@ -294,7 +287,10 @@ export default function BrowseCourses() {
                           originalPrice={course.originalPrice}
                           discountedPrice={course.discountedPrice}
                           discount={course.discount}
-                          thumbnailUrl={course.thumbnailUrl || '/images/course_placeholder.jpg'}
+                          thumbnailUrl={
+                            course.thumbnailUrl ||
+                            "/images/course_placeholder.jpg"
+                          }
                           price={""}
                         />
                       ))}
