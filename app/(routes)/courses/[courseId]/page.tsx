@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   Check,
   Play,
@@ -24,19 +24,28 @@ import { getTestimonials } from "@/actions/testimonials";
 import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
 import { createClient } from "@/utils/supabase/client";
+import { LumaSpin } from "@/components/luma-spin";
 
-const CourseDetail = ({ params }: { params: { courseId: string } }) => {
-  const courseId = params.courseId;
+// Import types from lesson.ts for the mapping
+import type { SectionData } from "@/types/lesson";
 
+const CourseDetail = ({
+  params,
+  onLoadingComplete,
+}: {
+  params: Promise<{ courseId: string }>;
+  onLoadingComplete?: () => void;
+}) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<string[]>(["1"]);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [course, setCourse] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<TestimonialType[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
+  const { courseId } = use(params);
 
   useEffect(() => {
     const getUser = async () => {
@@ -64,17 +73,16 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
 
         if (courseData) {
           setCourse(courseData);
+          // Set the first section as expanded by default if sections exist
+          if (courseData.modules.length > 0) {
+            setExpandedSections([courseData.modules[0].id]);
+          }
         } else {
           setError("Course not found");
         }
 
-        const filteredTestimonials = testimonialsData.filter(
-          (t: TestimonialType) => t.courseId === courseId
-        );
-        setReviews(filteredTestimonials);
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
+        setReviews(testimonialsData);
+      } catch {
         setError("Failed to load course data");
       } finally {
         setLoading(false);
@@ -84,69 +92,11 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
     fetchCourseAndTestimonials();
   }, [courseId]);
 
-  const learningPoints = [
-    "Understand the fundamentals of automation and APIs",
-    "Work with HTTP requests, JSON data, and third-party APIs",
-  ];
-
-  const courseFeatures = [
-    { icon: Play, label: "32 Videos" },
-    { icon: Download, label: "40 Downloadable Materials" },
-    { icon: Clock, label: course?.duration || "20 Hours Duration" },
-    { icon: FileText, label: "8 Articles" },
-    { icon: FolderOpen, label: "20 Projects" },
-    { icon: TestTube, label: "10 Practice Test" },
-  ];
-
-  const courseSections = [
-    {
-      id: "1",
-      title: "Introduction to Automation",
-      lessons: [
-        {
-          id: "what-is-automation",
-          title: "What is Automation and Why It Matters",
-          completed: false,
-          locked: false,
-          duration: "10:03",
-          content: "Introduction to automation concepts.",
-          video_url: "https://example.com/video1.mp4",
-          is_free: true,
-          resources: [],
-        },
-        {
-          id: "real-world-cases",
-          title: "Real-World Use Cases of Automation",
-          completed: false,
-          locked: false,
-          duration: "12:03",
-          content: "Explore practical automation use cases.",
-          video_url: "https://example.com/video2.mp4",
-          is_free: true,
-          resources: [],
-        },
-        {
-          id: "intro-apis",
-          title: "Introduction to APIs and How They Work",
-          completed: false,
-          locked: true,
-          duration: "20:03",
-          content: "Deep dive into APIs.",
-          video_url: "https://example.com/video3.mp4",
-          is_free: false,
-          resources: [],
-        },
-      ],
-    },
-  ];
-
-  const instructors = [
-    {
-      name: course?.mentor || "Amit Sharma",
-      title: "Software Engineer & Automation Expert",
-      image: "/images/instructor_placeholder_2.jpg",
-    },
-  ];
+  useEffect(() => {
+    if (!loading && onLoadingComplete) {
+      onLoadingComplete();
+    }
+  }, [loading, onLoadingComplete]);
 
   const handleGetStarted = () => {
     router.push(`/courses/${courseId}/lessons/1`);
@@ -160,15 +110,17 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
     setExpandedSections((prev) =>
       prev.includes(sectionId)
         ? prev.filter((id) => id !== sectionId)
-        : [sectionId]
+        : [...prev, sectionId]
     );
   };
 
-  const currentLesson = "what-is-automation";
+  const currentLesson = course?.currentLesson?.id || "";
 
   if (loading) {
     return (
-      <div className="text-gray-500 text-center py-12">Loading course...</div>
+      <div className="flex items-center justify-center h-screen w-full">
+        <LumaSpin />
+      </div>
     );
   }
 
@@ -180,12 +132,32 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
     );
   }
 
+  const adaptedModules: SectionData[] = course.modules.map((mod) => ({
+    id: mod.id,
+    title: mod.title,
+    lessons: mod.lessons.map((lesson) => ({
+      id: lesson.id,
+      title: lesson.title,
+      content: lesson.content || null,
+      video_url: lesson.video_url || null,
+      is_free: lesson.is_free || false,
+      completed: false,
+      locked: false,
+      duration: (lesson as { duration?: string }).duration || "",
+      resources: lesson.resources.map((res) => ({
+        name: res.name,
+        url: res.url,
+      })),
+    })),
+  }));
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <CourseBreadcrumb courseId={courseId} />
 
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* LEFT SIDE */}
           <div className="lg:col-span-2 max-md:order-2">
             <CourseInfo courseId={courseId} />
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -207,11 +179,8 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
                         </p>
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-800 mb-3">
-                          What You&apos;ll Learn
-                        </h4>
                         <ul className="space-y-2">
-                          {learningPoints.map((point, i) => (
+                          {course.learningPoints.map((point, i) => (
                             <li key={i} className="flex items-start space-x-3">
                               <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                               <span className="text-gray-600">{point}</span>
@@ -231,7 +200,7 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
                   </h3>
                   <LessonList
                     isPaid={false}
-                    modules={courseSections}
+                    modules={adaptedModules} // <-- use adapted modules here
                     expandedSections={expandedSections}
                     currentLesson={currentLesson}
                     onToggleSection={toggleSection}
@@ -245,28 +214,23 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
                     Instructors
                   </h3>
-                  {instructors.map((instructor) => (
-                    <div
-                      key={instructor.name}
-                      className="flex items-center space-x-4 p-4 border rounded-lg"
-                    >
-                      <Image
-                        width={64}
-                        height={64}
-                        src={instructor.image}
-                        alt={instructor.name}
-                        className="w-16 h-16 rounded-sm object-cover"
-                      />
-                      <div>
-                        <h4 className="font-medium text-gray-800">
-                          {instructor.name}
-                        </h4>
-                        <p className="text-gray-600 text-sm">
-                          {instructor.title}
-                        </p>
-                      </div>
+                  <div className="flex items-center space-x-4 p-4 border rounded-lg">
+                    <Image
+                      width={64}
+                      height={64}
+                      src={
+                        course.instructor?.avatarUrl ||
+                        "/images/instructor_placeholder_2.jpg"
+                      }
+                      alt={course.mentor}
+                      className="w-16 h-16 rounded-sm object-cover"
+                    />
+                    <div>
+                      <h4 className="font-medium text-gray-800">
+                        {course.mentor}
+                      </h4>
                     </div>
-                  ))}
+                  </div>
                 </div>
               )}
 
@@ -287,15 +251,16 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
             </div>
           </div>
 
+          {/* RIGHT SIDE */}
           <div className="lg:col-span-1 max-md:order-1">
             <div className="flex md:flex-col gap-3 md:gap-6 relative">
               <div>
                 <Image
-                  src="/images/course_placeholder.jpg"
-                  alt="Fallback"
-                  width={300}
+                  width={350}
                   height={200}
+                  alt={course.title}
                   className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
+                  src={""}
                 />
               </div>
 
@@ -358,7 +323,23 @@ const CourseDetail = ({ params }: { params: { courseId: string } }) => {
                 What You&apos;ll Get
               </h3>
               <div className="space-y-3">
-                {courseFeatures.map((feature, index) => (
+                {[
+                  { icon: Play, label: `${course.videoCount} Videos` },
+                  {
+                    icon: Download,
+                    label: `${course.downloadableResources} Downloadable Materials`,
+                  },
+                  { icon: Clock, label: course.duration || "Unknown Duration" },
+                  { icon: FileText, label: `${course.articleCount} Articles` },
+                  {
+                    icon: FolderOpen,
+                    label: `${course.projectCount} Projects`,
+                  },
+                  {
+                    icon: TestTube,
+                    label: `${course.practiceTestCount} Practice Tests`,
+                  },
+                ].map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <feature.icon className="w-5 h-5 text-gray-500" />
                     <span className="text-gray-600">{feature.label}</span>
