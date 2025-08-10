@@ -24,7 +24,7 @@ export default function CategoryIcon({
   useEffect(() => {
     const getImage = async () => {
       try {
-        const url = await fetchImage(slug, "category_icons");
+        const url = await fetchImage(slug, "category-icons");
         setImageUrl(url);
       } catch (err) {
         if (err instanceof Error) {
