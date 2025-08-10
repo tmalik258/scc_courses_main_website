@@ -18,9 +18,9 @@ export function LessonNavigation({
   onNext,
   hasPrevious,
   hasNext,
-}: // isPaid,
-// isPaidLesson,
-LessonNavigationProps) {
+  isPaid,
+  isPaidLesson,
+}: LessonNavigationProps) {
   return (
     <div className="flex justify-between items-center py-4">
       <div className="text-gray-800 font-medium">{lessonTitle}</div>
@@ -31,7 +31,7 @@ LessonNavigationProps) {
         <Button
           className="bg-aqua-mist hover:bg-aqua-depth"
           onClick={onNext}
-          disabled={!hasNext}
+          disabled={!hasNext || isPaidLesson || !isPaid}
         >
           Next Chapter
         </Button>

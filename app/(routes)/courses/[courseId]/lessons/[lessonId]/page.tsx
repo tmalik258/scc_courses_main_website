@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-duplicate-props */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -105,6 +104,7 @@ export default function LessonPage() {
             s.lessons.some((l) => l.id === selectedLesson?.id)
           )?.id || courseSections[0].id,
         ]);
+
         setIsPaid(!selectedLesson.locked);
         setIsPaidLesson(selectedLesson.locked);
       } catch (err) {
@@ -141,11 +141,19 @@ export default function LessonPage() {
   };
 
   const handleLessonClick = (lessonId: string, isLocked: boolean) => {
+    // Only run on direct user clicks — not programmatic state changes
     if (isLocked) {
       setIsPaidLesson(true);
       return;
     }
+
     setIsPaidLesson(false);
+
+    // Avoid re-pushing if already on the same lesson
+    if (currentLesson?.id === lessonId) {
+      return;
+    }
+
     const lesson = getAllLessons().find((l) => l.id === lessonId);
     if (lesson) {
       setCurrentLesson(lesson);
@@ -161,61 +169,48 @@ export default function LessonPage() {
     const nextIndex =
       direction === "next" ? currentIndex + 1 : currentIndex - 1;
 
-    if (nextIndex < 0 || nextIndex >= allLessons.length) {
-      console.log("No more lessons in this direction.");
-      return;
-    }
+    if (nextIndex < 0 || nextIndex >= allLessons.length) return;
 
     const nextLesson = allLessons[nextIndex];
 
+    // Prevent navigation if locked
+    if (nextLesson.locked) {
+      setIsPaidLesson(true);
+      return;
+    }
+
+    // Update progress if needed
     if (currentLesson && !currentLesson.completed && userId) {
       try {
-        console.log("Marking lesson as completed:", currentLesson.id);
-
-        const res = await fetch("/api/progress/update", {
+        await fetch("/api/progress/update", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, lessonId: currentLesson.id }),
         });
 
-        const result = await res.json();
-        console.log("Progress update response:", result);
-
-        if (res.ok) {
-          setCurrentLesson((prev) =>
-            prev ? { ...prev, completed: true } : prev
-          );
-
-          setSections((prev) => {
-            const updated = prev.map((section) => ({
-              ...section,
-              lessons: section.lessons.map((lesson) =>
-                lesson.id === currentLesson.id
-                  ? { ...lesson, completed: true }
-                  : lesson
-              ),
-            }));
-            console.log("Updated sections with completed lesson:", updated);
-            return updated;
-          });
-        } else {
-          console.error("Failed to update lesson progress:", result.error);
-        }
+        setSections((prev) =>
+          prev.map((section) => ({
+            ...section,
+            lessons: section.lessons.map((lesson) =>
+              lesson.id === currentLesson.id
+                ? { ...lesson, completed: true }
+                : lesson
+            ),
+          }))
+        );
       } catch (err) {
         console.error("Error updating progress", err);
       }
     }
 
-    console.log("Navigating to next lesson:", nextLesson.id);
+    // Navigate only after everything else
     setCurrentLesson(nextLesson);
-    setIsPaidLesson(nextLesson.locked);
     router.push(`/courses/${courseId}/lessons/${nextLesson.id}`);
 
     const section = sections.find((s) =>
       s.lessons.some((l) => l.id === nextLesson.id)
     );
     if (section) {
-      console.log("Expanding section:", section.id);
       setExpandedSections([section.id]);
     }
   };

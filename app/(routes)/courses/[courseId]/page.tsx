@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Check,
   Play,
@@ -29,13 +29,26 @@ import { LumaSpin } from "@/components/luma-spin";
 // Import types from lesson.ts for the mapping
 import type { SectionData } from "@/types/lesson";
 
-const CourseDetail = ({
-  params,
-  onLoadingComplete,
-}: {
+type Props = {
   params: Promise<{ courseId: string }>;
   onLoadingComplete?: () => void;
-}) => {
+};
+
+const placeholder = "/images/course_placeholder.jpg";
+const instructorPlaceholder = "/images/instructor_placeholder_2.jpg";
+
+/** Utility: check if string is a valid http(s) URL */
+function isValidHttpUrl(value: string | undefined | null) {
+  if (!value) return false;
+  try {
+    const u = new URL(value);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export default function CourseDetail({ params, onLoadingComplete }: Props) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorite, setIsFavorite] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
@@ -44,8 +57,30 @@ const CourseDetail = ({
   const [error, setError] = useState<string | null>(null);
   const [reviews, setReviews] = useState<TestimonialType[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [courseId, setCourseId] = useState<string>("");
   const router = useRouter();
-  const { courseId } = use(params);
+
+  // Image src state so we can fallback on actual load error (broken remote URL)
+  const [imgSrc, setImgSrc] = useState<string>(placeholder);
+  const [instructorImgSrc, setInstructorImgSrc] = useState<string>(
+    instructorPlaceholder
+  );
+
+  // Resolve params promise safely in client component
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const resolved = await params;
+        if (mounted && resolved?.courseId) setCourseId(resolved.courseId);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [params]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -63,6 +98,8 @@ const CourseDetail = ({
   }, []);
 
   useEffect(() => {
+    if (!courseId) return;
+
     async function fetchCourseAndTestimonials() {
       try {
         setLoading(true);
@@ -74,7 +111,7 @@ const CourseDetail = ({
         if (courseData) {
           setCourse(courseData);
           // Set the first section as expanded by default if sections exist
-          if (courseData.modules.length > 0) {
+          if (courseData.modules && courseData.modules.length > 0) {
             setExpandedSections([courseData.modules[0].id]);
           }
         } else {
@@ -82,7 +119,8 @@ const CourseDetail = ({
         }
 
         setReviews(testimonialsData);
-      } catch {
+      } catch (err) {
+        console.error("fetchCourseAndTestimonials error:", err);
         setError("Failed to load course data");
       } finally {
         setLoading(false);
@@ -92,6 +130,30 @@ const CourseDetail = ({
     fetchCourseAndTestimonials();
   }, [courseId]);
 
+  // update img src whenever course changes — this ensures we use placeholder for null/empty/invalid urls
+  useEffect(() => {
+    const candidate = course?.thumbnailUrl;
+    // Accept if:
+    // - valid http(s) URL
+    // - OR starts with "/" meaning local public path
+    const valid =
+      typeof candidate === "string" &&
+      candidate.trim().length > 0 &&
+      (isValidHttpUrl(candidate) || candidate.startsWith("/"));
+
+    setImgSrc(valid ? candidate! : placeholder);
+  }, [course?.thumbnailUrl]);
+
+  useEffect(() => {
+    const candidate = course?.instructor?.avatarUrl;
+    const valid =
+      typeof candidate === "string" &&
+      candidate.trim().length > 0 &&
+      (isValidHttpUrl(candidate) || candidate.startsWith("/"));
+
+    setInstructorImgSrc(valid ? candidate! : instructorPlaceholder);
+  }, [course?.instructor?.avatarUrl]);
+
   useEffect(() => {
     if (!loading && onLoadingComplete) {
       onLoadingComplete();
@@ -99,10 +161,12 @@ const CourseDetail = ({
   }, [loading, onLoadingComplete]);
 
   const handleGetStarted = () => {
+    if (!courseId) return;
     router.push(`/courses/${courseId}/lessons/1`);
   };
 
   const handleLessonClick = (lessonId: string) => {
+    if (!courseId) return;
     router.push(`/courses/${courseId}/lessons/${lessonId}`);
   };
 
@@ -194,13 +258,13 @@ const CourseDetail = ({
               )}
 
               {activeTab === "lessons" && (
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                <div className="p-4 bg-white rounded-md shadow-sm">
+                  <h3 className="text-lg font-bold text-black mb-4">
                     Course Lessons
                   </h3>
                   <LessonList
                     isPaid={false}
-                    modules={adaptedModules} // <-- use adapted modules here
+                    modules={adaptedModules}
                     expandedSections={expandedSections}
                     currentLesson={currentLesson}
                     onToggleSection={toggleSection}
@@ -218,12 +282,11 @@ const CourseDetail = ({
                     <Image
                       width={64}
                       height={64}
-                      src={
-                        course.instructor?.avatarUrl ||
-                        "/images/instructor_placeholder_2.jpg"
-                      }
-                      alt={course.mentor}
+                      src={instructorImgSrc}
+                      alt={course.mentor || "Instructor"}
                       className="w-16 h-16 rounded-sm object-cover"
+                      onError={() => setInstructorImgSrc(instructorPlaceholder)}
+                      unoptimized={instructorImgSrc === instructorPlaceholder}
                     />
                     <div>
                       <h4 className="font-medium text-gray-800">
@@ -258,9 +321,12 @@ const CourseDetail = ({
                 <Image
                   width={350}
                   height={200}
-                  alt={course.title}
+                  alt={course.title || "Course image"}
                   className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
-                  src={""}
+                  src={imgSrc}
+                  onError={() => setImgSrc(placeholder)}
+                  unoptimized={imgSrc === placeholder}
+                  priority={true} // optional: since this is above the fold for many layouts
                 />
               </div>
 
@@ -352,6 +418,4 @@ const CourseDetail = ({
       </div>
     </div>
   );
-};
-
-export default CourseDetail;
+}

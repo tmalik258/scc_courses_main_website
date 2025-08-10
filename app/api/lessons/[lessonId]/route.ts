@@ -23,7 +23,10 @@ export async function GET(
       !isValidUUID(lessonId) ||
       !isValidUUID(courseId)
     ) {
-      return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid parameters" },
+        { status: 400 }
+      );
     }
 
     const lesson = await prisma.lessons.findUnique({
@@ -50,7 +53,9 @@ export async function GET(
 
     const isPaid =
       userId && studentId
-        ? !!(await prisma.purchase.findFirst({ where: { courseId, studentId } }))
+        ? !!(await prisma.purchase.findFirst({
+            where: { courseId, studentId },
+          }))
         : false;
 
     const resources = await prisma.resources.findMany({
