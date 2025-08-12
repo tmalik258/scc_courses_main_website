@@ -50,6 +50,7 @@ export function CourseCard({
   };
 
   useEffect(() => {
+    console.log("thumbnail URL:", thumbnailUrl);
     (async () => {
       if (thumbnailUrl && !displayImageUrl) {
         try {
