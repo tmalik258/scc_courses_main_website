@@ -18,7 +18,7 @@ export interface CourseCardProps {
   originalPrice: string;
   discountedPrice: string;
   discount: string;
-  thumbnailUrl: string;
+  thumbnailUrl: string | null;
 }
 
 export function CourseCard({
@@ -51,16 +51,15 @@ export function CourseCard({
   };
 
   useEffect(() => {
-    console.log("Image URL:", thumbnailUrl);
     (async () => {
       if (thumbnailUrl && !displayImageUrl) {
-        console.log("Fetching image for course:", id);
+        console.log("Fetching thumbnail URL...");
         const fetchedUrl = await fetchImage(thumbnailUrl, "courses-resources");
         setDisplayImageUrl(fetchedUrl ?? "");
         console.log("Fetched thumbnail URL:", fetchedUrl);
       }
     })();
-  }, [displayImageUrl, id, thumbnailUrl]);
+  }, [displayImageUrl, thumbnailUrl]);
 
   return (
     <div

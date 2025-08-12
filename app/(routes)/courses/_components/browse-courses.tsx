@@ -12,10 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CourseCard } from "@/components/course/course-card";
-import CourseFilters from "./_components/course-filters";
-import { CoursePagination } from "./_components/course-pagination";
-import { ContactForm } from "../_components/contact-form";
-import { CourseFilterTabs } from "../_components/course-filter-tabs";
+import CourseFilters from "./course-filters";
+import { CoursePagination } from "./course-pagination";
+import { ContactForm } from "../../_components/contact-form";
+import { CourseFilterTabs } from "../../_components/course-filter-tabs";
 import { CourseData } from "@/types/course";
 import { getPopularCourses } from "@/actions/courses";
 import { DashedSpinner } from "@/components/dashed-spinner";
@@ -287,10 +287,7 @@ export default function BrowseCourses() {
                           originalPrice={course.originalPrice}
                           discountedPrice={course.discountedPrice}
                           discount={course.discount}
-                          thumbnailUrl={
-                            course.thumbnailUrl ||
-                            "/images/course_placeholder.jpg"
-                          }
+                          thumbnailUrl={course.thumbnailUrl}
                           price={""}
                         />
                       ))}

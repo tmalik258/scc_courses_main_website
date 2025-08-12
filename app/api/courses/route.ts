@@ -58,6 +58,8 @@ export async function GET() {
       transformCourse(course as CourseWithRelations)
     );
 
+    console.log("[GET /api/courses] Fetched", courses.length, courses);
+
     return NextResponse.json(courses);
   } catch (error) {
     console.error("[GET /api/courses] Error:", error);

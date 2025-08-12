@@ -1,12 +1,14 @@
-// /app/(routes)/courses/page.tsx
 import { Suspense } from "react";
-import BrowseCourses from "./BrowseCourses";
+import BrowseCourses from "./_components/browse-courses";
+import { LumaSpin } from "@/components/luma-spin";
 
 export default function CoursesPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-10 text-center text-gray-600">Loading courses...</div>
+        <div className="flex justify-center items-center min-h-[calc(100vh-64px)]">
+          <LumaSpin />
+        </div>
       }
     >
       <BrowseCourses />
