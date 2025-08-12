@@ -40,9 +40,16 @@ export function CourseSidebar({
 
   const isLessonActuallyLocked = (
     sectionIndex: number,
-    lesson: { locked: boolean }
+    lesson: { locked: boolean; is_free?: boolean }
   ): boolean => {
-    return isSectionLocked(sectionIndex) || (lesson.locked && !isPaid);
+    // If course is purchased, no lessons are locked
+    if (isPaid) return false;
+
+    // If lesson is free, it's not locked
+    if (lesson.is_free) return false;
+
+    // Section-based locking or lesson is inherently locked
+    return isSectionLocked(sectionIndex) || lesson.locked;
   };
 
   const progressPercent =
@@ -67,11 +74,12 @@ export function CourseSidebar({
           </button>
           <button
             onClick={() => onTabChange("files")}
+            disabled={!isPaid}
             className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "files"
                 ? "text-blue-500 border-blue-500"
                 : "text-gray-500 border-transparent hover:text-gray-700"
-            }`}
+            } ${!isPaid ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             File
           </button>
@@ -125,14 +133,9 @@ export function CourseSidebar({
                       return (
                         <div
                           key={lesson.id}
-                          onClick={() => {
-                            if (!lessonLocked)
-                              onLessonClick(lesson.id, lessonLocked);
-                          }}
-                          className={`flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0 ${
-                            lessonLocked
-                              ? "opacity-60 pointer-events-none"
-                              : "cursor-pointer hover:bg-gray-50"
+                          onClick={() => onLessonClick(lesson.id, lessonLocked)}
+                          className={`flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 ${
+                            lessonLocked ? "opacity-60" : ""
                           } bg-white`}
                         >
                           {/* Left: Icon + Title */}
@@ -197,7 +200,20 @@ export function CourseSidebar({
       {/* Files View */}
       {activeTab === "files" && (
         <div className="p-4 text-sm text-gray-600">
-          {resources.length === 0 ? (
+          {!isPaid ? (
+            <div className="text-center py-8">
+              <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500 mb-4">
+                Purchase the course to access files
+              </p>
+              <button
+                onClick={handleJoinCourse}
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Join Course to Unlock
+              </button>
+            </div>
+          ) : resources.length === 0 ? (
             <p>No resources yet.</p>
           ) : (
             <ul className="space-y-3">
@@ -207,31 +223,16 @@ export function CourseSidebar({
                   className="flex justify-between items-center bg-blue-50 px-4 py-2 rounded-lg"
                 >
                   <span className="text-blue-700">{resource.name}</span>
-                  {isPaid ? (
-                    <a
-                      href={resource.signedUrl}
-                      download
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      Download
-                    </a>
-                  ) : (
-                    <span className="text-gray-400 flex items-center gap-1">
-                      <Lock className="w-4 h-4" />
-                      Locked
-                    </span>
-                  )}
+                  <a
+                    href={resource.signedUrl}
+                    download
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Download
+                  </a>
                 </li>
               ))}
             </ul>
-          )}
-          {!isPaid && (
-            <button
-              onClick={handleJoinCourse}
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors mt-4"
-            >
-              Join Course to Unlock
-            </button>
           )}
         </div>
       )}

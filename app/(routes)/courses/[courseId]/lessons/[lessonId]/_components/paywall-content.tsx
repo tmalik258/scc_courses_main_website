@@ -24,6 +24,11 @@ export function PaywallContent({
     router.push(`/courses/${courseId}/payment`);
   };
 
+  const handleNext = () => {
+    console.log("Next Chapter clicked in PaywallContent (should be blocked)");
+    onNext();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center py-8 md:py-16 md:px-8 text-center">
       <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center mb-8">
@@ -60,7 +65,8 @@ export function PaywallContent({
           <Button
             variant="outline"
             className="px-6 bg-transparent border-gray-300"
-            onClick={onNext}
+            onClick={handleNext}
+            disabled={true} // Disable Next button in paywall
           >
             Next Chapter
           </Button>

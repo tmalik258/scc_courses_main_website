@@ -9,6 +9,7 @@ interface SidebarTabsProps {
   courseId: string;
   onFilesFetched: (files: { name: string; signedUrl: string }[]) => void;
   hasResources: boolean;
+  isPaid: boolean;
 }
 
 export function SidebarTabs({
@@ -17,6 +18,7 @@ export function SidebarTabs({
   courseId,
   onFilesFetched,
   hasResources,
+  isPaid,
 }: SidebarTabsProps) {
   const supabase = createClient();
 
@@ -28,6 +30,11 @@ export function SidebarTabs({
       courseId
     );
     const fetchFiles = async () => {
+      if (!isPaid) {
+        onFilesFetched([]);
+        return;
+      }
+
       console.log("Fetching resources for courseId:", courseId);
 
       const {
@@ -85,7 +92,7 @@ export function SidebarTabs({
     if (activeTab === "files") {
       fetchFiles();
     }
-  }, [activeTab, courseId, onFilesFetched]);
+  }, [activeTab, courseId, onFilesFetched, isPaid]);
 
   return (
     <div className="border-b border-gray-200">
@@ -103,11 +110,12 @@ export function SidebarTabs({
         {hasResources && (
           <button
             onClick={() => onTabChange("files")}
+            disabled={!isPaid}
             className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === "files"
                 ? "border-blue-500 text-blue-500"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+            } ${!isPaid ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Files
           </button>

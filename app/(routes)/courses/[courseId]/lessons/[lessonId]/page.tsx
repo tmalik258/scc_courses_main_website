@@ -27,15 +27,16 @@ export default function LessonPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null | undefined>(undefined);
   const [isPaid, setIsPaid] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [sidebarActiveTab, setSidebarActiveTab] = useState<string>("lessons");
-  const [isPaidLesson, setIsPaidLesson] = useState(false);
+  const [isPaidLesson, setIsPaidLesson] = useState<boolean | null>(null);
   const [currentLesson, setCurrentLesson] = useState<LessonData | null>(null);
   const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasCoursePurchase, setHasCoursePurchase] = useState(false);
 
   const hasRedirectedRef = useRef(false);
 
@@ -105,8 +106,13 @@ export default function LessonPage() {
           )?.id || courseSections[0].id,
         ]);
 
+        const hasPurchase = allLessons.some(
+          (lesson) => !lesson.is_free && !lesson.locked
+        );
+        setHasCoursePurchase(hasPurchase);
+
         setIsPaid(!selectedLesson.locked);
-        setIsPaidLesson(selectedLesson.locked);
+        setIsPaidLesson(!selectedLesson.is_free && !hasPurchase);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch course data.");
@@ -141,15 +147,18 @@ export default function LessonPage() {
   };
 
   const handleLessonClick = (lessonId: string, isLocked: boolean) => {
-    // Only run on direct user clicks — not programmatic state changes
-    if (isLocked) {
+    if (isLocked && !hasCoursePurchase) {
       setIsPaidLesson(true);
+      const lesson = getAllLessons().find((l) => l.id === lessonId);
+      if (lesson) {
+        setCurrentLesson(lesson);
+        router.push(`/courses/${courseId}/lessons/${lessonId}`);
+      }
       return;
     }
 
     setIsPaidLesson(false);
 
-    // Avoid re-pushing if already on the same lesson
     if (currentLesson?.id === lessonId) {
       return;
     }
@@ -169,24 +178,20 @@ export default function LessonPage() {
     const nextIndex =
       direction === "next" ? currentIndex + 1 : currentIndex - 1;
 
-    if (nextIndex < 0 || nextIndex >= allLessons.length) return;
-
-    const nextLesson = allLessons[nextIndex];
-
-    // Prevent navigation if locked
-    if (nextLesson.locked) {
-      setIsPaidLesson(true);
+    if (nextIndex < 0 || nextIndex >= allLessons.length) {
       return;
     }
 
-    // Update progress if needed
+    const nextLesson = allLessons[nextIndex];
+
     if (currentLesson && !currentLesson.completed && userId) {
       try {
-        await fetch("/api/progress/update", {
+        const response = await fetch("/api/progress/update", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, lessonId: currentLesson.id }),
         });
+        if (!response.ok) throw new Error("Progress update failed");
 
         setSections((prev) =>
           prev.map((section) => ({
@@ -203,16 +208,28 @@ export default function LessonPage() {
       }
     }
 
-    // Navigate only after everything else
-    setCurrentLesson(nextLesson);
-    router.push(`/courses/${courseId}/lessons/${nextLesson.id}`);
+    if (nextLesson.locked) {
+      setCurrentLesson(nextLesson);
+      setIsPaidLesson(true);
+      window.history.pushState(
+        null,
+        "",
+        `/courses/${courseId}/lessons/${nextLesson.id}`
+      );
+      const section = sections.find((s) =>
+        s.lessons.some((l) => l.id === nextLesson.id)
+      );
+      if (section) setExpandedSections([section.id]);
+      return;
+    }
 
+    setCurrentLesson(nextLesson);
+    setIsPaidLesson(false);
+    router.push(`/courses/${courseId}/lessons/${nextLesson.id}`);
     const section = sections.find((s) =>
       s.lessons.some((l) => l.id === nextLesson.id)
     );
-    if (section) {
-      setExpandedSections([section.id]);
-    }
+    if (section) setExpandedSections([section.id]);
   };
 
   const handleJoinCourse = () => {
@@ -223,7 +240,7 @@ export default function LessonPage() {
   const completedLessons = getAllLessons().filter((l) => l.completed).length;
   const { hasPrevious, hasNext } = getNavigationState();
 
-  if (loading) {
+  if (loading || isPaidLesson === null) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center w-full">
         <LumaSpin />
@@ -305,7 +322,7 @@ export default function LessonPage() {
 
           <div className="space-y-4">
             <CourseSidebar
-              isPaid={isPaid}
+              isPaid={hasCoursePurchase}
               activeTab={sidebarActiveTab}
               onTabChange={setSidebarActiveTab}
               modules={sections}
