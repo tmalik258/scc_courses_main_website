@@ -12,12 +12,20 @@ export const fetchImage = async (
       return null;
     }
 
-    console.log("Fetching signed URL for file:", fileName, "from bucket:", bucketName);
+    console.log(
+      "Fetching signed URL for file:",
+      fileName,
+      "from bucket:",
+      bucketName
+    );
 
     // Generate signed URL for the image
     const { data, error } = await supabase.storage
       .from(bucketName)
-      .createSignedUrl(fileName, 60); // URL valid for 60 seconds
+      .createSignedUrl(
+        fileName.startsWith("images/") ? fileName : `images/${fileName}`,
+        3600
+      );
 
     if (error) {
       console.error("Error generating signed URL:", error);

@@ -5,10 +5,18 @@ import { transformCourse, CourseWithRelations } from "@/lib/course-transformer";
 export async function GET() {
   try {
     const rawCourses = await prisma.course.findMany({
-      where: {
+      where: { isPublished: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        instructorId: true,
+        categoryId: true,
+        thumbnailUrl: true,
+        price: true,
         isPublished: true,
-      },
-      include: {
+        createdAt: true,
+        updatedAt: true,
         category: {
           select: {
             id: true,
@@ -33,32 +41,18 @@ export async function GET() {
           },
         },
         modules: {
-          include: {
-            lessons: true,
-          },
+          include: { lessons: true },
         },
-        purchases: {
-          select: { id: true },
-        },
-        reviews: {
-          select: { rating: true },
-        },
-        resources: {
-          select: { id: true },
-        },
+        purchases: { select: { id: true } },
+        reviews: { select: { rating: true } },
+        resources: { select: { id: true } },
       },
-      orderBy: {
-        purchases: {
-          _count: "desc",
-        },
-      },
+      orderBy: { purchases: { _count: "desc" } },
     });
 
     const courses = rawCourses.map((course) =>
       transformCourse(course as CourseWithRelations)
     );
-
-    console.log("[GET /api/courses] Fetched", courses.length, courses);
 
     return NextResponse.json(courses);
   } catch (error) {

@@ -18,7 +18,7 @@ export interface CourseCardProps {
   originalPrice: string;
   discountedPrice: string;
   discount: string;
-  thumbnailUrl: string | null;
+  thumbnailUrl: string | null | undefined;
 }
 
 export function CourseCard({
@@ -34,14 +34,13 @@ export function CourseCard({
   thumbnailUrl,
 }: CourseCardProps) {
   const router = useRouter();
-  const [displayImageUrl, setDisplayImageUrl] = useState(null as string | null);
-  
+  const [displayImageUrl, setDisplayImageUrl] = useState<string | null>(null);
+
   // Generate colors if not provided as props
   const [colors] = useState<string[]>(() => {
-    // Use randomColorGenerator to get colors
-    return randomColorGenerator().split(' ');
+    return randomColorGenerator().split(" ");
   });
-  
+
   // Extract the background and text colors
   const categoryBgColor = colors[0];
   const categoryTextColor = colors[1];
@@ -53,13 +52,22 @@ export function CourseCard({
   useEffect(() => {
     (async () => {
       if (thumbnailUrl && !displayImageUrl) {
-        console.log("Fetching thumbnail URL...");
-        const fetchedUrl = await fetchImage(thumbnailUrl, "courses-resources");
-        setDisplayImageUrl(fetchedUrl ?? "");
-        console.log("Fetched thumbnail URL:", fetchedUrl);
+        try {
+          const fetchedUrl = await fetchImage(
+            thumbnailUrl,
+            "courses-resources"
+          );
+          setDisplayImageUrl(fetchedUrl ?? "/images/course_placeholder.jpg");
+        } catch {
+          setDisplayImageUrl("/images/course_placeholder.jpg");
+        }
       }
     })();
-  }, [displayImageUrl, thumbnailUrl]);
+  }, [thumbnailUrl]);
+
+  // Use displayImageUrl with fallbacks
+  const imageSrc =
+    displayImageUrl || thumbnailUrl || "/images/course_placeholder.jpg";
 
   return (
     <div
@@ -79,7 +87,7 @@ export function CourseCard({
           {/* Course Image - Left side on mobile */}
           <div className="flex-shrink-0 w-24 h-auto">
             <Image
-              src={thumbnailUrl || "/images/course_placeholder.jpg"}
+              src={imageSrc}
               alt={title}
               width={96}
               height={80}
@@ -150,7 +158,7 @@ export function CourseCard({
         {/* Course Image */}
         <div className="relative w-full h-48 p-3">
           <Image
-            src={thumbnailUrl || "/images/course_placeholder.jpg"}
+            src={imageSrc}
             alt={title}
             width={350}
             height={200}

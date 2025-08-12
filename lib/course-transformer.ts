@@ -27,7 +27,7 @@ export type CourseWithRelations = Prisma.CourseGetPayload<{
     };
     modules: {
       include: {
-        lessons: true; // Lesson model with all scalar fields
+        lessons: true;
       };
     };
     purchases: {
@@ -40,7 +40,7 @@ export type CourseWithRelations = Prisma.CourseGetPayload<{
       select: { id: true };
     };
   };
-}>;
+}> & { thumbnailUrl: string | null | undefined };
 
 export interface CourseData {
   id: string;
@@ -64,7 +64,7 @@ export interface CourseData {
   rating: string;
   price: string;
   image: string;
-  thumbnail_url: string;
+  thumbnailUrl: string;
   originalPrice: string;
   discountedPrice: string;
   discount: string;
@@ -74,6 +74,9 @@ export interface CourseData {
   articleCount: number;
   downloadableResources: number;
 }
+
+const SUPABASE_IMAGE_BASE =
+  "https://nflffbbhnctgdaeyyfeq.supabase.co/storage/v1/object/public/courses-resources/images";
 
 export function transformCourse(course: CourseWithRelations): CourseData {
   const studentCount = course.purchases.length;
@@ -105,6 +108,25 @@ export function transformCourse(course: CourseWithRelations): CourseData {
   const articleCount = lessons.length - videoCount;
   const downloadableResources = course.resources.length;
 
+  let thumbnailUrl: string;
+
+  if (course.thumbnailUrl?.startsWith("http")) {
+    thumbnailUrl = course.thumbnailUrl;
+  } else if (course.thumbnailUrl) {
+    // Remove leading slashes
+    const cleanPath = course.thumbnailUrl.replace(/^\/+/, "");
+    // Use only the filename part for supabase URL
+    const filename = cleanPath.includes("/")
+      ? cleanPath.split("/").pop()
+      : cleanPath;
+
+    thumbnailUrl = filename
+      ? `${SUPABASE_IMAGE_BASE}/${filename}`
+      : "/images/course_placeholder.jpg";
+  } else {
+    thumbnailUrl = "/images/course_placeholder.jpg";
+  }
+
   return {
     id: course.id,
     slug: course.category.slug,
@@ -120,8 +142,8 @@ export function transformCourse(course: CourseWithRelations): CourseData {
     students: `${studentCount}+ students`,
     rating: `${averageRating}/5`,
     price: originalPrice.toFixed(2),
-    image: course.thumbnailUrl || "/images/course_placeholder.jpg",
-    thumbnail_url: course.thumbnailUrl || "/images/course_placeholder.jpg",
+    image: thumbnailUrl,
+    thumbnailUrl,
     originalPrice: originalPrice.toFixed(2),
     discountedPrice: discountedPrice.toFixed(2),
     discount: `${discountPercentage}% OFF`,
