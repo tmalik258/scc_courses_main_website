@@ -125,7 +125,7 @@ export default function PaymentPage({
                   imageUrl={course.thumbnailUrl || ""}
                   alt={course.title}
                 />
-                <CourseInfo courseId={courseId} />
+                <CourseInfo course={course} />
               </div>
             </div>
 
