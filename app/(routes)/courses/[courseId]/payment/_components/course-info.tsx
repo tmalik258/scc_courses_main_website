@@ -3,86 +3,18 @@
 import { useState, useEffect } from "react";
 import { Users, Star, Clock } from "lucide-react";
 import { CourseData } from "@/types/course";
-import { getCourseById } from "@/actions/courses";
-import { DashedSpinner } from "@/components/dashed-spinner";
 
 interface CourseInfoProps {
-  courseId: string | undefined;
+  course: CourseData | null;
 }
 
-export function CourseInfo({ courseId }: CourseInfoProps) {
-  const [course, setCourse] = useState<CourseData | null>(null);
-  const [loading, setLoading] = useState(true);
+export function CourseInfo({ course }: CourseInfoProps) {
+  const [courseData, setCourseData] = useState<CourseData | null>(course);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log(`[CourseInfo] Received courseId:`, courseId, {
-      isValid: typeof courseId === "string" && courseId.trim() !== "",
-    });
-    async function fetchCourse() {
-      try {
-        setLoading(true);
-        if (
-          !courseId ||
-          typeof courseId !== "string" ||
-          courseId.trim() === ""
-        ) {
-          throw new Error(`Invalid or missing courseId: ${courseId}`);
-        }
-        const courseData = await getCourseById(courseId);
-        console.log(
-          `[CourseInfo ${courseId}] Course data fetched:`,
-          courseData
-        );
-        if (courseData) {
-          setCourse(courseData);
-        } else {
-          setError("Course not found");
-          console.warn(`[CourseInfo ${courseId}] No course data returned`);
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        const errorMessage = err.message || "Failed to load course data";
-        setError(errorMessage);
-        console.error(
-          `[CourseInfo ${courseId || "unknown"}] Error fetching course:`,
-          err
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchCourse();
-  }, [courseId]);
-
-  if (!courseId || typeof courseId !== "string" || courseId.trim() === "") {
-    console.error(`[CourseInfo] Invalid courseId at render:`, courseId);
-    return (
-      <div className="text-red-500">
-        Invalid course ID
-        <button
-          className="ml-4 text-blue-500 underline"
-          onClick={() => {
-            console.log(`[CourseInfo] Retrying fetch with courseId:`, courseId);
-            setLoading(true);
-            setError(null);
-            setCourse(null);
-          }}
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-48 text-gray-500">
-        <DashedSpinner size={24} />
-        Loading course...
-      </div>
-    );
-  }
+    setCourseData(course);
+  }, [course]);
 
   if (error || !course) {
     return (
@@ -91,10 +23,9 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
         <button
           className="ml-4 text-blue-500 underline"
           onClick={() => {
-            console.log(`[CourseInfo ${courseId}] Retrying fetch`);
-            setLoading(true);
+            console.log(`[CourseInfo ${courseData?.id}] Retrying fetch`);
             setError(null);
-            setCourse(null);
+            setCourseData(null);
           }}
         >
           Retry
@@ -107,9 +38,7 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
     <div className="space-y-4">
       {/* Category Badge */}
       <div>
-        <span
-          className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded font-medium"
-        >
+        <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded font-medium">
           {course.category.name}
         </span>
       </div>
@@ -136,9 +65,12 @@ export function CourseInfo({ courseId }: CourseInfoProps) {
       </div>
 
       {/* Description */}
-      <p className="text-gray-600 leading-relaxed">
-        {course.description || "No description available"}
-      </p>
+      <div
+        className="text-gray-600 leading-relaxed"
+        dangerouslySetInnerHTML={{
+          __html: course.description || "No description available",
+        }}
+      />
 
       {/* Pricing */}
       <div className="flex items-center gap-3">

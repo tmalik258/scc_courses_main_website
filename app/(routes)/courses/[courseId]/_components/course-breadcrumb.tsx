@@ -5,27 +5,15 @@ import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface CourseBreadcrumbProps {
-  courseId: string;
+  title: string;
 }
 
-const CourseBreadcrumb = ({ courseId }: CourseBreadcrumbProps) => {
-  const [title, setTitle] = useState<string>("");
+const CourseBreadcrumb = ({ title }: CourseBreadcrumbProps) => {
+  const [breadcrumbTitle, setBreadcrumbTitle] = useState<string>(title);
 
   useEffect(() => {
-    const fetchTitle = async () => {
-      try {
-        const res = await fetch(`/api/courses/${courseId}`);
-        if (!res.ok) throw new Error("Course not found");
-        const data = await res.json();
-        setTitle(data.title || "Untitled Course");
-      } catch (error) {
-        console.error("Error fetching course title:", error);
-        setTitle("Course");
-      }
-    };
-
-    fetchTitle();
-  }, [courseId]);
+    setBreadcrumbTitle(title);
+  }, [title]);
 
   return (
     <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-4 ml-37">
@@ -37,7 +25,7 @@ const CourseBreadcrumb = ({ courseId }: CourseBreadcrumbProps) => {
       </Link>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
       <span className="truncate text-primary font-medium max-w-[250px] sm:max-w-[400px]">
-        {title || "Loading..."}
+        {breadcrumbTitle || "Loading..."}
       </span>
     </nav>
   );

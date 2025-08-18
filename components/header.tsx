@@ -22,23 +22,29 @@ import {
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
-// import { signout } from "@/actions/auth";
+import { UserProfile, getDisplayName } from "@/types/user";
+import { signout } from "@/actions/auth";
+import { toast } from "sonner";
 
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const supabase = createClient();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
 
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user }, } = await supabase.auth.getUser();
       if (user) {
-        setUser(user);
+        // Assuming user.user_metadata.full_name exists from Supabase
+        setUser({
+          id: user.id,
+          email: user.email || '',
+          fullName: user.user_metadata?.full_name || null,
+        });
       }
     };
     fetchUser();
@@ -88,13 +94,12 @@ const Header = () => {
   ];
 
   const handleLogout = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-      window.location.href = "/signup";
-    } catch (error) {
-      console.error("Logout failed:", error);
+    setIsLoggingOut(true);
+    const result = await signout();
+    if (result?.error) {
+      toast.error(result.error);
     }
+    setIsLoggingOut(false);
   };
 
   return (
@@ -170,7 +175,9 @@ const Header = () => {
                   className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover object-top"
                   alt="Profile"
                 />
-                <span className="text-gray-700 hidden md:block">Admin</span>
+                <span className="text-gray-700 hidden md:block">
+                  {user ? getDisplayName(user) : ""}
+                </span>
                 <svg
                   className="w-4 h-4 text-gray-400 hidden md:block"
                   fill="none"
@@ -188,9 +195,18 @@ const Header = () => {
               <DropdownMenuContent align="end" className="!all-[initial]">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRedirect("/dashboard")}>
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRedirect("/dashboard/my-courses")}>
+                  My Courses
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRedirect("/dashboard/saved-courses")}>
+                  Saved Courses
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRedirect("/dashboard/payments")}>
+                  Billing
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-red-600"
@@ -280,13 +296,14 @@ const Header = () => {
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <button
                   onClick={() => handleRedirect("/login")}
-                  className="block w-full text-left text-gray-700 hover:text-aqua-mist transition-colors py-2 px-3 rounded-lg hover:bg-gray-50"
+                  className="block w-full text-left text-gray-700 hover:text-aqua-mist transition-colors py-2 px-3 rounded-lg hover:bg-gray-50 cursor-pointer"
+                  disabled={isLoggingOut}
                 >
                   Log in
                 </button>
                 <Button
                   onClick={() => handleRedirect("/signup")}
-                  className="w-full bg-aqua-mist hover:bg-aqua-depth"
+                  className="w-full bg-aqua-mist hover:bg-aqua-depth cursor-pointer"
                 >
                   Register
                 </Button>

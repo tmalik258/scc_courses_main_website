@@ -2,36 +2,32 @@
 
 import { useEffect, useState } from "react";
 import { SavedCourseCard } from "./_components/saved-course-card";
-import { createClient } from "@/utils/supabase/client";
 import { LumaSpin } from "@/components/luma-spin";
 
 export default function SavedCoursesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSavedCourses = async () => {
-      const supabase = await createClient();
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      try {
+        setLoading(true);
 
-      if (user && !error) {
         const res = await fetch("/api/saved-courses", {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ userId: user.id }),
         });
 
         const data = await res.json();
         setCourses(data.courses || []);
+      } catch (error) {
+        console.error("Error fetching saved courses:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchSavedCourses();

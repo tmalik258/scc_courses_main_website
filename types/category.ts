@@ -18,4 +18,5 @@ export interface CategoryWithMeta {
   slug: string;
   courseCount: number;
   minPrice: number;
+  icon?: string | null;
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { Play } from "lucide-react";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { fetchVideoUrl } from "@/utils/supabase/fetchVideo"; // Adjust path to your fetchVideo.ts
 
@@ -16,7 +15,7 @@ export function LessonVideo({ signedUrl }: LessonVideoProps) {
   const [isLoading, setIsLoading] = useState(false); // Track loading state
 
   useEffect(() => {
-    if (isPlaying && signedUrl && !videoSignedUrl) {
+    if (signedUrl && !videoSignedUrl) {
       // Fetch signed URL when play is clicked
       const getSignedUrl = async () => {
         try {
@@ -45,15 +44,21 @@ export function LessonVideo({ signedUrl }: LessonVideoProps) {
 
   if (!signedUrl || !isPlaying || !videoSignedUrl) {
     return (
-      <div className="relative bg-gray-800 rounded-lg overflow-hidden mb-6">
-        <Image
-          src="https://source.unsplash.com/800x450/?learning,education"
-          alt="Course thumbnail"
-          width={600}
-          height={300}
-          className="w-full md:h-[500px] object-cover object-top brightness-45"
-        />
+      <div className="relative min-h-[500px] border border-gray-100 rounded-lg overflow-hidden mb-6">
         <div className="absolute inset-0 flex items-center justify-center">
+          {signedUrl && videoSignedUrl && (
+            <video
+              className="absolute inset-0 w-full h-full"
+              onError={(e) => {
+                console.error("Video playback error:", e);
+                setError("Failed to load video. Please try again.");
+              }}
+              src={videoSignedUrl}
+              typeof="video/mp4"
+            >
+              Your browser does not support the video tag.
+            </video>
+          )}
           {isLoading ? (
             <div className="flex items-center justify-center">
               <svg

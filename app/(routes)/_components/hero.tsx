@@ -77,7 +77,7 @@ const Hero = () => {
   ];
 
   return (
-    <section className="relative right-6 px-4 md:px-6 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto">
+    <section className="px-4 md:px-6 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto">
       <div className="grid md:grid-cols-5 gap-8 lg:gap-12 items-center">
         {/* Content Section */}
         <div className="md:col-span-3 space-y-6 md:space-y-8 order-2 lg:order-1">

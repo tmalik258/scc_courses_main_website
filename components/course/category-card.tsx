@@ -2,14 +2,10 @@ import Link from "next/link";
  import CategoryIcon from "./category-icon";
 import { randomColorGenerator } from "@/utils/category";
 
+import { CategoryWithMeta } from '@/types/category';
+
 interface CategoryCardProps {
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-    courseCount: number;
-    minPrice: number;
-  };
+  category: CategoryWithMeta;
 }
 
 export default function CategoryCard({ category }: CategoryCardProps) {
@@ -22,7 +18,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
           className={`w-20 md:w-24 h-20 md:h-24 ${bgColor} rounded-lg flex items-center justify-center`}
         >
           <CategoryIcon
-            slug={category.slug}
+            icon={category.icon || ""}
             alt={`${category.name} icon`}
             width={60}
             height={60}

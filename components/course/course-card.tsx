@@ -37,13 +37,7 @@ export function CourseCard({
   const [displayImageUrl, setDisplayImageUrl] = useState<string | null>(null);
 
   // Generate colors if not provided as props
-  const [colors] = useState<string[]>(() => {
-    return randomColorGenerator().split(" ");
-  });
-
-  // Extract the background and text colors
-  const categoryBgColor = colors[0];
-  const categoryTextColor = colors[1];
+  const [colors] = useState<string>(() => randomColorGenerator());
 
   const handleClick = () => {
     router.push(`/courses/${id}`);
@@ -52,23 +46,24 @@ export function CourseCard({
   useEffect(() => {
     console.log("thumbnail URL:", thumbnailUrl);
     (async () => {
-      if (thumbnailUrl && !displayImageUrl) {
+      if (
+        thumbnailUrl &&
+        !displayImageUrl &&
+        thumbnailUrl.includes("supabase.co")
+      ) {
         try {
           const fetchedUrl = await fetchImage(
             thumbnailUrl,
             "courses-resources"
           );
           setDisplayImageUrl(fetchedUrl ?? "/images/course_placeholder.jpg");
+          console.log("Fetched image URL:", fetchedUrl);
         } catch {
           setDisplayImageUrl("/images/course_placeholder.jpg");
         }
       }
     })();
-  }, [thumbnailUrl]);
-
-  // Use displayImageUrl with fallbacks
-  const imageSrc =
-    displayImageUrl || thumbnailUrl || "/images/course_placeholder.jpg";
+  }, [displayImageUrl, thumbnailUrl]);
 
   return (
     <div
@@ -88,7 +83,7 @@ export function CourseCard({
           {/* Course Image - Left side on mobile */}
           <div className="flex-shrink-0 w-24 h-auto">
             <Image
-              src={imageSrc}
+              src={displayImageUrl || "/images/course_placeholder.jpg"}
               alt={title}
               width={96}
               height={80}
@@ -101,7 +96,7 @@ export function CourseCard({
             {/* Category Badge */}
             <div className="mb-2">
               <span
-                className={`${categoryBgColor} ${categoryTextColor} text-xs px-2 py-1 rounded-sm font-medium`}
+                className={`${colors} text-xs px-2 py-1 rounded-sm font-medium`}
               >
                 {category}
               </span>
@@ -159,7 +154,7 @@ export function CourseCard({
         {/* Course Image */}
         <div className="relative w-full h-48 p-3">
           <Image
-            src={imageSrc}
+            src={displayImageUrl || "/images/course_placeholder.jpg"}
             alt={title}
             width={350}
             height={200}
@@ -172,7 +167,7 @@ export function CourseCard({
           {/* Category Badge */}
           <div className="mb-3">
             <span
-              className={`${categoryBgColor} ${categoryTextColor} text-xs px-3 py-1 rounded-sm font-medium`}
+              className={`${colors} text-xs px-3 py-1 rounded-sm font-medium`}
             >
               {category}
             </span>

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { fetchImage } from "@/utils/supabase/fetchImage";
 
 interface CategoryIconProps {
-  slug: string;
+  icon: string;
   alt: string;
   width: number;
   height: number;
@@ -11,21 +11,21 @@ interface CategoryIconProps {
 }
 
 export default function CategoryIcon({
-  slug,
+  icon,
   alt,
   width,
   height,
   className,
 }: CategoryIconProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [displayImageUrl, setDisplayImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getImage = async () => {
       try {
-        const url = await fetchImage(slug, "category-icons");
-        setImageUrl(url);
+        const url = await fetchImage(icon, "category-icons");
+        setDisplayImageUrl(url);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
@@ -37,12 +37,12 @@ export default function CategoryIcon({
       }
     };
 
-    if (slug) {
+    if (icon) {
       getImage();
     } else {
       setLoading(false);
     }
-  }, [slug]);
+  }, [icon]);
 
   if (loading) {
     return <div>Loading...</div>; // Or a spinner component
@@ -52,13 +52,13 @@ export default function CategoryIcon({
     return <div>Error: {error}</div>;
   }
 
-  if (!imageUrl) {
+  if (!icon) {
     return null; // Or a placeholder image
   }
 
   return (
     <Image
-      src={imageUrl}
+      src={displayImageUrl || "/"}
       alt={alt}
       width={width}
       height={height}
