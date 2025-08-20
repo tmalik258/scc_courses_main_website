@@ -13,10 +13,9 @@ type Category = {
 
 interface Props {
   categories: Category[];
-};
+}
 
 export default function Categories({ categories }: Props) {
-
   return (
     <section className="px-6 py-6 md:py-16">
       <div className="max-w-7xl mx-auto">
@@ -51,14 +50,14 @@ export default function Categories({ categories }: Props) {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category) => {
-            return (
-              <CategoryCard
-                key={category.id}
-                category={category}
-              />
-            );
-          })}
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/courses?category=${encodeURIComponent(category.slug)}`}
+            >
+              <CategoryCard category={category} />
+            </Link>
+          ))}
         </div>
       </div>
     </section>

@@ -1,44 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { ChevronDown, ChevronUp, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-interface CourseFiltersProps {
-  onFilterChange: (filters: {
-    categories: string[];
-    priceRange: string;
-    rating: string;
-  }) => void;
+interface FiltersState {
+  categories: string[];
+  priceRange: string;
+  rating: string;
 }
 
-export default function CourseFilters({ onFilterChange }: CourseFiltersProps) {
-  const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("category") || "";
+interface CourseFiltersProps {
+  filters: FiltersState;
+  onFilterChange: (filters: FiltersState) => void;
+  categories?: string[];
+}
 
-  const [expandedSections, setExpandedSections] = useState({
-    category: true,
-    price: true,
-    rating: true,
-  });
-
-  const [selectedFilters, setSelectedFilters] = useState({
-    categories: initialCategory ? [initialCategory] : [],
-    priceRange: "All",
-    rating: "All",
-  });
-
-  const categories = [
-    "AI Calling",
-    "WhatsApp Chatbots",
-    "Make Automations",
-    "App Development",
-    "Web Development",
-    "Data Science",
-    "Mobile Development",
-  ];
-
+export default function CourseFilters({
+  filters,
+  onFilterChange,
+  categories = [],
+}: CourseFiltersProps) {
   const priceRanges = [
     "All",
     "Under ₹500",
@@ -46,81 +27,41 @@ export default function CourseFilters({ onFilterChange }: CourseFiltersProps) {
     "₹1000 - ₹2000",
     "Above ₹2000",
   ];
-
   const ratings = ["All", "5.0", "4.0+", "3.0+", "2.0+", "1.0+"];
 
-  useEffect(() => {
-    const category = searchParams.get("category") || "";
-    setSelectedFilters((prev) => ({
-      ...prev,
-      categories: category && categories.includes(category) ? [category] : [],
-    }));
-    onFilterChange({
-      ...selectedFilters,
-      categories: category && categories.includes(category) ? [category] : [],
-    });
-  }, [searchParams]);
-
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
   const handleCategoryChange = (category: string, checked: boolean) => {
-    const newCategories = checked
-      ? [...selectedFilters.categories, category]
-      : selectedFilters.categories.filter((c) => c !== category);
-
-    const newFilters = { ...selectedFilters, categories: newCategories };
-    setSelectedFilters(newFilters);
-    onFilterChange(newFilters);
+    const newCategories = checked ? [category] : [];
+    onFilterChange({ ...filters, categories: newCategories });
   };
 
   const handlePriceChange = (price: string) => {
-    const newFilters = { ...selectedFilters, priceRange: price };
-    setSelectedFilters(newFilters);
-    onFilterChange(newFilters);
+    onFilterChange({ ...filters, priceRange: price });
   };
 
   const handleRatingChange = (rating: string) => {
-    const newFilters = { ...selectedFilters, rating };
-    setSelectedFilters(newFilters);
-    onFilterChange(newFilters);
+    onFilterChange({ ...filters, rating });
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-6 md:py-16">
+    <div className="p-6">
       <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 font-manrope">
         Filter by
       </h3>
 
-      {/* Category Filter */}
       <div className="mb-6">
-        <button
-          onClick={() => toggleSection("category")}
-          className="flex items-center justify-between w-full text-left text-base md:text-lg font-semibold text-gray-800 mb-3 font-manrope"
-        >
-          Category
-          {expandedSections.category ? (
-            <ChevronUp className="w-4 h-4 text-gray-600" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-600" />
-          )}
-        </button>
-
-        {expandedSections.category && (
+        <h4 className="font-semibold mb-3">Category</h4>
+        {categories.length === 0 ? (
+          <p className="text-sm text-gray-500">Loading categories...</p>
+        ) : (
           <div className="space-y-2">
             {categories.map((category) => (
               <div key={category} className="flex items-center space-x-2">
                 <Checkbox
                   id={category}
-                  checked={selectedFilters.categories.includes(category)}
+                  checked={filters.categories.includes(category)}
                   onCheckedChange={(checked) =>
                     handleCategoryChange(category, checked as boolean)
                   }
-                  className="text-blue-500"
                 />
                 <label
                   htmlFor={category}
@@ -134,89 +75,59 @@ export default function CourseFilters({ onFilterChange }: CourseFiltersProps) {
         )}
       </div>
 
-      {/* Price Filter */}
       <div className="mb-6">
-        <button
-          onClick={() => toggleSection("price")}
-          className="flex items-center justify-between w-full text-left text-base md:text-lg font-semibold text-gray-800 mb-3 font-manrope"
-        >
-          Price
-          {expandedSections.price ? (
-            <ChevronUp className="w-4 h-4 text-gray-600" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-600" />
-          )}
-        </button>
-
-        {expandedSections.price && (
-          <div className="space-y-2">
-            {priceRanges.map((price) => (
-              <div key={price} className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id={price}
-                  name="price"
-                  checked={selectedFilters.priceRange === price}
-                  onChange={() => handlePriceChange(price)}
-                  className="text-blue-500 focus:ring-blue-500"
-                />
-                <label
-                  htmlFor={price}
-                  className="text-sm text-gray-600 cursor-pointer font-manrope"
-                >
-                  {price}
-                </label>
-              </div>
-            ))}
-          </div>
-        )}
+        <h4 className="font-semibold mb-3">Price</h4>
+        <div className="space-y-2">
+          {priceRanges.map((price) => (
+            <div key={price} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id={price}
+                name="price"
+                checked={filters.priceRange === price}
+                onChange={() => handlePriceChange(price)}
+              />
+              <label
+                htmlFor={price}
+                className="text-sm text-gray-600 cursor-pointer font-manrope"
+              >
+                {price}
+              </label>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Rating Filter */}
       <div className="mb-6">
-        <button
-          onClick={() => toggleSection("rating")}
-          className="flex items-center justify-between w-full text-left text-base md:text-lg font-semibold text-gray-800 mb-3 font-manrope"
-        >
-          Rating
-          {expandedSections.rating ? (
-            <ChevronUp className="w-4 h-4 text-gray-600" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-600" />
-          )}
-        </button>
-
-        {expandedSections.rating && (
-          <div className="space-y-2">
-            {ratings.map((rating) => (
-              <div key={rating} className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id={rating}
-                  name="rating"
-                  checked={selectedFilters.rating === rating}
-                  onChange={() => handleRatingChange(rating)}
-                  className="text-blue-500 focus:ring-blue-500"
-                />
-                <label
-                  htmlFor={rating}
-                  className="text-sm text-gray-600 cursor-pointer font-manrope flex items-center gap-2"
-                >
-                  <div className="flex">
-                    {rating !== "All" &&
-                      Array.from({ length: parseInt(rating) }, (_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 text-yellow-500 fill-current inline"
-                        />
-                      ))}
-                  </div>
-                  ({rating})
-                </label>
-              </div>
-            ))}
-          </div>
-        )}
+        <h4 className="font-semibold mb-3">Rating</h4>
+        <div className="space-y-2">
+          {ratings.map((rating) => (
+            <div key={rating} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id={rating}
+                name="rating"
+                checked={filters.rating === rating}
+                onChange={() => handleRatingChange(rating)}
+              />
+              <label
+                htmlFor={rating}
+                className="text-sm text-gray-600 cursor-pointer font-manrope flex items-center gap-2"
+              >
+                <div className="flex">
+                  {rating !== "All" &&
+                    Array.from({ length: parseInt(rating) }, (_, i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 text-yellow-500 fill-current inline"
+                      />
+                    ))}
+                </div>
+                ({rating})
+              </label>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

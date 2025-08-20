@@ -18,20 +18,29 @@ import { ContactForm } from "../../_components/contact-form";
 import { CourseFilterTabs } from "../../_components/course-filter-tabs";
 import { CourseData } from "@/types/course";
 import { getPopularCourses } from "@/actions/courses";
+import { getCategoriesWithMeta } from "@/actions/categories";
 import { DashedSpinner } from "@/components/dashed-spinner";
+
+interface FiltersState {
+  categories: string[];
+  priceRange: string;
+  rating: string;
+}
 
 export default function BrowseCourses() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("category") || "All";
 
   const [coursesData, setCoursesData] = useState<CourseData[]>([]);
-  const [activeFilter, setActiveFilter] = useState(initialCategory);
+  const [categories, setCategories] = useState<
+    { name: string; slug: string }[]
+  >([]);
+  const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Most Popular");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [advancedFilters, setAdvancedFilters] = useState({
-    categories: initialCategory !== "All" ? [initialCategory] : [],
+  const [advancedFilters, setAdvancedFilters] = useState<FiltersState>({
+    categories: [],
     priceRange: "All",
     rating: "All",
   });
@@ -41,29 +50,50 @@ export default function BrowseCourses() {
   const coursesPerPage = 9;
 
   useEffect(() => {
-    async function fetchCourses() {
+    async function fetchData() {
       try {
         setLoading(true);
-        const courses = await getPopularCourses();
+        const [courses, fetchedCategories] = await Promise.all([
+          getPopularCourses(),
+          getCategoriesWithMeta(),
+        ]);
         setCoursesData(courses);
+        setCategories(fetchedCategories);
       } catch {
-        setError("Failed to load courses. Please try again later.");
+        setError("Failed to load data. Please try again later.");
       } finally {
         setLoading(false);
       }
     }
-    fetchCourses();
+    fetchData();
   }, []);
 
+  const categoryMapping = useMemo(() => {
+    const map: Record<string, string> = {};
+    categories.forEach((c) => {
+      map[c.slug] = c.name;
+    });
+    return map;
+  }, [categories]);
+
+  const categorySlugMapping = useMemo(() => {
+    const map: Record<string, string> = {};
+    categories.forEach((c) => {
+      map[c.name] = c.slug;
+    });
+    return map;
+  }, [categories]);
+
   useEffect(() => {
-    const category = searchParams.get("category") || "All";
-    setActiveFilter(category);
+    const categorySlug = searchParams.get("category") || "All";
+    const categoryName = categoryMapping[categorySlug] || "All";
+    setActiveFilter(categoryName);
     setAdvancedFilters((prev) => ({
       ...prev,
-      categories: category !== "All" ? [category] : [],
+      categories: categoryName !== "All" ? [categoryName] : [],
     }));
     setCurrentPage(1);
-  }, [searchParams]);
+  }, [searchParams, categoryMapping]);
 
   const filteredAndSortedCourses = useMemo(() => {
     let filtered = coursesData;
@@ -102,10 +132,12 @@ export default function BrowseCourses() {
 
     if (advancedFilters.rating !== "All") {
       filtered = filtered.filter((course) => {
-        const minRating = Number.parseFloat(
-          advancedFilters.rating.replace("+", "")
-        );
-        return parseFloat(course.rating.split("/5")[0]) >= minRating;
+        const courseRating = parseFloat(course.rating.split("/5")[0]);
+        const minRating =
+          advancedFilters.rating === "5.0"
+            ? 5.0
+            : parseFloat(advancedFilters.rating.replace("+", ""));
+        return courseRating >= minRating;
       });
     }
 
@@ -148,18 +180,21 @@ export default function BrowseCourses() {
     )
     .slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage);
 
-  const handleFilterChange = (newAdvancedFilters: {
-    categories: string[];
-    priceRange: string;
-    rating: string;
-  }) => {
+  const handleFilterChange = (newAdvancedFilters: FiltersState) => {
     setAdvancedFilters(newAdvancedFilters);
     setActiveFilter(newAdvancedFilters.categories[0] || "All");
     setCurrentPage(1);
-    const query = new URLSearchParams();
+    const query = new URLSearchParams(searchParams.toString());
+
     if (newAdvancedFilters.categories.length > 0) {
-      query.set("category", newAdvancedFilters.categories[0]);
+      const categorySlug =
+        categorySlugMapping[newAdvancedFilters.categories[0]] ||
+        newAdvancedFilters.categories[0];
+      query.set("category", categorySlug);
+    } else {
+      query.delete("category");
     }
+
     router.push(`/courses?${query.toString()}`, { scroll: false });
   };
 
@@ -195,7 +230,11 @@ export default function BrowseCourses() {
                   className="w-5 h-5 cursor-pointer text-gray-600"
                 />
               </div>
-              <CourseFilters onFilterChange={handleFilterChange} />
+              <CourseFilters
+                onFilterChange={handleFilterChange}
+                filters={advancedFilters}
+                categories={categories.map((c) => c.name)}
+              />
             </div>
 
             <div className="flex-1 flex flex-col">
@@ -229,13 +268,17 @@ export default function BrowseCourses() {
                       setCurrentPage(1);
                       const query = new URLSearchParams();
                       if (filter !== "All") {
-                        query.set("category", filter);
+                        query.set(
+                          "category",
+                          categorySlugMapping[filter] || filter
+                        );
                       }
                       router.push(`/courses?${query.toString()}`, {
                         scroll: false,
                       });
                     }}
                     browseCourses={true}
+                    filters={["All", ...categories.map((c) => c.name)]}
                   />
                 </div>
 
@@ -271,6 +314,12 @@ export default function BrowseCourses() {
                 ) : error ? (
                   <div className="text-center py-12">
                     <p className="text-red-500 text-lg font-manrope">{error}</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-4 text-aqua-mist hover:text-aqua-depth font-semibold"
+                    >
+                      Retry
+                    </button>
                   </div>
                 ) : currentCourses.length > 0 ? (
                   <>
