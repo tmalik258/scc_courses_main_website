@@ -25,9 +25,9 @@ import { CourseData } from "@/types/course";
 import { TestimonialType } from "@/types/testimonial";
 import { createClient } from "@/utils/supabase/client";
 import { LumaSpin } from "@/components/luma-spin";
-
-// Import types from lesson.ts for the mapping
 import type { SectionData } from "@/types/lesson";
+import { fetchImage } from "@/utils/supabase/fetchImage";
+import Decimal from "decimal.js";
 
 type Props = {
   params: Promise<{ courseId: string }>;
@@ -37,7 +37,6 @@ type Props = {
 const placeholder = "/images/course_placeholder.jpg";
 const instructorPlaceholder = "/images/instructor_placeholder_2.jpg";
 
-/** Utility: check if string is a valid http(s) URL */
 function isValidHttpUrl(value: string | undefined | null) {
   if (!value) return false;
   try {
@@ -46,6 +45,19 @@ function isValidHttpUrl(value: string | undefined | null) {
   } catch {
     return false;
   }
+}
+
+function formatPrice(
+  value: number | string | Decimal | null | undefined
+): string {
+  if (value == null) return "0.00";
+  if (typeof value === "number") return value.toFixed(2);
+  if (typeof value === "string") {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? "0.00" : parsed.toFixed(2);
+  }
+  if (value instanceof Decimal) return value.toNumber().toFixed(2);
+  return "0.00";
 }
 
 export default function CourseDetail({ params, onLoadingComplete }: Props) {
@@ -60,22 +72,18 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
   const [courseId, setCourseId] = useState<string>("");
   const router = useRouter();
 
-  // Image src state so we can fallback on actual load error (broken remote URL)
   const [imgSrc, setImgSrc] = useState<string>(placeholder);
   const [instructorImgSrc, setInstructorImgSrc] = useState<string>(
     instructorPlaceholder
   );
 
-  // Resolve params promise safely in client component
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         const resolved = await params;
         if (mounted && resolved?.courseId) setCourseId(resolved.courseId);
-      } catch {
-        // ignore
-      }
+      } catch {}
     })();
     return () => {
       mounted = false;
@@ -109,18 +117,30 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
         ]);
 
         if (courseData) {
-          setCourse(courseData);
-          // Set the first section as expanded by default if sections exist
-          if (courseData.modules && courseData.modules.length > 0) {
-            setExpandedSections([courseData.modules[0].id]);
+          const originalPrice = formatPrice(courseData.price);
+          const discountedPrice = parseFloat(originalPrice) * 0.8;
+
+          const normalizedCourse: CourseData = {
+            ...courseData,
+            price: originalPrice,
+            discount: "20% OFF",
+            originalPrice: originalPrice,
+            discountedPrice: discountedPrice.toFixed(2),
+            learningPoints: courseData.learningPoints || [
+              "Understand the fundamentals of the course topic",
+              "Apply practical skills in real-world scenarios",
+            ],
+          };
+          setCourse(normalizedCourse);
+          if (normalizedCourse.modules && normalizedCourse.modules.length > 0) {
+            setExpandedSections([normalizedCourse.modules[0].id]);
           }
         } else {
           setError("Course not found");
         }
 
         setReviews(testimonialsData);
-      } catch (err) {
-        console.error("fetchCourseAndTestimonials error:", err);
+      } catch {
         setError("Failed to load course data");
       } finally {
         setLoading(false);
@@ -130,18 +150,22 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
     fetchCourseAndTestimonials();
   }, [courseId]);
 
-  // update img src whenever course changes — this ensures we use placeholder for null/empty/invalid urls
   useEffect(() => {
-    const candidate = course?.thumbnailUrl;
-    // Accept if:
-    // - valid http(s) URL
-    // - OR starts with "/" meaning local public path
-    const valid =
-      typeof candidate === "string" &&
-      candidate.trim().length > 0 &&
-      (isValidHttpUrl(candidate) || candidate.startsWith("/"));
-
-    setImgSrc(valid ? candidate! : placeholder);
+    (async () => {
+      if (course?.thumbnailUrl) {
+        if (course.thumbnailUrl.includes("supabase.co")) {
+          const fetchedUrl = await fetchImage(
+            course.thumbnailUrl,
+            "courses-resources"
+          );
+          setImgSrc(fetchedUrl ?? placeholder);
+        } else {
+          setImgSrc(course.thumbnailUrl);
+        }
+      } else {
+        setImgSrc(placeholder);
+      }
+    })();
   }, [course?.thumbnailUrl]);
 
   useEffect(() => {
@@ -196,10 +220,10 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
     );
   }
 
-  const adaptedModules: SectionData[] = course.modules.map((mod) => ({
+  const adaptedModules: SectionData[] = (course.modules || []).map((mod) => ({
     id: mod.id,
     title: mod.title,
-    lessons: mod.lessons.map((lesson) => ({
+    lessons: (mod.lessons || []).map((lesson) => ({
       id: lesson.id,
       title: lesson.title,
       content: lesson.content || null,
@@ -208,7 +232,7 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
       completed: false,
       locked: false,
       duration: (lesson as { duration?: string }).duration || "",
-      resources: lesson.resources.map((res) => ({
+      resources: (lesson.resources || []).map((res) => ({
         name: res.name,
         url: res.url,
       })),
@@ -219,10 +243,8 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
     <div className="min-h-screen bg-white flex flex-col">
       <CourseBreadcrumb title={course.title} />
 
-
       <div className="max-w-7xl mx-auto p-4 md:p-6 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT SIDE */}
           <div className="lg:col-span-2 max-md:order-2">
             <CourseInfo course={course} />
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -239,21 +261,31 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                         <h4 className="font-medium text-gray-800 mb-3">
                           Description
                         </h4>
-                        <div 
+                        <div
                           className="text-gray-600 leading-relaxed"
                           dangerouslySetInnerHTML={{
-                            __html: course.description || "No description available"
+                            __html:
+                              course.description || "No description available",
                           }}
                         />
                       </div>
                       <div>
+                        <h4 className="font-medium text-gray-800 mb-3">
+                          What You&apos;ll Learn
+                        </h4>
                         <ul className="space-y-2">
-                          {course.learningPoints.map((point, i) => (
+                          {(course.learningPoints || []).map((point, i) => (
                             <li key={i} className="flex items-start space-x-3">
                               <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                               <span className="text-gray-600">{point}</span>
                             </li>
                           ))}
+                          {(!course.learningPoints ||
+                            course.learningPoints.length === 0) && (
+                            <p className="text-gray-600">
+                              No learning points available.
+                            </p>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -311,14 +343,13 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                       <TestimonialCard key={review.id} testimonial={review} />
                     ))
                   ) : (
-                    <p className="text-gray-500">No reviews yet.</p>
+                    <p className="text-gray-600">No reviews yet.</p>
                   )}
                 </div>
               )}
             </div>
           </div>
 
-          {/* RIGHT SIDE */}
           <div className="lg:col-span-1 max-md:order-1">
             <div className="flex md:flex-col gap-3 md:gap-6 relative">
               <div>
@@ -330,60 +361,62 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                   src={imgSrc}
                   onError={() => setImgSrc(placeholder)}
                   unoptimized={imgSrc === placeholder}
-                  priority={true} // optional: since this is above the fold for many layouts
+                  priority={true}
                 />
               </div>
 
-              <div className="max-md:flex max-md:flex-col max-md:justify-between text-right">
-                <div className="flex items-center max-md:flex-wrap max-md:justify-start justify-end gap-3 mb-4">
+              <div className="flex items-center max-md:flex-wrap max-md:justify-start justify-end gap-3 mb-4">
+                {course.discount !== "0% OFF" && (
                   <span className="text-gray-400 line-through md:text-lg">
                     ₹{course.originalPrice}
                   </span>
-                  <span className="text-aqua-mist font-bold text-lg md:text-2xl">
-                    ₹{course.discountedPrice}
-                  </span>
+                )}
+
+                <span className="text-aqua-mist font-bold text-lg md:text-2xl">
+                  ₹{course.discountedPrice}
+                </span>
+
+                {course.discount !== "0% OFF" && (
                   <span className="bg-red-100 min-w-fit text-red-600 text-xs md:text-sm px-2 py-1 rounded font-medium">
                     {course.discount}
                   </span>
-                </div>
+                )}
+              </div>
 
-                <div className="space-y-3">
+              <div className="space-y-3">
+                <Button
+                  className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-sm md:text-lg cursor-pointer"
+                  onClick={handleGetStarted}
+                >
+                  Get Started
+                  <Play className="inline-block max-md:hidden w-4 h-4 ml-2" />
+                </Button>
+
+                <div className="max-md:absolute -top-1 right-0">
                   <Button
-                    className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-sm md:text-lg cursor-pointer"
-                    onClick={handleGetStarted}
+                    variant="outline"
+                    className="w-full border-gray-300 text-aqua-mist hover:bg-gray-50 py-3 max-md:border-0 max-md:shadow-none bg-transparent cursor-pointer"
+                    onClick={async () => {
+                      if (!userId) return;
+
+                      setIsFavorite(!isFavorite);
+
+                      await fetch("/api/toggle-save-course", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ userId, courseId }),
+                      });
+                    }}
                   >
-                    Get Started
-                    <Play className="inline-block max-md:hidden w-4 h-4 ml-2" />
+                    <span className="max-md:hidden">
+                      {isFavorite ? "Remove from Favorite" : "Add to Favorite"}
+                    </span>
+                    <Bookmark
+                      className={`w-4 h-4 md:ml-2 ${
+                        isFavorite ? "fill-current text-aqua-mist" : ""
+                      }`}
+                    />
                   </Button>
-
-                  <div className="max-md:absolute -top-1 right-0">
-                    <Button
-                      variant="outline"
-                      className="w-full border-gray-300 text-aqua-mist hover:bg-gray-50 py-3 max-md:border-0 max-md:shadow-none bg-transparent cursor-pointer"
-                      onClick={async () => {
-                        if (!userId) return;
-
-                        setIsFavorite(!isFavorite);
-
-                        await fetch("/api/toggle-save-course", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ userId, courseId }),
-                        });
-                      }}
-                    >
-                      <span className="max-md:hidden">
-                        {isFavorite
-                          ? "Remove from Favorite"
-                          : "Add to Favorite"}
-                      </span>
-                      <Bookmark
-                        className={`w-4 h-4 md:ml-2 ${
-                          isFavorite ? "fill-current text-aqua-mist" : ""
-                        }`}
-                      />
-                    </Button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -411,7 +444,7 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                   },
                 ].map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
-                    <feature.icon className="w-5 h-5 text-gray-500" />
+                    <feature.icon className="w-5 h-5 text-gray-600" />
                     <span className="text-gray-600">{feature.label}</span>
                   </div>
                 ))}

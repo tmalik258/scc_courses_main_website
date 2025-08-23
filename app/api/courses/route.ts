@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { transformCourse, CourseWithRelations } from "@/lib/course-transformer";
+import { transformCourse } from "@/lib/course-transformer";
 
 export async function GET() {
   try {
@@ -51,7 +51,10 @@ export async function GET() {
     });
 
     const courses = rawCourses.map((course) =>
-      transformCourse(course as CourseWithRelations)
+      transformCourse({
+        ...course,
+        thumbnailUrl: course.thumbnailUrl ?? "/images/course_placeholder.jpg",
+      })
     );
 
     return NextResponse.json(courses);
