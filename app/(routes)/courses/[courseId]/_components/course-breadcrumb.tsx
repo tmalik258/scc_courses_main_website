@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 
 interface CourseBreadcrumbProps {
   title: string;
+  courseId: string;
 }
 
-const CourseBreadcrumb = ({ title }: CourseBreadcrumbProps) => {
+const CourseBreadcrumb = ({ title, courseId }: CourseBreadcrumbProps) => {
   const [breadcrumbTitle, setBreadcrumbTitle] = useState<string>(title);
 
   useEffect(() => {
@@ -24,9 +25,12 @@ const CourseBreadcrumb = ({ title }: CourseBreadcrumbProps) => {
         Courses
       </Link>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
-      <span className="truncate text-primary font-medium max-w-[250px] sm:max-w-[400px]">
+      <Link
+        href={`/courses/${courseId}`}
+        className="truncate text-primary font-medium max-w-[250px] sm:max-w-[400px] hover:underline"
+      >
         {breadcrumbTitle || "Loading..."}
-      </span>
+      </Link>
     </nav>
   );
 };

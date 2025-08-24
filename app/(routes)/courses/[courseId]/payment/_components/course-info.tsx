@@ -6,6 +6,7 @@ import { CourseData } from "@/types/course";
 
 interface CourseInfoProps {
   course: CourseData | null;
+  courseId: string;
 }
 
 export function CourseInfo({ course }: CourseInfoProps) {
@@ -36,51 +37,40 @@ export function CourseInfo({ course }: CourseInfoProps) {
 
   return (
     <div className="space-y-4">
-      {/* Category Badge */}
       <div>
-        <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded font-medium">
+        <span className="bg-blue-100 text-blue-800 text-base px-3 py-1 rounded font-medium">
           {course.category.name}
         </span>
       </div>
-
-      {/* Course Title */}
-      <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-        {course.title}
-      </h1>
-
-      {/* Course Stats */}
-      <div className="flex items-center max-md:justify-between md:gap-6 text-xs md:text-sm text-gray-600">
-        <div className="flex items-center gap-1">
-          <Users className="w-4 h-4 text-orange-500" />
+      <h1 className="text-2xl font-semibold text-gray-800">{course.title}</h1>
+      <div className="flex items-center max-md:justify-between md:gap-6 text-base text-gray-600">
+        <div className="flex items-center gap-2">
+          <Users className="w-5 h-5 text-orange-500" />
           <span>{course.students}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+        <div className="flex items-center gap-2">
+          <Star className="w-5 h-5 text-yellow-500 fill-current" />
           <span>{course.rating}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Clock className="w-4 h-4 text-gray-500" />
+        <div className="flex items-center gap-2">
+          <Clock className="w-5 h-5 text-gray-500" />
           <span>{course.duration || "Duration not available"}</span>
         </div>
       </div>
-
-      {/* Description */}
       <div
-        className="text-gray-600 leading-relaxed"
+        className="text-gray-600 leading-relaxed text-base"
         dangerouslySetInnerHTML={{
           __html: course.description || "No description available",
         }}
       />
-
-      {/* Pricing */}
       <div className="flex items-center gap-3">
-        <span className="text-gray-400 line-through md:text-lg">
+        <span className="text-gray-400 line-through text-lg md:text-xl">
           ₹{course.originalPrice}
         </span>
         <span className="text-aqua-mist font-bold text-lg md:text-2xl">
           ₹{course.discountedPrice}
         </span>
-        <span className="bg-red-100 min-w-fit text-red-600 text-xs md:text-sm px-2 py-1 rounded font-medium">
+        <span className="bg-red-100 min-w-fit text-red-600 text-sm md:text-base px-3 py-1 rounded font-medium">
           {course.discount}
         </span>
       </div>

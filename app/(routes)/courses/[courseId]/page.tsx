@@ -76,6 +76,8 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
   const [instructorImgSrc, setInstructorImgSrc] = useState<string>(
     instructorPlaceholder
   );
+  const [isImgLoading, setIsImgLoading] = useState(true);
+  const [isInstructorImgLoading, setIsInstructorImgLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -96,18 +98,15 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-
       if (user) {
         setUserId(user.id);
       }
     };
-
     getUser();
   }, []);
 
   useEffect(() => {
     if (!courseId) return;
-
     async function fetchCourseAndTestimonials() {
       try {
         setLoading(true);
@@ -115,11 +114,9 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
           getCourseById(courseId),
           getTestimonials(),
         ]);
-
         if (courseData) {
           const originalPrice = formatPrice(courseData.price);
           const discountedPrice = parseFloat(originalPrice) * 0.8;
-
           const normalizedCourse: CourseData = {
             ...courseData,
             price: originalPrice,
@@ -138,20 +135,20 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
         } else {
           setError("Course not found");
         }
-
         setReviews(testimonialsData);
-      } catch {
+      } catch (err) {
+        console.error("fetchCourseAndTestimonials error:", err);
         setError("Failed to load course data");
       } finally {
         setLoading(false);
       }
     }
-
     fetchCourseAndTestimonials();
   }, [courseId]);
 
   useEffect(() => {
     (async () => {
+      setIsImgLoading(true);
       if (course?.thumbnailUrl) {
         if (course.thumbnailUrl.includes("supabase.co")) {
           const fetchedUrl = await fetchImage(
@@ -165,17 +162,19 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
       } else {
         setImgSrc(placeholder);
       }
+      setIsImgLoading(false);
     })();
   }, [course?.thumbnailUrl]);
 
   useEffect(() => {
+    setIsInstructorImgLoading(true);
     const candidate = course?.instructor?.avatarUrl;
     const valid =
       typeof candidate === "string" &&
       candidate.trim().length > 0 &&
       (isValidHttpUrl(candidate) || candidate.startsWith("/"));
-
     setInstructorImgSrc(valid ? candidate! : instructorPlaceholder);
+    setIsInstructorImgLoading(false);
   }, [course?.instructor?.avatarUrl]);
 
   useEffect(() => {
@@ -206,7 +205,7 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen w-full">
+      <div className="flex items-center justify-center h-screen w-full bg-white">
         <LumaSpin />
       </div>
     );
@@ -214,7 +213,7 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
 
   if (error || !course) {
     return (
-      <div className="text-red-500 text-center py-12">
+      <div className="text-red-500 text-center py-12 bg-white">
         {error || "Course not found"}
       </div>
     );
@@ -241,28 +240,29 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <CourseBreadcrumb title={course.title} />
-
+      <CourseBreadcrumb courseId={courseId} title={course.title || "Course"} />
       <div className="max-w-7xl mx-auto p-4 md:p-6 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 max-md:order-2">
-            <CourseInfo course={course} />
+            <CourseInfo courseId={courseId} course={course} />
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-            <div>
+            <div className="mt-8">
               {activeTab === "overview" && (
                 <div className="space-y-8">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                    <h3 className="text-2xl font-semibold text-gray-800 mb-6">
                       Overview
                     </h3>
                     <div className="space-y-6">
                       <div>
-                        <h4 className="font-medium text-gray-800 mb-3">
+                        <h4 className="font-medium text-gray-800 mb-4">
                           Description
                         </h4>
+                        <p className="text-gray-600 leading-relaxed text-base">
+                          {course.description || "No description available"}
+                        </p>
                         <div
-                          className="text-gray-600 leading-relaxed"
+                          className="text-gray-600 leading-relaxed text-base"
                           dangerouslySetInnerHTML={{
                             __html:
                               course.description || "No description available",
@@ -270,19 +270,21 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                         />
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-800 mb-3">
+                        <h4 className="font-medium text-gray-800 mb-4">
                           What You&apos;ll Learn
                         </h4>
-                        <ul className="space-y-2">
+                        <ul className="space-y-3">
                           {(course.learningPoints || []).map((point, i) => (
-                            <li key={i} className="flex items-start space-x-3">
-                              <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600">{point}</span>
+                            <li key={i} className="flex items-start space-x-4">
+                              <Check className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600 text-base">
+                                {point}
+                              </span>
                             </li>
                           ))}
                           {(!course.learningPoints ||
                             course.learningPoints.length === 0) && (
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-base">
                               No learning points available.
                             </p>
                           )}
@@ -292,10 +294,9 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                   </div>
                 </div>
               )}
-
               {activeTab === "lessons" && (
-                <div className="p-4 bg-white rounded-md shadow-sm">
-                  <h3 className="text-lg font-bold text-black mb-4">
+                <div className="p-6 bg-white rounded-lg shadow-sm">
+                  <h3 className="text-xl font-bold text-black mb-6">
                     Course Lessons
                   </h3>
                   <LessonList
@@ -308,34 +309,47 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                   />
                 </div>
               )}
-
               {activeTab === "instructors" && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                  <h3 className="text-2xl font-semibold text-gray-800 mb-6">
                     Instructors
                   </h3>
-                  <div className="flex items-center space-x-4 p-4 border rounded-lg">
-                    <Image
-                      width={64}
-                      height={64}
-                      src={instructorImgSrc}
-                      alt={course.mentor || "Instructor"}
-                      className="w-16 h-16 rounded-sm object-cover"
-                      onError={() => setInstructorImgSrc(instructorPlaceholder)}
-                      unoptimized={instructorImgSrc === instructorPlaceholder}
-                    />
+                  <div className="flex items-center space-x-4 p-6 border rounded-lg">
+                    <div className="relative w-16 h-16">
+                      {isInstructorImgLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-sm animate-pulse">
+                          <div className="w-8 h-8 border-2 border-dashed border-gray-300 rounded-full animate-spin" />
+                        </div>
+                      )}
+                      <Image
+                        width={64}
+                        height={64}
+                        src={instructorImgSrc}
+                        alt={course.mentor || "Instructor"}
+                        className={`w-16 h-16 rounded-sm object-cover transition-opacity duration-300 ${
+                          isInstructorImgLoading ? "opacity-0" : "opacity-100"
+                        }`}
+                        onError={() => {
+                          setInstructorImgSrc(instructorPlaceholder);
+                          setIsInstructorImgLoading(false);
+                        }}
+                        onLoadingComplete={() =>
+                          setIsInstructorImgLoading(false)
+                        }
+                        unoptimized={instructorImgSrc === instructorPlaceholder}
+                      />
+                    </div>
                     <div>
-                      <h4 className="font-medium text-gray-800">
+                      <h4 className="font-medium text-gray-800 text-lg">
                         {course.mentor}
                       </h4>
                     </div>
                   </div>
                 </div>
               )}
-
               {activeTab === "reviews" && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                  <h3 className="text-2xl font-semibold text-gray-800 mb-6">
                     Student Reviews
                   </h3>
                   {reviews.length > 0 ? (
@@ -343,89 +357,97 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                       <TestimonialCard key={review.id} testimonial={review} />
                     ))
                   ) : (
-                    <p className="text-gray-600">No reviews yet.</p>
+                    <p className="text-gray-500 text-base">No reviews yet.</p>
                   )}
                 </div>
               )}
             </div>
           </div>
-
           <div className="lg:col-span-1 max-md:order-1">
-            <div className="flex md:flex-col gap-3 md:gap-6 relative">
+            <div className="flex md:flex-col gap-4 md:gap-6 relative">
               <div>
-                <Image
-                  width={350}
-                  height={200}
-                  alt={course.title || "Course image"}
-                  className="w-32 md:w-full h-full md:h-48 object-cover rounded-lg"
-                  src={imgSrc}
-                  onError={() => setImgSrc(placeholder)}
-                  unoptimized={imgSrc === placeholder}
-                  priority={true}
-                />
-              </div>
-
-              <div className="flex items-center max-md:flex-wrap max-md:justify-start justify-end gap-3 mb-4">
-                {course.discount !== "0% OFF" && (
-                  <span className="text-gray-400 line-through md:text-lg">
-                    ₹{course.originalPrice}
-                  </span>
-                )}
-
-                <span className="text-aqua-mist font-bold text-lg md:text-2xl">
-                  ₹{course.discountedPrice}
-                </span>
-
-                {course.discount !== "0% OFF" && (
-                  <span className="bg-red-100 min-w-fit text-red-600 text-xs md:text-sm px-2 py-1 rounded font-medium">
-                    {course.discount}
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Button
-                  className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-3 text-sm md:text-lg cursor-pointer"
-                  onClick={handleGetStarted}
-                >
-                  Get Started
-                  <Play className="inline-block max-md:hidden w-4 h-4 ml-2" />
-                </Button>
-
-                <div className="max-md:absolute -top-1 right-0">
-                  <Button
-                    variant="outline"
-                    className="w-full border-gray-300 text-aqua-mist hover:bg-gray-50 py-3 max-md:border-0 max-md:shadow-none bg-transparent cursor-pointer"
-                    onClick={async () => {
-                      if (!userId) return;
-
-                      setIsFavorite(!isFavorite);
-
-                      await fetch("/api/toggle-save-course", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ userId, courseId }),
-                      });
+                <div className="relative w-32 md:w-full h-full md:h-48">
+                  {isImgLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg animate-pulse">
+                      <div className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full animate-spin" />
+                    </div>
+                  )}
+                  <Image
+                    width={350}
+                    height={200}
+                    alt={course.title || "Course image"}
+                    className={`w-32 md:w-full h-full md:h-48 object-cover rounded-lg transition-opacity duration-300 ${
+                      isImgLoading ? "opacity-0" : "opacity-100"
+                    }`}
+                    src={imgSrc}
+                    onError={() => {
+                      setImgSrc(placeholder);
+                      setIsImgLoading(false);
                     }}
-                  >
-                    <span className="max-md:hidden">
-                      {isFavorite ? "Remove from Favorite" : "Add to Favorite"}
+                    onLoadingComplete={() => setIsImgLoading(false)}
+                    priority={true}
+                    unoptimized={imgSrc === placeholder}
+                  />
+                </div>
+              </div>
+              <div className="max-md:flex max-md:flex-col max-md:justify-between text-right">
+                <div className="flex items-center max-md:flex-wrap max-md:justify-start justify-end gap-4 mb-6">
+                  {course.discount !== "0% OFF" && (
+                    <span className="text-gray-400 line-through md:text-lg">
+                      ₹{course.originalPrice}
                     </span>
-                    <Bookmark
-                      className={`w-4 h-4 md:ml-2 ${
-                        isFavorite ? "fill-current text-aqua-mist" : ""
-                      }`}
-                    />
+                  )}
+                  <span className="text-aqua-mist font-bold text-lg md:text-2xl">
+                    ₹{course.discountedPrice}
+                  </span>
+                  {course.discount !== "0% OFF" && (
+                    <span className="bg-red-100 min-w-fit text-red-600 text-sm md:text-base px-3 py-2 rounded font-medium">
+                      {course.discount}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-4">
+                  <Button
+                    className="w-full bg-aqua-mist hover:bg-aqua-depth text-white py-4 text-base md:text-lg cursor-pointer"
+                    onClick={handleGetStarted}
+                  >
+                    Get Started
+                    <Play className="inline-block max-md:hidden w-5 h-5 ml-3" />
                   </Button>
+                  <div className="max-md:absolute -top-1 right-0">
+                    <Button
+                      variant="outline"
+                      className="w-full border-gray-300 text-aqua-mist hover:bg-gray-50 py-4 max-md:border-0 max-md:shadow-none bg-transparent cursor-pointer"
+                      onClick={async () => {
+                        if (!userId) return;
+                        setIsFavorite(!isFavorite);
+                        await fetch("/api/toggle-save-course", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ userId, courseId }),
+                        });
+                      }}
+                    >
+                      <span className="max-md:hidden text-base">
+                        {isFavorite
+                          ? "Remove from Favorite"
+                          : "Add to Favorite"}
+                      </span>
+                      <Bookmark
+                        className={`w-5 h-5 md:ml-3 ${
+                          isFavorite ? "fill-current text-aqua-mist" : ""
+                        }`}
+                      />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-
             <div className="py-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              <h3 className="text-xl font-semibold text-gray-800 mb-6">
                 What You&apos;ll Get
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {[
                   { icon: Play, label: `${course.videoCount} Videos` },
                   {
@@ -443,9 +465,11 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
                     label: `${course.practiceTestCount} Practice Tests`,
                   },
                 ].map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <feature.icon className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-600">{feature.label}</span>
+                  <div key={index} className="flex items-center space-x-4">
+                    <feature.icon className="w-6 h-6 text-gray-500" />
+                    <span className="text-gray-600 text-base">
+                      {feature.label}
+                    </span>
                   </div>
                 ))}
               </div>
