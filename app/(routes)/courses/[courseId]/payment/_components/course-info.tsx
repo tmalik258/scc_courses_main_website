@@ -1,32 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Users, Star, Clock } from "lucide-react";
 import { CourseData } from "@/types/course";
 
 interface CourseInfoProps {
   course: CourseData | null;
   courseId: string;
+  retryFetch: () => Promise<void>;
 }
 
-export function CourseInfo({ course }: CourseInfoProps) {
-  const [courseData, setCourseData] = useState<CourseData | null>(course);
-  const [error, setError] = useState<string | null>(null);
-
+export function CourseInfo({ course, courseId, retryFetch }: CourseInfoProps) {
   useEffect(() => {
-    setCourseData(course);
-  }, [course]);
+    if (!course) {
+      console.log(`[CourseInfo ${courseId}] Course data missing`);
+    } else {
+      console.log(
+        `[CourseInfo ${courseId}] Course description:`,
+        course.description
+      );
+    }
+  }, [course, courseId]);
 
-  if (error || !course) {
+  if (!course) {
     return (
       <div className="text-red-500">
-        {error || "Course not found"}
+        Course not found
         <button
           className="ml-4 text-blue-500 underline"
           onClick={() => {
-            console.log(`[CourseInfo ${courseData?.id}] Retrying fetch`);
-            setError(null);
-            setCourseData(null);
+            console.log(`[CourseInfo ${courseId}] Retrying fetch`);
+            retryFetch();
           }}
         >
           Retry
@@ -34,6 +38,8 @@ export function CourseInfo({ course }: CourseInfoProps) {
       </div>
     );
   }
+
+  const hasDescription = course.description && course.description.trim() !== "";
 
   return (
     <div className="space-y-4">
@@ -57,12 +63,18 @@ export function CourseInfo({ course }: CourseInfoProps) {
           <span>{course.duration || "Duration not available"}</span>
         </div>
       </div>
-      <div
-        className="text-gray-600 leading-relaxed text-base"
-        dangerouslySetInnerHTML={{
-          __html: course.description || "No description available",
-        }}
-      />
+      {hasDescription ? (
+        <div
+          className="text-gray-600 leading-relaxed text-base"
+          dangerouslySetInnerHTML={{
+            __html: course.description as string,
+          }}
+        />
+      ) : (
+        <p className="text-gray-600 leading-relaxed text-base">
+          No description available
+        </p>
+      )}
       <div className="flex items-center gap-3">
         <span className="text-gray-400 line-through text-lg md:text-xl">
           ₹{course.originalPrice}

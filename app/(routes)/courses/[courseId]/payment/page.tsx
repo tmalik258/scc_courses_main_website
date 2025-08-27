@@ -125,7 +125,13 @@ export default function PaymentPage({
                   imageUrl={course.thumbnailUrl || ""}
                   alt={course.title}
                 />
-                <CourseInfo course={course} />
+                <CourseInfo
+                  course={course}
+                  courseId={course.id} // or however you store the courseId
+                  retryFetch={function (): Promise<void> {
+                    throw new Error("Function not implemented.");
+                  }}
+                />
               </div>
             </div>
 

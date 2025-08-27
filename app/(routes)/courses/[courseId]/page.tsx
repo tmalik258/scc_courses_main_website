@@ -105,44 +105,52 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
     getUser();
   }, []);
 
+  const fetchCourseAndTestimonials = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [courseData, testimonialsData] = await Promise.all([
+        getCourseById(courseId),
+        getTestimonials(),
+      ]);
+      if (courseData) {
+        console.log(`[CourseDetail ${courseId}] Raw course data:`, courseData);
+        const originalPrice = formatPrice(courseData.price);
+        const discountedPrice = parseFloat(originalPrice) * 0.8;
+        const normalizedCourse: CourseData = {
+          ...courseData,
+          description: courseData.description || "",
+          price: originalPrice,
+          discount: "20% OFF",
+          originalPrice: originalPrice,
+          discountedPrice: discountedPrice.toFixed(2),
+          learningPoints: courseData.learningPoints || [
+            "Understand the fundamentals of the course topic",
+            "Apply practical skills in real-world scenarios",
+          ],
+        };
+        console.log(
+          `[CourseDetail ${courseId}] Normalized course description:`,
+          normalizedCourse.description
+        );
+        setCourse(normalizedCourse);
+        if (normalizedCourse.modules && normalizedCourse.modules.length > 0) {
+          setExpandedSections([normalizedCourse.modules[0].id]);
+        }
+      } else {
+        setError("Course not found");
+      }
+      setReviews(testimonialsData);
+    } catch (err) {
+      console.error("fetchCourseAndTestimonials error:", err);
+      setError("Failed to load course data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!courseId) return;
-    async function fetchCourseAndTestimonials() {
-      try {
-        setLoading(true);
-        const [courseData, testimonialsData] = await Promise.all([
-          getCourseById(courseId),
-          getTestimonials(),
-        ]);
-        if (courseData) {
-          const originalPrice = formatPrice(courseData.price);
-          const discountedPrice = parseFloat(originalPrice) * 0.8;
-          const normalizedCourse: CourseData = {
-            ...courseData,
-            price: originalPrice,
-            discount: "20% OFF",
-            originalPrice: originalPrice,
-            discountedPrice: discountedPrice.toFixed(2),
-            learningPoints: courseData.learningPoints || [
-              "Understand the fundamentals of the course topic",
-              "Apply practical skills in real-world scenarios",
-            ],
-          };
-          setCourse(normalizedCourse);
-          if (normalizedCourse.modules && normalizedCourse.modules.length > 0) {
-            setExpandedSections([normalizedCourse.modules[0].id]);
-          }
-        } else {
-          setError("Course not found");
-        }
-        setReviews(testimonialsData);
-      } catch (err) {
-        console.error("fetchCourseAndTestimonials error:", err);
-        setError("Failed to load course data");
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchCourseAndTestimonials();
   }, [courseId]);
 
@@ -244,7 +252,11 @@ export default function CourseDetail({ params, onLoadingComplete }: Props) {
       <div className="max-w-7xl mx-auto p-4 md:p-6 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 max-md:order-2">
-            <CourseInfo courseId={courseId} course={course} />
+            <CourseInfo
+              courseId={courseId}
+              course={course}
+              retryFetch={fetchCourseAndTestimonials}
+            />
             <CourseTabs activeTab={activeTab} onTabChange={setActiveTab} />
             <div className="mt-8">
               {activeTab === "overview" && (
